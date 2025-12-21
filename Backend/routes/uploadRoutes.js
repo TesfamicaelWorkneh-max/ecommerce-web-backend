@@ -35,7 +35,11 @@
 
 // export default router;
 import express from "express";
-import { uploadReturnProof, uploadReturnImages } from "../utils/uploadutils.js";
+// import { uploadReturnProof, uploadReturnImages } from "./utils/uploadUtils.js";
+import {
+  uploadReturnProof,
+  uploadReturnImages,
+} from "../utils/returnUploadsUtils.js";
 import {
   handleSingleUpload,
   handleMultipleUpload,
