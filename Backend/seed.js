@@ -123,11 +123,9 @@ import Category from "./models/Category.model.js";
 import Product from "./models/Products.model.js";
 import User from "./models/User.model.js";
 
-const MONGO_URI = "mongodb://127.0.0.1:27017/ecommerce";
-
 const seedDB = async () => {
   try {
-    await mongoose.connect(MONGO_URI);
+    await mongoose.connect(process.env.MONGODB_URI);
     console.log("MongoDB Connected ✔️");
 
     // Clear old data
