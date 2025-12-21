@@ -250,12 +250,9 @@ cloudinary.config({
   secure: true,
 });
 
-const MONGODB_URI =
-  process.env.DATABASE_URL || "mongodb://127.0.0.1:27017/ecommerce";
-
 async function uploadImage(filePath, folder = "products") {
   try {
-    console.log(`   Uploading to ${folder}: ${path.basename(filePath)}`);
+    console.log(`Uploading to ${folder}: ${path.basename(filePath)}`);
 
     const result = await cloudinary.uploader.upload(filePath, {
       folder,
@@ -284,7 +281,7 @@ async function uploadImage(filePath, folder = "products") {
 async function migrateReturnImages() {
   try {
     console.log("\n🔗 Connecting to MongoDB...");
-    await mongoose.connect(MONGODB_URI);
+    await mongoose.connect(process.env.MONGODB_URI);
     console.log("✅ MongoDB connected");
 
     // Find all return requests with local image paths
