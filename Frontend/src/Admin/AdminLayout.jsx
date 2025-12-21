@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import AdminSidebar from "./AdminSidebar";
 // import AdminTopbar from "./AdminTopbar";
-import AdminTopBar from "./AdminTopBar";
+// import AdminTopbar from "./AdminTopbar";
 const AdminLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -25,7 +25,7 @@ const AdminLayout = () => {
         `}
       >
         {/* TOP BAR for mobile */}
-        <AdminTopBar setMobileOpen={setMobileOpen} />
+        {/* <AdminTopbar setMobileOpen={setMobileOpen} /> */}
 
         {/* Pages */}
         <div className="max-md:px-4 max-md:py-16 lg:px-4 lg:py-4 w-full">
