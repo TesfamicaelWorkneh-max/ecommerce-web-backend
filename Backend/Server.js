@@ -34,7 +34,27 @@ cloudinary.config({
 });
 
 const app = express();
-app.use(cors());
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://your-frontend-name.vercel.app",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow requests with no origin (Postman, mobile apps)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+app.set("trust proxy", 1);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -48,7 +68,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 dns.setDefaultResultOrder("ipv4first");
 mongoose
-  .connect(process.env.MONGODB_URI || process.env.DATABASE_URI)
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.log("❌ MongoDB connection error:", err));
 
