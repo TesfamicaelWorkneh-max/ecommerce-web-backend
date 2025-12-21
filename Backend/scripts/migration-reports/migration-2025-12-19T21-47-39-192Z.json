@@ -1,0 +1,55 @@
+{
+  "totalProducts": 4,
+  "migratedProducts": 0,
+  "migratedImages": 0,
+  "failedProducts": [],
+  "startTime": "2025-12-19T21:47:39.186Z",
+  "products": [
+    {
+      "productId": "6942dd646a3fffc9c2e23b9c",
+      "productName": "Perfume 5",
+      "originalImages": [
+        "/uploads/products/1765989732139-haircare_1.png"
+      ],
+      "migratedImages": [],
+      "errors": [
+        "File not found: /uploads/products/1765989732139-haircare_1.png"
+      ]
+    },
+    {
+      "productId": "6942e03f6a3fffc9c2e23bd9",
+      "productName": "SEMHAL",
+      "originalImages": [
+        "/uploads/products/1765990463112-bodycare_8.png"
+      ],
+      "migratedImages": [],
+      "errors": [
+        "File not found: /uploads/products/1765990463112-bodycare_8.png"
+      ]
+    },
+    {
+      "productId": "6942e34d6a3fffc9c2e23be2",
+      "productName": "Perfume 7",
+      "originalImages": [
+        "/uploads/products/1765991245906-bodycare_1.png"
+      ],
+      "migratedImages": [],
+      "errors": [
+        "File not found: /uploads/products/1765991245906-bodycare_1.png"
+      ]
+    },
+    {
+      "productId": "694311d9754052480ea66639",
+      "productName": "Love",
+      "originalImages": [
+        "/uploads/products/1766003161390-haircare_7.png"
+      ],
+      "migratedImages": [],
+      "errors": [
+        "File not found: /uploads/products/1766003161390-haircare_7.png"
+      ]
+    }
+  ],
+  "endTime": "2025-12-19T21:47:39.191Z",
+  "duration": 5
+}
