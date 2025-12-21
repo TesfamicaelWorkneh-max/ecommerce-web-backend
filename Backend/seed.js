@@ -122,7 +122,9 @@ import bcrypt from "bcryptjs";
 import Category from "./models/Category.model.js";
 import Product from "./models/Products.model.js";
 import User from "./models/User.model.js";
+import dotenv from "dotenv";
 
+dotenv.config();
 const seedDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
