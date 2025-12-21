@@ -17,7 +17,7 @@ import { initSocket } from "../utils/socket";
 import { fetchWithAuth } from "../utils/auth";
 import logo from "/src/assets/Logo.png";
 
-const API = "http://localhost:3000";
+const API = import.meta.env.VITE_API_URL;
 
 const Navigation = () => {
   const [menuOpen, setMenuOpen] = useState(false);
