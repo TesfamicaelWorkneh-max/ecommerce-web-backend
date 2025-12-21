@@ -46,7 +46,7 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { fetchWithAuth } from "../utils/auth";
-import CategoryProductCard from "../Components/CategoryProductCard";
+import CategoryProductCard from "./Components/CategoryProductCard";
 const BACKEND_URL = import.meta.env.VITE_API_URL;
 
 // Helper function to get the proper image URL
