@@ -4,7 +4,7 @@ import {
   getCart,
   removeFromCart,
   updateCartItem,
-} from "../Controllers/cartController.js";
+} from "../controllers/cartController.js";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
