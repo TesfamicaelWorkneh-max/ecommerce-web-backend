@@ -346,7 +346,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import CategoryProductCard from "../components/CategoryProductCard";
+import CategoryProductCard from "../Components/CategoryProductCard";
 import Select from "react-select";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";

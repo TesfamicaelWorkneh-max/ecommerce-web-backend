@@ -8,6 +8,7 @@ import {
   FaShoppingCart,
   FaTruck,
   FaUndo,
+  FaEye,
 } from "react-icons/fa";
 import { useProducts } from "../Context/ProductContext";
 import { getImageUrl } from "../utils/imageUtils";
