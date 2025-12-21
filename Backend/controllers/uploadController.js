@@ -1,7 +1,7 @@
 import {
   handleSingleUpload as uploadSingleFile,
   handleMultipleUpload as uploadMultipleFiles,
-} from "../utils/uploadutils.js";
+} from "../utils/returnUploadsUtils.js";
 
 export const handleSingleUpload = uploadSingleFile;
 export const handleMultipleUpload = uploadMultipleFiles;
