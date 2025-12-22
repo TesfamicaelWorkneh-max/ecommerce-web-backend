@@ -15,7 +15,7 @@ import { authContext } from "../Context/authContext";
 import { cartContext } from "../Context/cartContext";
 import { initSocket } from "../utils/socket";
 import { fetchWithAuth } from "../utils/auth";
-import logo from "/src/assets/Logo.png";
+// import logo from "./src/assets/"
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -192,7 +192,7 @@ const Navigation = () => {
             >
               <Link to="/" className="flex items-center">
                 <img
-                  src={logo}
+                  // src={logo}
                   alt="Logo"
                   className="w-28 md:w-32 h-auto drop-shadow-lg"
                 />
