@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }) => {
         credentials: "include",
         body: JSON.stringify({ email, password }),
       });
-
+      console.log(BACKEND_URL);
       const data = await res.json();
 
       if (!res.ok) {
