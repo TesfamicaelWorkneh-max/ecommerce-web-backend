@@ -102,20 +102,21 @@ export const verifyEmail = async (req, res) => {
 // -------------------- RESEND VERIFICATION --------------------
 export const resendVerification = async (req, res) => {
   try {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ message: "Email required" });
+    const user = req.user; // 🔐 from JWT
 
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(401).json({ message: "Unauthorized" });
+
     if (user.isVerified)
       return res.status(400).json({ message: "User already verified" });
 
     const verifyToken = createVerifyToken();
+
     user.verifyToken = verifyToken;
     user.verifyTokenExpires = Date.now() + 24 * 60 * 60 * 1000;
     await user.save();
 
-    const verifyUrl = `${BASE_URL}/verify/${verifyToken}`;
+    const verifyUrl = `${process.env.CLIENT_ORIGIN}/verify/${verifyToken}`;
+
     const html = `
       <p>Hello ${user.name},</p>
       <p>Please verify your email:</p>
@@ -124,8 +125,8 @@ export const resendVerification = async (req, res) => {
     `;
 
     await sendEmail({
-      to: email,
-      subject: "Verify your email (resend)",
+      to: user.email,
+      subject: "Verify your email",
       html,
     });
 
@@ -220,16 +221,15 @@ export const forgotPassword = async (req, res) => {
     const resetUrl = `${BASE_URL}/reset-password/${resetToken}`;
 
     // Send email (nodemailer configured)
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+    // const transporter = nodemailer.createTransport({
+    //   service: "gmail",
+    //   auth: {
+    //     user: process.env.EMAIL_USER,
+    //     pass: process.env.EMAIL_PASS,
+    //   },
+    // });
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+    await sendEmail({
       to: email,
       subject: "Password Reset Request",
       html: `
