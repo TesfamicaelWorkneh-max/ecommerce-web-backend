@@ -127,18 +127,36 @@ const app = express();
 
 // ========== SIMPLE & RELIABLE CORS FIX ==========
 // Use environment variable or default to your frontend
-const allowedOrigin = process.env.CLIENT_ORIGIN;
+// const allowedOrigin = process.env.CLIENT_ORIGIN;
 
-// Alternative 1: Use the cors package with simple configuration
+// // Alternative 1: Use the cors package with simple configuration
+// app.use(
+//   cors({
+//     origin: allowedOrigin,
+//     credentials: true,
+//     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+//     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+//   })
+// );
+const allowedOrigins = [
+  "http://localhost:5173", // local dev
+  "https://ecommerce-web-backend-4ifo.vercel.app", // current frontend
+  "https://ecommerce-web-backend-rosy.vercel.app", // old frontend
+];
+
 app.use(
   cors({
-    origin: allowedOrigin,
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true); // allow Postman / server requests
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS not allowed for this origin"));
+      }
+    },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   })
 );
-
 // Alternative 2: OR use manual CORS headers (even simpler)
 /*
 app.use((req, res, next) => {
@@ -218,7 +236,7 @@ initSocket(server);
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log("🚀 Server running on port", PORT);
-  console.log("🌐 Allowed origin:", allowedOrigin);
+  console.log("🌐 Allowed origin:", allowedOrigins);
   console.log("📡 Test endpoints:");
   console.log(`   - http://localhost:${PORT}/api/test`);
   console.log(`   - http://localhost:${PORT}/api/health`);
