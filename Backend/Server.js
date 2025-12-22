@@ -141,7 +141,8 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173", // local dev
   "https://ecommerce-web-backend-4ifo.vercel.app", // current frontend
-  "https://ecommerce-web-backend-rosy.vercel.app", // old frontend
+  "https://ecommerce-web-backend-rosy.vercel.app",
+  "https://ecommerce-web-backend-uxns.vercel.app",
 ];
 
 app.use(
