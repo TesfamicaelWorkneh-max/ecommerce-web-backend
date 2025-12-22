@@ -34,25 +34,12 @@ cloudinary.config({
 });
 
 const app = express();
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://ecommerce-web-backend-rosy.vercel.app",
-];
+const corsOptions = {
+  origin: process.env.CLIENT_ORIGIN, // Uses the URL from your .env file
+  optionsSuccessStatus: 200,
+};
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
+app.use(cors(corsOptions));
 app.set("trust proxy", 1);
 
 const __filename = fileURLToPath(import.meta.url);
