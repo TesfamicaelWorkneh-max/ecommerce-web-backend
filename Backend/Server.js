@@ -127,8 +127,7 @@ const app = express();
 
 // ========== SIMPLE & RELIABLE CORS FIX ==========
 // Use environment variable or default to your frontend
-const allowedOrigin =
-  process.env.CLIENT_ORIGIN || "https://ecommerce-web-backend-rosy.vercel.app";
+const allowedOrigin = process.env.CLIENT_ORIGIN;
 
 // Alternative 1: Use the cors package with simple configuration
 app.use(

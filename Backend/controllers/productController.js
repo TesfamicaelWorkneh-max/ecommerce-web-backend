@@ -9,15 +9,33 @@ import {
 } from "../utils/cloudinary.js";
 import { getIO } from "../socket.js";
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+
+dotenv.config();
+// const normalizeImage = (img) => {
+//   if (!img)
+//     return "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&h=800&fit=crop";
+
+//   let fixed = img.toString().replace(/\\/g, "/");
+//   if (fixed.startsWith("http")) return fixed;
+//   if (!fixed.startsWith("/")) fixed = "/" + fixed;
+//   return `http://localhost:3000${fixed}`;
+// };
+const SERVER_URL =
+  process.env.SERVER_URL ||
+  (process.env.NODE_ENV === "production" ? "" : "http://localhost:3000");
 
 const normalizeImage = (img) => {
   if (!img)
     return "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&h=800&fit=crop";
 
   let fixed = img.toString().replace(/\\/g, "/");
+
   if (fixed.startsWith("http")) return fixed;
+
   if (!fixed.startsWith("/")) fixed = "/" + fixed;
-  return `http://localhost:3000${fixed}`;
+
+  return `${SERVER_URL}${fixed}`;
 };
 
 export const getProductsByCategoryPaginated = async (req, res) => {
