@@ -53,15 +53,12 @@ export const AuthProvider = ({ children }) => {
   // ===== LOGIN =====
   const login = async (email, password) => {
     try {
-      const res = await fetch(
-        "https://ecommerce-web-backend-12.onrender.com/api/auth/login",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
+      });
       console.log(BACKEND_URL);
       const data = await res.json();
 
