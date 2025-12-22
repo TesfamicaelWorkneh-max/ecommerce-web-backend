@@ -11,7 +11,7 @@ dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
-const BASE_URL = process.env.BASE_URL || "http://localhost:5173";
+const BASE_URL = process.env.BASE_URL;
 
 // Helper to generate JWT token (access)
 const generateAccessToken = (id, role, expires = "30m") => {

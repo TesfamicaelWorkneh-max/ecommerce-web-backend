@@ -36,13 +36,12 @@ cloudinary.config({
 const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://your-frontend-name.vercel.app",
+  "https://ecommerce-web-backend-rosy.vercel.app",
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow requests with no origin (Postman, mobile apps)
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
