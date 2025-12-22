@@ -7,7 +7,7 @@ import { getIO } from "../socket.js";
 // Web-push configuration
 let webpush = null;
 let vapidConfigured = false;
-
+const BASE_URL = process.env.CLIENT_ORIGIN;
 // Initialize web-push only if VAPID keys are available
 const initializeWebPush = async () => {
   try {
@@ -191,7 +191,7 @@ export const sendNotification = async (
           data: {
             url:
               notification.actionUrl ||
-              `${process.env.FRONTEND_URL || "http://localhost:5173"}/notifications`,
+              `${process.env.CLIENT_ORIGIN}/notifications`,
             notificationId: notification._id.toString(),
             type: notification.type,
           },
