@@ -73,49 +73,32 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const EMAIL_USER = process.env.EMAIL_USER;
-const EMAIL_PASS = process.env.EMAIL_PASS;
-
-// Create transporter
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587, // Use secure port for Gmail
-  secure: false, // true for 465
+  host: "smtp-relay.brevo.com",
+  port: 587,
+  secure: false, // MUST be false for 587
   auth: {
-    user: EMAIL_USER,
-    pass: EMAIL_PASS,
+    user: process.env.BREVO_SMTP_USER, // 9ea5bd001@smtp-brevo.com
+    pass: process.env.BREVO_SMTP_PASS, // SMTP KEY (NOT Gmail)
   },
   tls: {
-    rejectUnauthorized: false, // allows self-signed certs (Render safe)
+    rejectUnauthorized: false, // avoids TLS issues on Render
   },
-});
-
-// Test transporter once at startup
-transporter.verify((err, success) => {
-  if (err) {
-    console.error("⚠️ Nodemailer transporter error:", err);
-  } else {
-    console.log("✅ Nodemailer transporter ready");
-  }
 });
 
 export const sendEmail = async ({ to, subject, html }) => {
-  if (!EMAIL_USER || !EMAIL_PASS) {
-    throw new Error("Email credentials are not set in environment variables!");
-  }
-
   try {
     const info = await transporter.sendMail({
-      from: `"Your App Name" <${EMAIL_USER}>`,
+      from: `"Ecommerce App" <no-reply@yourapp.com>`,
       to,
       subject,
       html,
     });
 
-    console.log(`📧 Email sent to ${to}: ${info.messageId}`);
+    console.log("✅ Email sent:", info.messageId);
     return info;
-  } catch (error) {
-    console.error("❌ Nodemailer send error:", error);
-    throw new Error("Email could not be sent. Check credentials or network.");
+  } catch (err) {
+    console.error("❌ Email send failed:", err);
+    throw new Error("Email could not be sent");
   }
 };
