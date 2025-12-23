@@ -33,36 +33,48 @@ export const createVerifyToken = () => {
 };
 
 // -------------------- REGISTER --------------------
+
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    if (!name || !email || !password)
+    if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields required" });
+    }
 
+    // Optional but still good for fast feedback
     const userExists = await User.findOne({ email });
-    if (userExists)
+    if (userExists) {
       return res.status(409).json({ message: "User already exists" });
+    }
 
-    const user = await User.create({
-      name,
-      email,
-      password,
-      role: "user",
-      isVerified: false,
-    });
+    let user;
+
+    // 🔒 CRITICAL FIX — protect against race conditions
+    try {
+      user = await User.create({
+        name,
+        email,
+        password,
+        role: "user",
+        isVerified: false,
+      });
+    } catch (err) {
+      // MongoDB unique index error
+      if (err.code === 11000) {
+        return res.status(409).json({ message: "User already exists" });
+      }
+      throw err; // rethrow other errors
+    }
 
     // create verification token
-    // const verifyToken = createVerifyToken();
-    const { rawToken, hashedToken } = createVerifyToken();
-    // user.verifyToken = verifyToken;
-    user.verifyToken = hashedToken;
+    const verifyToken = createVerifyToken();
+    user.verifyToken = verifyToken;
     user.verifyTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24h
     await user.save();
 
-    // const verifyUrl = `${BASE_URL}/verify/${verifyToken}`;
+    const verifyUrl = `${process.env.CLIENT_ORIGIN}/verify/${verifyToken}`;
 
-    const verifyUrl = `${BASE_URL}/verify/${rawToken}`;
     const html = `
       <p>Hello ${user.name},</p>
       <p>Thanks for registering. Please verify your email:</p>
@@ -70,7 +82,11 @@ export const registerUser = async (req, res) => {
       <p>This link expires in 24 hours.</p>
     `;
 
-    await sendEmail({ to: email, subject: "Verify your email", html });
+    await sendEmail({
+      to: user.email,
+      subject: "Verify your email",
+      html,
+    });
 
     return res.status(201).json({
       message: "User registered. Verification email sent.",
@@ -86,6 +102,60 @@ export const registerUser = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+// export const registerUser = async (req, res) => {
+//   try {
+//     const { name, email, password } = req.body;
+
+//     if (!name || !email || !password)
+//       return res.status(400).json({ message: "All fields required" });
+
+//     const userExists = await User.findOne({ email });
+//     if (userExists)
+//       return res.status(409).json({ message: "User already exists" });
+
+//     const user = await User.create({
+//       name,
+//       email,
+//       password,
+//       role: "user",
+//       isVerified: false,
+//     });
+
+//     // create verification token
+//     // const verifyToken = createVerifyToken();
+//     const { rawToken, hashedToken } = createVerifyToken();
+//     // user.verifyToken = verifyToken;
+//     user.verifyToken = hashedToken;
+//     user.verifyTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24h
+//     await user.save();
+
+//     // const verifyUrl = `${BASE_URL}/verify/${verifyToken}`;
+
+//     const verifyUrl = `${BASE_URL}/verify/${rawToken}`;
+//     const html = `
+//       <p>Hello ${user.name},</p>
+//       <p>Thanks for registering. Please verify your email:</p>
+//       <a href="${verifyUrl}">Verify Email</a>
+//       <p>This link expires in 24 hours.</p>
+//     `;
+
+//     await sendEmail({ to: email, subject: "Verify your email", html });
+
+//     return res.status(201).json({
+//       message: "User registered. Verification email sent.",
+//       user: {
+//         _id: user._id,
+//         name: user.name,
+//         email: user.email,
+//         role: user.role,
+//       },
+//     });
+//   } catch (err) {
+//     console.error("REGISTER ERROR:", err);
+//     return res.status(500).json({ message: "Server error" });
+//   }
+// };
 
 // -------------------- VERIFY EMAIL --------------------
 // export const verifyEmail = async (req, res) => {
