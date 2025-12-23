@@ -19,7 +19,18 @@ const generateAccessToken = (id, role, expires = "30m") => {
 };
 
 // Helper to create verification token
-const createVerifyToken = () => crypto.randomBytes(32).toString("hex");
+// const createVerifyToken = () => crypto.randomBytes(32).toString("hex");
+
+export const createVerifyToken = () => {
+  const rawToken = crypto.randomBytes(32).toString("hex");
+
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(rawToken)
+    .digest("hex");
+
+  return { rawToken, hashedToken };
+};
 
 // -------------------- REGISTER --------------------
 export const registerUser = async (req, res) => {
@@ -42,12 +53,16 @@ export const registerUser = async (req, res) => {
     });
 
     // create verification token
-    const verifyToken = createVerifyToken();
-    user.verifyToken = verifyToken;
+    // const verifyToken = createVerifyToken();
+    const { rawToken, hashedToken } = createVerifyToken();
+    // user.verifyToken = verifyToken;
+    user.verifyToken = hashedToken;
     user.verifyTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24h
     await user.save();
 
-    const verifyUrl = `${BASE_URL}/verify/${verifyToken}`;
+    // const verifyUrl = `${BASE_URL}/verify/${verifyToken}`;
+
+    const verifyUrl = `${BASE_URL}/verify/${rawToken}`;
     const html = `
       <p>Hello ${user.name},</p>
       <p>Thanks for registering. Please verify your email:</p>
@@ -73,12 +88,42 @@ export const registerUser = async (req, res) => {
 };
 
 // -------------------- VERIFY EMAIL --------------------
+// export const verifyEmail = async (req, res) => {
+//   try {
+//     const { token } = req.params;
+
+//     const user = await User.findOne({
+//       verifyToken: token,
+//       verifyTokenExpires: { $gt: Date.now() },
+//     });
+
+//     if (!user) {
+//       return res.status(400).json({ message: "Invalid or expired token" });
+//     }
+
+//     user.isVerified = true;
+//     user.verifyToken = null;
+//     user.verifyTokenExpires = null;
+
+//     await user.save();
+
+//     return res.json({ message: "Email verified successfully" });
+//   } catch (err) {
+//     console.error("VERIFY ERROR:", err);
+//     return res.status(500).json({ message: "Server error" });
+//   }
+// };
 export const verifyEmail = async (req, res) => {
   try {
-    const { token } = req.params;
+    const rawToken = req.params.token;
+
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(rawToken)
+      .digest("hex");
 
     const user = await User.findOne({
-      verifyToken: token,
+      verifyToken: hashedToken,
       verifyTokenExpires: { $gt: Date.now() },
     });
 
@@ -87,8 +132,8 @@ export const verifyEmail = async (req, res) => {
     }
 
     user.isVerified = true;
-    user.verifyToken = null;
-    user.verifyTokenExpires = null;
+    user.verifyToken = undefined;
+    user.verifyTokenExpires = undefined;
 
     await user.save();
 
@@ -98,7 +143,6 @@ export const verifyEmail = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
-
 // -------------------- RESEND VERIFICATION --------------------
 export const resendVerification = async (req, res) => {
   try {
@@ -109,13 +153,20 @@ export const resendVerification = async (req, res) => {
     if (user.isVerified)
       return res.status(400).json({ message: "User already verified" });
 
-    const verifyToken = createVerifyToken();
+    // const verifyToken = createVerifyToken();
 
-    user.verifyToken = verifyToken;
+    // user.verifyToken = verifyToken;
+    // user.verifyTokenExpires = Date.now() + 24 * 60 * 60 * 1000;
+    // await user.save();
+
+    // const verifyUrl = `${process.env.CLIENT_ORIGIN}/verify/${verifyToken}`;
+    const { rawToken, hashedToken } = createVerifyToken();
+
+    user.verifyToken = hashedToken;
     user.verifyTokenExpires = Date.now() + 24 * 60 * 60 * 1000;
     await user.save();
 
-    const verifyUrl = `${process.env.CLIENT_ORIGIN}/verify/${verifyToken}`;
+    const verifyUrl = `${BASE_URL}/verify/${rawToken}`;
 
     const html = `
       <p>Hello ${user.name},</p>
