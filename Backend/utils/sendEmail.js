@@ -111,22 +111,16 @@ import brevo from "@getbrevo/brevo";
 
 dotenv.config();
 
-// --- Config ---
-const API_KEY = process.env.BREVO_API_KEY;
-const SENDER_EMAIL = process.env.BREVO_SMTP_USER; // Verified Brevo sender
-const SENDER_NAME = "Tesfamicael"; // Custom display name
+const apiKey = process.env.BREVO_API_KEY;
+const senderEmail = process.env.BREVO_SMTP_USER; // must be verified in Brevo
 
-// Initialize Brevo Transactional Email API
+// Initialize Brevo API
 const apiInstance = new brevo.TransactionalEmailsApi();
 const apiKeyAuth = apiInstance.authentications["apiKey"];
-apiKeyAuth.apiKey = API_KEY;
+apiKeyAuth.apiKey = apiKey;
 
 /**
- * Send an email using Brevo API
- * @param {Object} options
- * @param {string} options.to - Recipient email
- * @param {string} options.subject - Email subject
- * @param {string} options.html - HTML content
+ * Send email via Brevo API (Gmail-friendly)
  */
 export const sendEmail = async ({ to, subject, html }) => {
   try {
@@ -134,36 +128,40 @@ export const sendEmail = async ({ to, subject, html }) => {
 
     const emailData = {
       sender: {
-        name: SENDER_NAME,
-        email: SENDER_EMAIL, // MUST be verified in Brevo
+        name: "Tesfamicael",
+        email: senderEmail,
       },
       to: [{ email: to }],
       subject,
       htmlContent: html,
-      textContent: html.replace(/<[^>]*>/g, ""), // plain text fallback
+      textContent: html.replace(/<[^>]*>/g, ""), // fallback plain text
+      replyTo: {
+        email: senderEmail,
+        name: "Tesfamicael",
+      },
+      headers: {
+        "X-Mailer": "Brevo-API",
+      },
     };
 
     const response = await apiInstance.sendTransacEmail(emailData);
 
     console.log("✅ Email sent successfully!");
-    console.log("📧 Brevo response:", response);
+    console.log("📧 Message ID:", response.messageId);
 
-    // Brevo sometimes doesn't return a proper messageId; log full response
-    return { success: true, data: response };
+    return {
+      success: true,
+      messageId: response.messageId,
+      data: response,
+    };
   } catch (error) {
     console.error("❌ Brevo API Error:");
-
     if (error.response) {
       console.error("Status:", error.response.status);
-      console.error("Response body:", error.response.body);
-
-      if (error.response.body && error.response.body.message) {
+      console.error("Response:", error.response.body);
+      if (error.response.body)
         console.error("Error message:", error.response.body.message);
-      }
-    } else {
-      console.error("Error message:", error.message);
     }
-
     throw new Error(
       `Email sending failed: ${error.message || "Unknown error"}`
     );
@@ -171,21 +169,18 @@ export const sendEmail = async ({ to, subject, html }) => {
 };
 
 /**
- * Test sending a verification email
+ * Test email function
  */
-
-// Optional: simple config verification
-export const verifyBrevoConfig = () => {
-  if (!API_KEY || !API_KEY.startsWith("xkeysib-")) {
-    console.error("❌ BREVO_API_KEY is missing or invalid");
-    return false;
-  }
-  if (!SENDER_EMAIL) {
-    console.error("❌ BREVO_SMTP_USER is missing");
-    return false;
-  }
-  console.log("✅ Brevo API configured correctly");
-  return true;
+export const sendTestEmail = async (recipientEmail) => {
+  return sendEmail({
+    to: recipientEmail,
+    subject: "✅ Test Email from E-Commerce Server",
+    html: `
+      <div style="font-family: Arial, sans-serif; padding: 20px;">
+        <h1 style="color: #4CAF50;">🎉 Brevo API Test Successful!</h1>
+        <p>Your Brevo API is working and Gmail-friendly!</p>
+        <p>Time: ${new Date().toLocaleString()}</p>
+      </div>
+    `,
+  });
 };
-
-verifyBrevoConfig();
