@@ -68,12 +68,14 @@ export const registerUser = async (req, res) => {
     }
 
     // create verification token
-    const verifyToken = createVerifyToken();
-    user.verifyToken = verifyToken;
+    const { rawToken, hashedToken } = createVerifyToken();
+
+    // Store hashed token in MongoDB
+    user.verifyToken = hashedToken;
     user.verifyTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24h
     await user.save();
 
-    const verifyUrl = `${process.env.CLIENT_ORIGIN}/verify/${verifyToken}`;
+    const verifyUrl = `${BASE_URL}/verify/${rawToken}`;
 
     const html = `
       <p>Hello ${user.name},</p>
