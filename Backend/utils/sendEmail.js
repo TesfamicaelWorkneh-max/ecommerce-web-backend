@@ -1,103 +1,108 @@
-// import nodemailer from "nodemailer";
-// import dotenv from "dotenv";
-// dotenv.config();
-
-// const EMAIL_USER = process.env.EMAIL_USER; // your Gmail
-// const EMAIL_PASS = process.env.EMAIL_PASS; // app password
-
-// // Create transporter
-// const transporter = nodemailer.createTransport({
-//   service: "gmail",
-//   auth: {
-//     user: EMAIL_USER,
-//     pass: EMAIL_PASS,
-//   },
-// });
-
-// export const sendEmail = async ({ to, subject, html }) => {
-//   const mailOptions = {
-//     from: EMAIL_USER,
-//     to,
-//     subject,
-//     html,
-//   };
-
-//   try {
-//     const info = await transporter.sendMail(mailOptions);
-//     console.log("Email sent:", info.response);
-//     return info;
-//   } catch (error) {
-//     console.error("Nodemailer error:", error);
-//     throw new Error("Email could not be sent");
-//   }
-// };
-// import nodemailer from "nodemailer";
-// import dotenv from "dotenv";
-
-// dotenv.config();
-
-// const EMAIL_USER = process.env.EMAIL_USER;
-// const EMAIL_PASS = process.env.EMAIL_PASS;
-
-// const transporter = nodemailer.createTransport({
-//   host: "smtp.gmail.com",
-//   port: 587,
-//   secure: false,
-//   auth: {
-//     user: EMAIL_USER,
-//     pass: EMAIL_PASS,
-//   },
-//   tls: {
-//     rejectUnauthorized: false,
-//   },
-// });
-
-// export const sendEmail = async ({ to, subject, html }) => {
-//   try {
-//     const info = await transporter.sendMail({
-//       from: EMAIL_USER,
-//       to,
-//       subject,
-//       html,
-//     });
-
-//     console.log("Email sent:", info.messageId);
-//     return info;
-//   } catch (error) {
-//     console.error("Nodemailer error:", error);
-//     throw new Error("Email could not be sent");
-//   }
-// };
-import Brevo from "@getbrevo/brevo";
 import dotenv from "dotenv";
+import brevo from "@getbrevo/brevo";
 
 dotenv.config();
 
-// Initialize Brevo client with API key
-const brevoClient = new Brevo({ apiKey: process.env.BREVO_API_KEY });
+console.log("🔧 Checking Brevo configuration...");
+console.log("🔑 API Key exists:", !!process.env.BREVO_API_KEY);
+
+// Initialize Brevo API client
+const apiKey = process.env.BREVO_API_KEY;
+const sender = process.env.BREVO_SMTP_USER;
+// Create API instance - DIFFERENT INITIALIZATION
+const apiInstance = new brevo.TransactionalEmailsApi();
+const apiKeyAuth = apiInstance.authentications["apiKey"];
+apiKeyAuth.apiKey = apiKey;
 
 /**
- * Send an email using Brevo API
- * @param {string} to - recipient email
- * @param {string} subject - email subject
- * @param {string} html - HTML content
+ * Send email using Brevo API
  */
 export const sendEmail = async ({ to, subject, html }) => {
   try {
-    const response = await brevoClient.smtpTransactional.sendTransacEmail({
+    console.log(`📤 Sending email to: ${to}`);
+
+    // Create email object
+    const emailData = {
       sender: {
         name: "Tesfamicael",
-        email: "worknehtesfamicael707@gmail.com", // your validated Brevo email
+        email: sender,
       },
       to: [{ email: to }],
       subject: subject,
       htmlContent: html,
-    });
+      textContent: html.replace(/<[^>]*>/g, ""),
+    };
 
-    console.log("✅ Email sent via Brevo API:", response);
-    return response;
-  } catch (err) {
-    console.error("❌ Email send failed:", err);
-    throw new Error("Email could not be sent via Brevo API");
+    console.log("📨 Calling Brevo API...");
+
+    // Send email
+    const response = await apiInstance.sendTransacEmail(emailData);
+
+    console.log("✅ Email sent successfully!");
+    console.log(`📧 Message ID: ${response.messageId}`);
+
+    return {
+      success: true,
+      messageId: response.messageId,
+      data: response,
+    };
+  } catch (error) {
+    console.error("❌ Brevo API Error:");
+
+    if (error.response) {
+      console.error("Status:", error.response.status);
+      console.error("Response:", error.response.body);
+
+      if (error.response.body) {
+        console.error("Error message:", error.response.body.message);
+      }
+    }
+
+    throw new Error(
+      `Email sending failed: ${error.message || "Unknown error"}`
+    );
   }
 };
+
+/**
+ * Test email function
+ */
+export const sendTestEmail = async (recipientEmail) => {
+  try {
+    const result = await sendEmail({
+      to: recipientEmail,
+      subject: "✅ Test Email from E-Commerce Server",
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h1 style="color: #4CAF50;">🎉 Brevo API Test Successful!</h1>
+          <p>Your Brevo API is working on Render!</p>
+          <p>Time: ${new Date().toLocaleString()}</p>
+        </div>
+      `,
+    });
+
+    console.log("🎯 Test email result:", result);
+    return result;
+  } catch (error) {
+    console.error("❌ Test email failed:", error.message);
+    throw error;
+  }
+};
+
+// Verify configuration
+export const verifyBrevoConfig = () => {
+  if (!process.env.BREVO_API_KEY) {
+    console.error("❌ BREVO_API_KEY not set");
+    return false;
+  }
+
+  if (!process.env.BREVO_API_KEY.startsWith("xkeysib-")) {
+    console.error("❌ API Key format incorrect");
+    return false;
+  }
+
+  console.log("✅ Brevo API configured");
+  return true;
+};
+
+verifyBrevoConfig();
