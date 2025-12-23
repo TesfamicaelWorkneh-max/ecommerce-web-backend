@@ -128,7 +128,7 @@ export const sendEmail = async ({ to, subject, html }) => {
 
     const emailData = {
       sender: {
-        name: "Tesfamicael",
+        name: "Tesfa",
         email: senderEmail,
       },
       to: [{ email: to }],
