@@ -216,10 +216,11 @@ export const verifyEmail = async (req, res) => {
 // -------------------- RESEND VERIFICATION --------------------
 export const resendVerification = async (req, res) => {
   try {
-    const user = req.user; // 🔐 from JWT
+    const { email } = req.body; // 🔐 from JWT
 
-    if (!user) return res.status(401).json({ message: "Unauthorized" });
-
+    if (!email) return res.status(401).json({ message: "Unauthorized" });
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
     if (user.isVerified)
       return res.status(400).json({ message: "User already verified" });
 
