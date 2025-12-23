@@ -68,37 +68,36 @@
 //     throw new Error("Email could not be sent");
 //   }
 // };
-import nodemailer from "nodemailer";
+import Brevo from "@getbrevo/brevo";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
-  secure: false, // MUST be false for 587
-  auth: {
-    user: process.env.BREVO_SMTP_USER, // 9ea5bd001@smtp-brevo.com
-    pass: process.env.BREVO_SMTP_PASS, // SMTP KEY (NOT Gmail)
-  },
-  tls: {
-    rejectUnauthorized: false, // avoids TLS issues on Render
-  },
-});
+// Initialize Brevo client with API key
+const brevoClient = new Brevo({ apiKey: process.env.BREVO_API_KEY });
 
+/**
+ * Send an email using Brevo API
+ * @param {string} to - recipient email
+ * @param {string} subject - email subject
+ * @param {string} html - HTML content
+ */
 export const sendEmail = async ({ to, subject, html }) => {
   try {
-    const info = await transporter.sendMail({
-      from: `"Tesfamicael" <worknehtesfamicael707@gmail.com>`,
-      to,
-      subject,
-      html,
+    const response = await brevoClient.smtpTransactional.sendTransacEmail({
+      sender: {
+        name: "Tesfamicael",
+        email: "worknehtesfamicael707@gmail.com", // your validated Brevo email
+      },
+      to: [{ email: to }],
+      subject: subject,
+      htmlContent: html,
     });
 
-    console.log("✅ Email sent:", info.messageId);
-    return info;
+    console.log("✅ Email sent via Brevo API:", response);
+    return response;
   } catch (err) {
     console.error("❌ Email send failed:", err);
-    throw new Error("Email could not be sent");
+    throw new Error("Email could not be sent via Brevo API");
   }
 };

@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@getbrevo/brevo": "^3.0.1",
     "@sendgrid/mail": "^8.1.6",
     "bcryptjs": "^3.0.2",
     "chapa-nodejs": "^2.0.1",
