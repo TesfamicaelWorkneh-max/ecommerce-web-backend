@@ -216,40 +216,28 @@ export const verifyEmail = async (req, res) => {
 // -------------------- RESEND VERIFICATION --------------------
 export const resendVerification = async (req, res) => {
   try {
-    const { email } = req.body; // 🔐 from JWT
+    const { email } = req.body;
 
-    if (!email) return res.status(401).json({ message: "Unauthorized" });
+    if (!email) return res.status(400).json({ message: "Email required" });
+
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "User not found" });
     if (user.isVerified)
       return res.status(400).json({ message: "User already verified" });
 
-    // const verifyToken = createVerifyToken();
-
-    // user.verifyToken = verifyToken;
-    // user.verifyTokenExpires = Date.now() + 24 * 60 * 60 * 1000;
-    // await user.save();
-
-    // const verifyUrl = `${process.env.CLIENT_ORIGIN}/verify/${verifyToken}`;
-    const { rawToken, hashedToken } = createVerifyToken();
+    const { rawToken, hashedToken } = createVerifyToken(); // make sure it returns both
 
     user.verifyToken = hashedToken;
     user.verifyTokenExpires = Date.now() + 24 * 60 * 60 * 1000;
     await user.save();
 
-    const verifyUrl = `${BASE_URL}/verify/${rawToken}`;
-
-    const html = `
-      <p>Hello ${user.name},</p>
-      <p>Please verify your email:</p>
-      <a href="${verifyUrl}">Verify Email</a>
-      <p>This link expires in 24 hours.</p>
-    `;
+    const verifyUrl = `${process.env.CLIENT_ORIGIN}/verify/${rawToken}`;
+    console.log("🔗 Verification URL:", verifyUrl);
 
     await sendEmail({
       to: user.email,
       subject: "Verify your email",
-      html,
+      html: `<p>Hello ${user.name},</p><p>Please verify your email:</p><a href="${verifyUrl}">Verify Email</a>`,
     });
 
     return res.json({ message: "Verification email resent" });
@@ -258,6 +246,51 @@ export const resendVerification = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+// export const resendVerification = async (req, res) => {
+//   try {
+//     const { email } = req.body; // 🔐 from JWT
+
+//     if (!email) return res.status(401).json({ message: "Unauthorized" });
+//     const user = await User.findOne({ email });
+//     if (!user) return res.status(404).json({ message: "User not found" });
+//     if (user.isVerified)
+//       return res.status(400).json({ message: "User already verified" });
+
+//     // const verifyToken = createVerifyToken();
+
+//     // user.verifyToken = verifyToken;
+//     // user.verifyTokenExpires = Date.now() + 24 * 60 * 60 * 1000;
+//     // await user.save();
+
+//     // const verifyUrl = `${process.env.CLIENT_ORIGIN}/verify/${verifyToken}`;
+//     const { rawToken, hashedToken } = createVerifyToken();
+
+//     user.verifyToken = hashedToken;
+//     user.verifyTokenExpires = Date.now() + 24 * 60 * 60 * 1000;
+//     await user.save();
+
+//     const verifyUrl = `${BASE_URL}/verify/${rawToken}`;
+
+//     const html = `
+//       <p>Hello ${user.name},</p>
+//       <p>Please verify your email:</p>
+//       <a href="${verifyUrl}">Verify Email</a>
+//       <p>This link expires in 24 hours.</p>
+//     `;
+
+//     await sendEmail({
+//       to: user.email,
+//       subject: "Verify your email",
+//       html,
+//     });
+
+//     return res.json({ message: "Verification email resent" });
+//   } catch (err) {
+//     console.error("RESEND VERIFY ERROR:", err);
+//     return res.status(500).json({ message: "Server error" });
+//   }
+// };
 
 // // -------------------- LOGIN --------------------
 export const loginUser = async (req, res) => {
