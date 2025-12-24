@@ -111,6 +111,10 @@ import paymentRoutes from "./routes/paymentRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 import returnRoutes from "./routes/returnRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
+import blogRoutes from "./routes/blogRoutes.js";
+
+// Add after other routes
+
 import dns from "dns";
 
 dotenv.config();
@@ -216,7 +220,7 @@ app.use("/api/adminanalytics", adminDashboardAnalitics);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/admin", adminUserRoutes);
 app.use("/api/payment", paymentRoutes);
-
+app.use("/api/blog", blogRoutes);
 // Health check
 app.get("/api/health", (req, res) => {
   res.json({

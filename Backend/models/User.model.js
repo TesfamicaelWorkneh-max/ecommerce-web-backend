@@ -59,6 +59,54 @@ const userSchema = new mongoose.Schema({
   refreshToken: { type: String }, // ⭐ NEW
 
   createdAt: { type: Date, default: Date.now },
+
+  bio: {
+    type: String,
+    maxlength: 500,
+    default: "",
+  },
+  avatar: {
+    type: String,
+    default: "",
+  },
+  socialLinks: {
+    twitter: String,
+    facebook: String,
+    instagram: String,
+    linkedin: String,
+    website: String,
+  },
+  blogPosts: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Blog",
+    },
+  ],
+  savedPosts: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Blog",
+    },
+  ],
+  likedPosts: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Blog",
+    },
+  ],
+  commentedPosts: [
+    {
+      post: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Blog",
+      },
+      comment: String,
+      date: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
 });
 
 // Hash password
