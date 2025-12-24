@@ -3,7 +3,7 @@
 // import { useContext, useEffect } from "react";
 // import { authContext } from "./Context/authContext";
 
-// // Import components
+// // Pages
 // import Home from "./Pages/Home";
 // import AboutPage from "./Pages/AboutPage.jsx";
 // import ProductsPage from "./Pages/ProductsPage";
@@ -23,9 +23,11 @@
 // import ResetPassword from "./Pages/ResetPasswordPage.jsx";
 // import CartPage from "./Pages/CartPage";
 // import CheckoutPage from "./Pages/CheckoutPage.jsx";
-// // import OrderSuccessPage from "./Pages/orderSuccessPage.jsx";
 // import OrderHistoryPage from "./Pages/OrderHistoryPage.jsx";
 // import ProtectedRoute from "./Components/ProtectedRoute";
+// import MyNotifications from "./Pages/MyNotifications.jsx";
+
+// // Admin
 // import AdminLayout from "./Admin/AdminLayout.jsx";
 // import Dashboard from "./Admin/Dashboard.jsx";
 // import AdminUsers from "./Admin/AdminUsers.jsx";
@@ -37,10 +39,8 @@
 // import AdminAddCategory from "./Admin/AdminAddCategory.jsx";
 // import AdminCategories from "./Admin/AdminCategories.jsx";
 // import AdminEditCategory from "./Admin/AdminEditCategory";
-// // import PaymentSuccess from "./Pages/PaymentSuccess.jsx";
-// import MyNotifications from "./Pages/MyNotifications.jsx";
-
 // import ReturnRequestsAdminPage from "./Admin/ReturnRequestsAdminPage.jsx";
+
 // function App() {
 //   const { user, loading } = useContext(authContext);
 //   const location = useLocation();
@@ -48,27 +48,27 @@
 
 //   // Request notification permission
 //   useEffect(() => {
-//     if (Notification.permission !== "granted") {
+//     if ("Notification" in window && Notification.permission !== "granted") {
 //       Notification.requestPermission();
 //     }
 //   }, []);
 
-//   // Show loading while checking auth
+//   // Loading state
 //   if (loading) {
 //     return (
 //       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900">
-//         <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+//         <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
 //         <p className="text-gray-400">Loading...</p>
 //       </div>
 //     );
 //   }
 
-//   // Define public routes
+//   // Public routes (NO AUTH REQUIRED)
 //   const publicRoutes = [
 //     "/login",
 //     "/register",
-//     "/verify/",
 //     "/forgot-password",
+//     "/verify/",
 //     "/reset-password/",
 //   ];
 
@@ -76,28 +76,12 @@
 //     location.pathname.startsWith(route)
 //   );
 
-//   // Special routes that don't need auth
-//   if (
-//     location.pathname.startsWith("/verify/") ||
-//     location.pathname.startsWith("/reset-password/")
-//   ) {
-//     return (
-//       <>
-//         <Toaster />
-//         <Routes>
-//           <Route path="/verify/:token" element={<VerifyEmail />} />
-//           <Route path="/reset-password/:token" element={<ResetPassword />} />
-//         </Routes>
-//       </>
-//     );
-//   }
-
-//   // If no user and trying to access protected route
+//   // Redirect unauthenticated users from protected pages
 //   if (!user && !isPublicRoute) {
 //     return <Navigate to="/login" replace />;
 //   }
 
-//   // If user exists and trying to access login/register
+//   // Prevent logged-in users from auth pages
 //   if (
 //     user &&
 //     (location.pathname === "/login" ||
@@ -109,19 +93,20 @@
 //     );
 //   }
 
-//   // Normal rendering
 //   return (
 //     <>
 //       <Toaster />
 //       {!isAdminPage && user && <Navigation />}
 
 //       <Routes>
-//         {/* Public Routes */}
+//         {/* ================= PUBLIC ================= */}
 //         <Route path="/login" element={<Login />} />
 //         <Route path="/register" element={<Register />} />
 //         <Route path="/forgot-password" element={<ForgotPassword />} />
+//         <Route path="/verify/:token" element={<VerifyEmail />} />
+//         <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-//         {/* User Routes */}
+//         {/* ================= USER ================= */}
 //         <Route
 //           path="/"
 //           element={
@@ -198,6 +183,15 @@
 //         />
 
 //         <Route
+//           path="/product/:id"
+//           element={
+//             <ProtectedRoute>
+//               <ProductDetailPage />
+//             </ProtectedRoute>
+//           }
+//         />
+
+//         <Route
 //           path="/cart"
 //           element={
 //             <ProtectedRoute>
@@ -214,15 +208,6 @@
 //             </ProtectedRoute>
 //           }
 //         />
-
-//         {/* <Route
-//           path="/payment-success"
-//           element={
-//             <ProtectedRoute>
-//               <PaymentSuccess />
-//             </ProtectedRoute>
-//           }
-//         /> */}
 
 //         <Route
 //           path="/notifications"
@@ -242,29 +227,11 @@
 //           }
 //         />
 
-//         {/* <Route
-//           path="/order-success/:orderId"
-//           element={
-//             <ProtectedRoute>
-//               <OrderSuccessPage />
-//             </ProtectedRoute>
-//           }
-//         /> */}
-
-//         <Route
-//           path="/product/:id"
-//           element={
-//             <ProtectedRoute>
-//               <ProductDetailPage />
-//             </ProtectedRoute>
-//           }
-//         />
-
-//         {/* Admin Routes */}
+//         {/* ================= ADMIN ================= */}
 //         <Route
 //           path="/admin"
 //           element={
-//             <ProtectedRoute adminOnly={true}>
+//             <ProtectedRoute adminOnly>
 //               <AdminLayout />
 //             </ProtectedRoute>
 //           }
@@ -280,13 +247,10 @@
 //           <Route path="categories" element={<AdminCategories />} />
 //           <Route path="categories/add" element={<AdminAddCategory />} />
 //           <Route path="categories/edit/:id" element={<AdminEditCategory />} />
-//           <Route
-//             path="/admin/return-requests"
-//             element={<ReturnRequestsAdminPage />}
-//           />
+//           <Route path="return-requests" element={<ReturnRequestsAdminPage />} />
 //         </Route>
 
-//         {/* Catch all */}
+//         {/* ================= FALLBACK ================= */}
 //         <Route
 //           path="*"
 //           element={<Navigate to={user ? "/" : "/login"} replace />}
@@ -342,10 +306,21 @@ import AdminCategories from "./Admin/AdminCategories.jsx";
 import AdminEditCategory from "./Admin/AdminEditCategory";
 import ReturnRequestsAdminPage from "./Admin/ReturnRequestsAdminPage.jsx";
 
+// Blog Pages (New)
+import BlogPage from "./Pages/BlogPage.jsx";
+import BlogPostPage from "./Pages/BlogPostPage.jsx";
+
+// Admin Blog Pages (New)
+import AdminBlogPosts from "./Admin/AdminBlogPosts.jsx";
+import AdminCreateBlogPost from "./Admin/AdminCreateBlogPost.jsx";
+import AdminEditBlogPost from "./Admin/AdminEditBlogPost.jsx";
+import AdminBlogAnalytics from "./Admin/AdminBlogAnalytics.jsx";
+
 function App() {
   const { user, loading } = useContext(authContext);
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith("/admin");
+  const isBlogPage = location.pathname.startsWith("/blog");
 
   // Request notification permission
   useEffect(() => {
@@ -371,14 +346,15 @@ function App() {
     "/forgot-password",
     "/verify/",
     "/reset-password/",
+    "/blog", // Blog pages are public
   ];
 
   const isPublicRoute = publicRoutes.some((route) =>
     location.pathname.startsWith(route)
   );
 
-  // Redirect unauthenticated users from protected pages
-  if (!user && !isPublicRoute) {
+  // Redirect unauthenticated users from protected pages (except blog)
+  if (!user && !isPublicRoute && !isBlogPage) {
     return <Navigate to="/login" replace />;
   }
 
@@ -397,8 +373,12 @@ function App() {
   return (
     <>
       <Toaster />
-      {!isAdminPage && user && <Navigation />}
-
+      {/* Show navigation for all non-admin pages except auth pages */}
+      {!isAdminPage && user && !location.pathname.includes("/blog") && (
+        <Navigation />
+      )}
+      {!isAdminPage && isBlogPage && <Navigation />}{" "}
+      {/* Show nav for blog pages */}
       <Routes>
         {/* ================= PUBLIC ================= */}
         <Route path="/login" element={<Login />} />
@@ -407,7 +387,11 @@ function App() {
         <Route path="/verify/:token" element={<VerifyEmail />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-        {/* ================= USER ================= */}
+        {/* ================= BLOG (Public) ================= */}
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/:slug" element={<BlogPostPage />} />
+
+        {/* ================= USER (Protected) ================= */}
         <Route
           path="/"
           element={
@@ -549,6 +533,12 @@ function App() {
           <Route path="categories/add" element={<AdminAddCategory />} />
           <Route path="categories/edit/:id" element={<AdminEditCategory />} />
           <Route path="return-requests" element={<ReturnRequestsAdminPage />} />
+
+          {/* Admin Blog Routes */}
+          <Route path="blog" element={<AdminBlogPosts />} />
+          <Route path="blog/create" element={<AdminCreateBlogPost />} />
+          <Route path="blog/edit/:id" element={<AdminEditBlogPost />} />
+          <Route path="blog/analytics" element={<AdminBlogAnalytics />} />
         </Route>
 
         {/* ================= FALLBACK ================= */}
@@ -557,8 +547,12 @@ function App() {
           element={<Navigate to={user ? "/" : "/login"} replace />}
         />
       </Routes>
-
-      {!isAdminPage && user && <Footer />}
+      {/* Show footer for all non-admin pages except auth pages */}
+      {!isAdminPage && user && !location.pathname.includes("/blog") && (
+        <Footer />
+      )}
+      {!isAdminPage && isBlogPage && <Footer />}{" "}
+      {/* Show footer for blog pages */}
     </>
   );
 }
