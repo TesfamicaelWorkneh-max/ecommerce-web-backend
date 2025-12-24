@@ -139,7 +139,7 @@ const app = express();
 //   })
 // );
 const allowedOrigins = [
-  "http://localhost:5173", // local dev
+  "http://localhost:5174", // local dev
 
   "https://ecommerce-web-backend-s9ta.vercel.app",
 ];
@@ -198,7 +198,7 @@ app.get("/api/test", (req, res) => {
   res.json({
     message: "Server is running!",
     origin: req.headers.origin,
-    allowedOrigin: allowedOrigin,
+    allowedOrigin: allowedOrigins,
     timestamp: new Date().toISOString(),
   });
 });
@@ -222,7 +222,7 @@ app.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
     cors: {
-      allowedOrigin: allowedOrigin,
+      allowedOrigin: allowedOrigins,
       requestOrigin: req.headers.origin || "none",
     },
     timestamp: new Date().toISOString(),
