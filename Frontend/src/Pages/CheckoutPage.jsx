@@ -107,7 +107,6 @@ const CheckoutPage = () => {
   const shipping = subtotal >= 100 ? 0 : 9.99;
   const tax = subtotal * 0.1;
   const total = subtotal + shipping + tax;
-
   const handleChapaPayment = async () => {
     if (!cart?.items?.length) {
       toast.error("Your cart is empty");
@@ -117,42 +116,72 @@ const CheckoutPage = () => {
 
     setLoading(true);
     try {
-      console.log("🚀 Starting payment init...");
-
-      const res = await fetchWithAuth(
-        "http://localhost:3000/api/payment/chapa/init",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const res = await fetchWithAuth(`${BACKEND_URL}/api/payment/chapa/init`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
 
       const data = await res.json();
-      console.log("💳 Chapa init response:", data);
-
       if (!data.payment_url) {
         toast.error("Payment initialization failed");
         setLoading(false);
         return;
       }
 
-      setTxRef(data.tx_ref);
-      console.log("🔗 Redirecting to Chapa checkout:", data.payment_url);
-
-      // Clear cart on successful payment init
-      setCart({ items: [] });
-      localStorage.removeItem("cart");
-
+      // Redirect to Chapa checkout
       window.location.href = data.payment_url;
     } catch (err) {
-      console.error("❌ Payment error:", err);
+      console.error("Payment error:", err);
       toast.error("Payment request failed");
     } finally {
       setLoading(false);
     }
   };
+  // const handleChapaPayment = async () => {
+  //   if (!cart?.items?.length) {
+  //     toast.error("Your cart is empty");
+  //     navigate("/cart");
+  //     return;
+  //   }
+
+  //   setLoading(true);
+  //   try {
+  //     console.log("🚀 Starting payment init...");
+
+  //     const res = await fetchWithAuth(
+  //      `${BACKEND_URL}/api/payment/chapa/init`,
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
+
+  //     const data = await res.json();
+  //     console.log("💳 Chapa init response:", data);
+
+  //     if (!data.payment_url) {
+  //       toast.error("Payment initialization failed");
+  //       setLoading(false);
+  //       return;
+  //     }
+
+  //     setTxRef(data.tx_ref);
+  //     console.log("🔗 Redirecting to Chapa checkout:", data.payment_url);
+
+  //     // Clear cart on successful payment init
+  //     setCart({ items: [] });
+  //     localStorage.removeItem("cart");
+
+  //     window.location.href = data.payment_url;
+  //   } catch (err) {
+  //     console.error("❌ Payment error:", err);
+  //     toast.error("Payment request failed");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const containerVariants = {
     hidden: { opacity: 0 },
