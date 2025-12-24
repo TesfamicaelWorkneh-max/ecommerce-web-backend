@@ -18,8 +18,8 @@ import {
   ThumbsUp,
   Send,
 } from "lucide-react";
-import { format } from "date-fns";
 import toast from "react-hot-toast";
+import { fetchWithAuth } from "../utils/auth";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL;
 
@@ -54,7 +54,7 @@ const BlogPostPage = () => {
   const fetchBlogPost = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${BACKEND_URL}/api/blog/${slug}`);
+      const response = await fetchWithAuth(`${BACKEND_URL}/api/blog/${slug}`);
       const data = await response.json();
 
       if (data.success) {
@@ -88,14 +88,15 @@ const BlogPostPage = () => {
     }
 
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${BACKEND_URL}/api/blog/${post._id}/like`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetchWithAuth(
+        `${BACKEND_URL}/api/blog/${post._id}/like`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       const data = await response.json();
       if (data.success) {
@@ -175,14 +176,12 @@ const BlogPostPage = () => {
     }
 
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(
+      const response = await fetchWithAuth(
         `${BACKEND_URL}/api/blog/${post._id}/comments`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             text: commentText.trim(),
@@ -204,56 +203,16 @@ const BlogPostPage = () => {
     }
   };
 
-  // Handle reply submission
-  const handleSubmitReply = async (commentId) => {
-    if (!user) {
-      toast.error("Please login to reply");
-      navigate("/login");
-      return;
-    }
-
-    if (!replyText.trim()) {
-      toast.error("Please enter a reply");
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(
-        `${BACKEND_URL}/api/blog/${post._id}/comments`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            text: replyText.trim(),
-            parentCommentId: commentId,
-          }),
-        }
-      );
-
-      const data = await response.json();
-      if (data.success) {
-        toast.success("Reply added successfully");
-        setReplyText("");
-        setActiveReply(null);
-        fetchBlogPost(); // Refresh comments
-      } else {
-        toast.error(data.message || "Failed to add reply");
-      }
-    } catch (error) {
-      console.error("Error adding reply:", error);
-      toast.error("Failed to add reply");
-    }
-  };
-
   // Format date
   const formatDate = (dateString) => {
     if (!dateString) return "";
     try {
-      return format(new Date(dateString), "MMMM dd, yyyy");
+      const date = new Date(dateString);
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
     } catch {
       return "";
     }
@@ -652,45 +611,6 @@ const BlogPostPage = () => {
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        )}
-
-                        {/* Replies */}
-                        {comment.replies && comment.replies.length > 0 && (
-                          <div className="mt-6 ml-10 space-y-6">
-                            {comment.replies.map((reply) => (
-                              <div
-                                key={reply._id}
-                                className="border-l-2 border-slate-200 pl-4"
-                              >
-                                <div className="flex items-start gap-3">
-                                  {reply.user?.avatar ? (
-                                    <img
-                                      src={reply.user.avatar}
-                                      alt={reply.user.name}
-                                      className="w-8 h-8 rounded-full"
-                                    />
-                                  ) : (
-                                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-white text-xs font-bold">
-                                      {reply.user?.name?.charAt(0) || "U"}
-                                    </div>
-                                  )}
-                                  <div className="flex-1">
-                                    <div className="flex items-center justify-between mb-1">
-                                      <h5 className="font-bold text-slate-900 text-sm">
-                                        {reply.user?.name || "User"}
-                                      </h5>
-                                      <div className="text-xs text-slate-500">
-                                        {formatDate(reply.createdAt)}
-                                      </div>
-                                    </div>
-                                    <p className="text-slate-700 text-sm">
-                                      {reply.text}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
                           </div>
                         )}
                       </div>

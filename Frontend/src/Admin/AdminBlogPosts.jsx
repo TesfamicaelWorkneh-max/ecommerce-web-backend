@@ -13,6 +13,7 @@ import {
   Archive,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { fetchWithAuth } from "../utils/auth";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL;
 
@@ -29,12 +30,8 @@ const AdminBlogPosts = () => {
   const fetchBlogPosts = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${BACKEND_URL}/api/blog`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+
+      const response = await fetch(`${BACKEND_URL}/api/blog`, {});
       const data = await response.json();
 
       if (data.success) {
@@ -52,12 +49,8 @@ const AdminBlogPosts = () => {
     if (!window.confirm("Are you sure you want to delete this post?")) return;
 
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${BACKEND_URL}/api/blog/${id}`, {
+      const response = await fetchWithAuth(`${BACKEND_URL}/api/blog/${id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
       const data = await response.json();
 
@@ -75,15 +68,16 @@ const AdminBlogPosts = () => {
 
   const handleStatusChange = async (id, status) => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${BACKEND_URL}/api/blog/${id}/status`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status }),
-      });
+      const response = await fetchWithAuth(
+        `${BACKEND_URL}/api/blog/${id}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status }),
+        }
+      );
       const data = await response.json();
 
       if (data.success) {

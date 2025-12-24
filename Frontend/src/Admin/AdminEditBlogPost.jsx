@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Upload, X, Loader } from "lucide-react";
 import toast from "react-hot-toast";
+import { fetchWithAuth } from "../utils/auth";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL;
 
@@ -33,12 +34,11 @@ const AdminEditBlogPost = () => {
     const fetchBlogPost = async () => {
       try {
         setFetching(true);
-        const token = localStorage.getItem("token");
-        const response = await fetch(`${BACKEND_URL}/api/blog/post/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+
+        const response = await fetchWithAuth(
+          `${BACKEND_URL}/api/blog/post/${id}`,
+          {}
+        );
 
         const data = await response.json();
 
@@ -118,12 +118,9 @@ const AdminEditBlogPost = () => {
         formDataToSend.append("featuredImage", featuredImage);
       }
 
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${BACKEND_URL}/api/blog/${id}`, {
+      const response = await fetchWithAuth(`${BACKEND_URL}/api/blog/${id}`, {
         method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+
         body: formDataToSend,
       });
 
