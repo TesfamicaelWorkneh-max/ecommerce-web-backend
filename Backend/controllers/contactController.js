@@ -23,7 +23,7 @@ export const sendQuery = async (req, res) => {
     }
 
     // Admin email (configure this in your .env)
-    const ADMIN_EMAIL = process.env.EMAIL_USER;
+    const ADMIN_EMAIL = process.env.BREVO.SMTP_USER;
 
     // Email content
     const emailHtml = `
