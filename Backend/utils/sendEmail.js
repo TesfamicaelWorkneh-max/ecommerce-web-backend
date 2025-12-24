@@ -112,7 +112,7 @@ import brevo from "@getbrevo/brevo";
 dotenv.config();
 
 const apiKey = process.env.BREVO_API_KEY;
-const senderEmail = process.env.BREVO_SMTP_USER; // must be verified in Brevo
+const senderEmail = process.env.BREVO__SENDER_EMAIL; // must be verified in Brevo
 
 // Initialize Brevo API
 const apiInstance = new brevo.TransactionalEmailsApi();
