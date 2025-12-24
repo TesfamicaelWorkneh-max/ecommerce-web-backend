@@ -204,7 +204,7 @@ export const initChapaPayment = async (req, res) => {
     const chapaBody = {
       amount: total,
       currency: "ETB",
-      phone_number: "0964623413",
+      phone_number: "+251964623413",
       email: user.email,
       first_name: user.name || "NoName",
       tx_ref,
@@ -219,6 +219,7 @@ export const initChapaPayment = async (req, res) => {
       {
         headers: {
           Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
+          "Content-Type": "application/json",
         },
       }
     );
