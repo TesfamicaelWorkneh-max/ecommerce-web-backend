@@ -114,7 +114,7 @@ const CheckoutPage = () => {
       return;
     }
 
-    setLoading(true);
+    setLoading(true); // Show loading overlay/spinner
     try {
       const res = await fetchWithAuth(`${BACKEND_URL}/api/payment/chapa/init`, {
         method: "POST",
@@ -128,15 +128,20 @@ const CheckoutPage = () => {
         return;
       }
 
-      // Redirect to Chapa checkout
-      window.location.href = data.payment_url;
+      // Optional: show toast
+      toast.success("Redirecting to secure payment...");
+
+      // Redirect user to Chapa checkout after short delay
+      setTimeout(() => {
+        window.location.href = data.payment_url;
+      }, 500); // 0.5s delay so spinner appears
     } catch (err) {
       console.error("Payment error:", err);
       toast.error("Payment request failed");
-    } finally {
       setLoading(false);
     }
   };
+
   // const handleChapaPayment = async () => {
   //   if (!cart?.items?.length) {
   //     toast.error("Your cart is empty");
