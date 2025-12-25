@@ -73,7 +73,7 @@ export const initSocket = (server) => {
 
   io.use(async (socket, next) => {
     try {
-      const token = socket.handshake.auth?.token;
+      const token = socket.handshake.auth?.acessToken;
       if (!token) {
         console.log("❌ No token provided");
         return next(new Error("Authentication error"));
