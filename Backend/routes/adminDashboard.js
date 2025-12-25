@@ -23,7 +23,7 @@ import {
   getTopProducts,
   getRecentActivities,
 } from "../controllers/adminDashboardController.js";
-import { adminOnly } from "../middleware/auth.js";
+import { adminOnly } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
