@@ -215,8 +215,7 @@
 //   );
 // };
 
-// export default Dashboard;
-import React, { useEffect, useState } from "react";
+// export default Dashboard;import React, { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -262,61 +261,76 @@ const Dashboard = () => {
     const fetchAllData = async () => {
       try {
         setLoading(true);
+
+        // Fetch all data in parallel
         const [
           statsRes,
           ordersRes,
           usersRes,
           revenueRes,
-          productsRes,
-          ordersData,
+          topProductsRes,
+          activitiesRes,
         ] = await Promise.all([
           fetchWithAuth(`${BACKEND_URL}/api/adminanalytics/stats`),
           fetchWithAuth(`${BACKEND_URL}/api/adminanalytics/chart/orders`),
           fetchWithAuth(`${BACKEND_URL}/api/adminanalytics/chart/users`),
           fetchWithAuth(`${BACKEND_URL}/api/adminanalytics/chart/revenue`),
-          fetchWithAuth(`${BACKEND_URL}/api/products/admin?limit=5&sort=likes`),
-          fetchWithAuth(`${BACKEND_URL}/api/orders/all?limit=5&sort=newest`),
+          fetchWithAuth(`${BACKEND_URL}/api/adminanalytics/top-products`),
+          fetchWithAuth(`${BACKEND_URL}/api/adminanalytics/recent-activities`),
         ]);
 
+        // Parse responses
         const statsData = await statsRes.json();
         const ordersChartData = await ordersRes.json();
         const usersChartData = await usersRes.json();
         const revenueChartData = await revenueRes.json();
-        const productsData = await productsRes.json();
-        const ordersListData = await ordersData.json();
+        const topProductsData = await topProductsRes.json();
+        const activitiesData = await activitiesRes.json();
 
+        // Set states
         setStats(statsData);
         setOrdersChart(ordersChartData);
         setUsersChart(usersChartData);
         setRevenueChart(revenueChartData);
 
-        // Process top products from real data
-        if (productsData.products) {
-          const topProductsData = productsData.products
+        // Process top products
+        if (Array.isArray(topProductsData)) {
+          const processedTopProducts = topProductsData
             .slice(0, 5)
             .map((product) => ({
+              id: product._id,
               name: product.name,
-              sales: product.likesCount || 0,
+              sales: product.soldCount || 0,
               revenue: `$${((product.price || 0) * (product.soldCount || 0)).toFixed(2)}`,
               stock: product.stock || 0,
-              image: product.image,
+              image:
+                product.image ||
+                "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&h=800&fit=crop",
+              price: product.price || 0,
             }));
-          setTopProducts(topProductsData);
+          setTopProducts(processedTopProducts);
         }
 
-        // Process recent activities from real orders
-        if (ordersListData.data) {
-          const activities = ordersListData.data.slice(0, 5).map((order) => ({
-            user: order.user?.name || order.user?.email || "Customer",
-            action: `Placed a new order #${order.orderNumber}`,
-            time: formatTimeAgo(order.createdAt),
-            orderTotal: `$${order.total?.toFixed(2)}`,
-          }));
-          setRecentActivities(activities);
+        // Process recent activities
+        if (Array.isArray(activitiesData)) {
+          const processedActivities = activitiesData
+            .slice(0, 5)
+            .map((activity) => ({
+              id: activity._id || Math.random(),
+              user: activity.user || "Customer",
+              action: activity.action || "Activity",
+              time: formatTimeAgo(activity.time),
+              orderTotal: activity.amount
+                ? `$${activity.amount.toFixed(2)}`
+                : "",
+              type: activity.type || "general",
+              details: activity.details || "",
+            }));
+          setRecentActivities(processedActivities);
         }
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
-        // Fallback to empty arrays to prevent crashes
+        // Fallback to empty arrays
         setTopProducts([]);
         setRecentActivities([]);
       } finally {
@@ -345,35 +359,39 @@ const Dashboard = () => {
     ? [
         {
           title: "Total Revenue",
-          value: `$${stats.revenue?.toFixed(2) || "0.00"}`,
-          change: "+12.5%", // This would need separate endpoint for comparison
+          value: `$${(stats.revenue?.total || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+          change: `${stats.revenue?.change >= 0 ? "+" : ""}${(stats.revenue?.change || 0).toFixed(1)}%`,
           icon: <DollarSign className="w-6 h-6" />,
           color: "from-green-500 to-emerald-500",
           bgColor: "bg-green-900/20",
+          isPositive: stats.revenue?.change >= 0,
         },
         {
           title: "Total Orders",
-          value: stats.orders?.total || "0",
-          change: "+8.2%", // This would need separate endpoint for comparison
+          value: (stats.orders?.total || 0).toLocaleString(),
+          change: `${stats.orders?.change >= 0 ? "+" : ""}${(stats.orders?.change || 0).toFixed(1)}%`,
           icon: <ShoppingCart className="w-6 h-6" />,
           color: "from-blue-500 to-cyan-500",
           bgColor: "bg-blue-900/20",
+          isPositive: stats.orders?.change >= 0,
         },
         {
           title: "Active Users",
-          value: stats.users?.total || "0",
-          change: "+15.3%", // This would need separate endpoint for comparison
+          value: (stats.users?.total || 0).toLocaleString(),
+          change: `${stats.users?.change >= 0 ? "+" : ""}${(stats.users?.change || 0).toFixed(1)}%`,
           icon: <Users className="w-6 h-6" />,
           color: "from-purple-500 to-pink-500",
           bgColor: "bg-purple-900/20",
+          isPositive: stats.users?.change >= 0,
         },
         {
           title: "Total Products",
-          value: stats.products?.total || "0",
+          value: (stats.products?.total || 0).toLocaleString(),
           change: `+${(((stats.products?.sold || 0) / (stats.products?.total || 1)) * 100).toFixed(1)}% sold`,
           icon: <Package className="w-6 h-6" />,
           color: "from-orange-500 to-red-500",
           bgColor: "bg-orange-900/20",
+          isPositive: true,
         },
       ]
     : [];
@@ -445,6 +463,34 @@ const Dashboard = () => {
       ].filter((item) => item.value > 0)
     : [];
 
+  const exportReport = () => {
+    const reportData = {
+      generatedAt: new Date().toISOString(),
+      stats,
+      quickStats,
+      charts: {
+        usersChart,
+        ordersChart,
+        revenueChart,
+      },
+      topProducts,
+      recentActivities,
+      orderStatusData,
+    };
+
+    const blob = new Blob([JSON.stringify(reportData, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `dashboard-report-${new Date().toISOString().split("T")[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="text-white">
       {/* Welcome Header */}
@@ -470,7 +516,10 @@ const Dashboard = () => {
               <Calendar className="w-4 h-4" />
               <span>Last 30 days</span>
             </button>
-            <button className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-lg text-sm font-medium flex items-center space-x-2">
+            <button
+              onClick={exportReport}
+              className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-lg text-sm font-medium flex items-center space-x-2"
+            >
               <Download className="w-4 h-4" />
               <span>Export Report</span>
             </button>
@@ -489,7 +538,13 @@ const Dashboard = () => {
               <div className={`p-3 rounded-lg bg-gradient-to-r ${stat.color}`}>
                 <div className="text-white">{stat.icon}</div>
               </div>
-              <span className="text-green-400 text-sm font-medium bg-green-900/30 px-2 py-1 rounded">
+              <span
+                className={`text-sm font-medium px-2 py-1 rounded ${
+                  stat.isPositive
+                    ? "text-green-400 bg-green-900/30"
+                    : "text-red-400 bg-red-900/30"
+                }`}
+              >
                 {stat.change}
               </span>
             </div>
@@ -533,11 +588,24 @@ const Dashboard = () => {
                       color: "white",
                       borderRadius: "8px",
                     }}
+                    formatter={(value) => [
+                      chart.dataKey === "revenue"
+                        ? `$${value.toLocaleString()}`
+                        : value.toLocaleString(),
+                      chart.dataKey.charAt(0).toUpperCase() +
+                        chart.dataKey.slice(1),
+                    ]}
                   />
+                  <Legend />
                   <Bar
                     dataKey={chart.dataKey}
                     fill={chart.color}
                     radius={[8, 8, 0, 0]}
+                    name={
+                      chart.dataKey === "revenue"
+                        ? "Revenue ($)"
+                        : chart.dataKey
+                    }
                   />
                 </BarChart>
               ) : (
@@ -552,13 +620,19 @@ const Dashboard = () => {
                       color: "white",
                       borderRadius: "8px",
                     }}
+                    formatter={(value) => [
+                      `$${value.toLocaleString()}`,
+                      "Revenue",
+                    ]}
                   />
+                  <Legend />
                   <Line
                     type="monotone"
                     dataKey={chart.dataKey}
                     stroke={chart.color}
                     strokeWidth={3}
                     dot={{ stroke: chart.color, strokeWidth: 2, r: 4 }}
+                    name="Revenue ($)"
                   />
                 </LineChart>
               )}
@@ -573,9 +647,12 @@ const Dashboard = () => {
         <div className="lg:col-span-2 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold">Top Products</h2>
-            <button className="text-green-400 hover:text-green-300 text-sm font-medium">
+            <a
+              href="/admin/products"
+              className="text-green-400 hover:text-green-300 text-sm font-medium"
+            >
               View All →
-            </button>
+            </a>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -585,7 +662,7 @@ const Dashboard = () => {
                     Product
                   </th>
                   <th className="py-3 px-4 text-left text-slate-400 font-medium">
-                    Likes
+                    Sales
                   </th>
                   <th className="py-3 px-4 text-left text-slate-400 font-medium">
                     Stock
@@ -599,7 +676,7 @@ const Dashboard = () => {
                 {topProducts.length > 0 ? (
                   topProducts.map((product, index) => (
                     <tr
-                      key={index}
+                      key={product.id || index}
                       className="border-b border-slate-700/30 hover:bg-slate-700/20"
                     >
                       <td className="py-4 px-4">
@@ -616,21 +693,31 @@ const Dashboard = () => {
                             />
                           </div>
                           <div>
-                            <div className="font-medium">{product.name}</div>
+                            <div className="font-medium truncate max-w-[200px]">
+                              {product.name}
+                            </div>
                             <div className="text-sm text-slate-400">
-                              SKU: PROD{1000 + index}
+                              Price: ${product.price?.toFixed(2) || "0.00"}
                             </div>
                           </div>
                         </div>
                       </td>
                       <td className="py-4 px-4">
-                        <div className="font-semibold">{product.sales}</div>
+                        <div className="font-semibold">
+                          {product.sales.toLocaleString()}
+                        </div>
                       </td>
                       <td className="py-4 px-4">
                         <div
-                          className={`font-semibold ${product.stock < 10 ? "text-red-400" : product.stock < 50 ? "text-yellow-400" : "text-green-400"}`}
+                          className={`font-semibold ${
+                            product.stock < 10
+                              ? "text-red-400"
+                              : product.stock < 50
+                                ? "text-yellow-400"
+                                : "text-green-400"
+                          }`}
                         >
-                          {product.stock}
+                          {product.stock.toLocaleString()}
                         </div>
                       </td>
                       <td className="py-4 px-4">
@@ -664,11 +751,17 @@ const Dashboard = () => {
               {recentActivities.length > 0 ? (
                 recentActivities.map((activity, index) => (
                   <div
-                    key={index}
+                    key={activity.id || index}
                     className="p-4 bg-slate-800/30 rounded-lg border border-slate-700/30"
                   >
                     <div className="flex items-start space-x-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          activity.type === "order"
+                            ? "bg-gradient-to-r from-blue-500 to-cyan-500"
+                            : "bg-gradient-to-r from-green-500 to-emerald-500"
+                        }`}
+                      >
                         <span className="text-white font-bold">
                           {activity.user.charAt(0)}
                         </span>
@@ -683,9 +776,16 @@ const Dashboard = () => {
                         <p className="text-sm text-slate-300 mt-1">
                           {activity.action}
                         </p>
-                        <p className="text-xs text-green-400 mt-1">
-                          {activity.orderTotal}
-                        </p>
+                        {activity.orderTotal && (
+                          <p className="text-xs text-green-400 mt-1">
+                            {activity.orderTotal}
+                          </p>
+                        )}
+                        {activity.details && (
+                          <p className="text-xs text-slate-500 mt-1">
+                            {activity.details}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -702,6 +802,9 @@ const Dashboard = () => {
           <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold">Order Status</h2>
+              <span className="text-sm text-slate-400">
+                Total: {stats.orders?.total || 0}
+              </span>
             </div>
             {orderStatusData.length > 0 ? (
               <>
@@ -730,6 +833,7 @@ const Dashboard = () => {
                         color: "white",
                         borderRadius: "8px",
                       }}
+                      formatter={(value) => [value, "Orders"]}
                     />
                   </PieChart>
                 </ResponsiveContainer>

@@ -44,11 +44,13 @@
 //     </div>
 //   );
 // };
-
-// export default AdminTopbar;
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaBars, FaBell, FaUser, FaSun, FaMoon } from "react-icons/fa";
-import { Search, Settings, HelpCircle } from "lucide-react";
+import { Search, Settings, HelpCircle, CheckCircle } from "lucide-react";
+import { fetchWithAuth } from "../utils/auth";
+import { initSocket } from "../utils/socket";
+
+const BACKEND_URL = import.meta.env.VITE_API_URL;
 
 const AdminTop = ({
   setMobileOpen,
@@ -59,16 +61,55 @@ const AdminTop = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
-  const [notifications] = useState([
-    { id: 1, text: "New order received", time: "5 min ago", unread: true },
-    { id: 2, text: "Product low in stock", time: "1 hour ago", unread: true },
-    { id: 3, text: "New user registered", time: "2 hours ago", unread: false },
-  ]);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const socketRef = useRef(null);
 
   const user = JSON.parse(localStorage.getItem("user")) || {
     name: "Administrator",
     email: "admin@example.com",
     avatar: "",
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    setupSocket();
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+    };
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      setLoading(true);
+      const res = await fetchWithAuth(
+        `${BACKEND_URL}/api/notifications?limit=5`
+      );
+      const data = await res.json();
+      if (data.success) {
+        setNotifications(data.data || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch notifications:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const setupSocket = () => {
+    try {
+      const socket = initSocket();
+      socketRef.current = socket;
+
+      socket.on("notification", (newNotification) => {
+        setNotifications((prev) => [newNotification, ...prev.slice(0, 4)]);
+      });
+    } catch (error) {
+      console.error("Socket setup error:", error);
+    }
   };
 
   const toggleDarkMode = () => {
@@ -83,7 +124,44 @@ const AdminTop = ({
     window.location.href = "/login";
   };
 
-  const unreadCount = notifications.filter((n) => n.unread).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const handleMarkAsRead = async (id) => {
+    try {
+      await fetchWithAuth(`${BACKEND_URL}/api/notifications/${id}/read`, {
+        method: "PUT",
+      });
+
+      setNotifications((prev) =>
+        prev.map((n) => (n._id === id ? { ...n, read: true } : n))
+      );
+    } catch (err) {
+      console.error("Failed to mark as read:", err);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await fetchWithAuth(`${BACKEND_URL}/api/notifications/read-all`, {
+        method: "PUT",
+      });
+
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    } catch (err) {
+      console.error("Failed to mark all as read:", err);
+    }
+  };
+
+  const formatTime = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = (now - date) / (1000 * 60 * 60);
+
+    if (diffInHours < 1) return `${Math.floor(diffInHours * 60)} min ago`;
+    if (diffInHours < 24) return `${Math.floor(diffInHours)} hours ago`;
+    if (diffInHours < 168) return `${Math.floor(diffInHours / 24)} days ago`;
+    return date.toLocaleDateString();
+  };
 
   return (
     <div className="bg-slate-800/90 backdrop-blur-md border-b border-slate-700/50">
@@ -159,7 +237,7 @@ const AdminTop = ({
                 <FaBell size={18} />
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
-                    {unreadCount}
+                    {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}
               </button>
@@ -168,37 +246,79 @@ const AdminTop = ({
               {open === "notifications" && (
                 <div className="absolute right-0 mt-2 w-80 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-50">
                   <div className="p-4 border-b border-slate-700">
-                    <h3 className="font-semibold text-white">Notifications</h3>
+                    <div className="flex justify-between items-center">
+                      <h3 className="font-semibold text-white">
+                        Notifications
+                      </h3>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={handleMarkAllRead}
+                          className="text-sm text-green-400 hover:text-green-300"
+                        >
+                          Mark all read
+                        </button>
+                      )}
+                    </div>
                     <p className="text-sm text-slate-400">
-                      {unreadCount} unread notifications
+                      {unreadCount} unread notification
+                      {unreadCount !== 1 ? "s" : ""}
                     </p>
                   </div>
                   <div className="max-h-96 overflow-y-auto">
-                    {notifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        className={`p-4 border-b border-slate-700/50 hover:bg-slate-700/30 ${
-                          notification.unread ? "bg-slate-700/20" : ""
-                        }`}
-                      >
-                        <div className="flex items-start">
-                          <div className="flex-1">
-                            <p className="text-white">{notification.text}</p>
-                            <p className="text-sm text-slate-400 mt-1">
-                              {notification.time}
-                            </p>
-                          </div>
-                          {notification.unread && (
-                            <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                          )}
-                        </div>
+                    {loading ? (
+                      <div className="p-4 text-center text-slate-400">
+                        Loading...
                       </div>
-                    ))}
+                    ) : notifications.length === 0 ? (
+                      <div className="p-4 text-center text-slate-400">
+                        No notifications yet
+                      </div>
+                    ) : (
+                      notifications.map((notification) => (
+                        <div
+                          key={notification._id}
+                          className={`p-4 border-b border-slate-700/50 hover:bg-slate-700/30 ${
+                            !notification.read ? "bg-slate-700/20" : ""
+                          }`}
+                        >
+                          <div className="flex items-start">
+                            <div className="flex-1">
+                              <p className="text-white">
+                                {notification.title || notification.message}
+                              </p>
+                              <p className="text-sm text-slate-400 mt-1">
+                                {formatTime(notification.createdAt)}
+                              </p>
+                              {notification.data && (
+                                <div className="mt-2 text-xs text-slate-300 bg-slate-700/50 p-2 rounded">
+                                  {typeof notification.data === "object"
+                                    ? JSON.stringify(notification.data)
+                                    : notification.data}
+                                </div>
+                              )}
+                            </div>
+                            {!notification.read && (
+                              <button
+                                onClick={() =>
+                                  handleMarkAsRead(notification._id)
+                                }
+                                className="ml-2 text-xs text-green-400 hover:text-green-300"
+                              >
+                                <CheckCircle size={14} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                   <div className="p-4 border-t border-slate-700">
-                    <button className="w-full text-center text-green-400 hover:text-green-300 text-sm font-medium">
+                    <a
+                      href="/admin/notifications"
+                      className="w-full text-center text-green-400 hover:text-green-300 text-sm font-medium block"
+                    >
                       View all notifications
-                    </button>
+                    </a>
                   </div>
                 </div>
               )}
