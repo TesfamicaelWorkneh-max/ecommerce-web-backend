@@ -144,7 +144,6 @@ const app = express();
 // );
 const allowedOrigins = [
   "http://localhost:5174", // local dev
-
   "https://ecommerce-web-backend-u4em.vercel.app",
 ];
 
