@@ -22,7 +22,7 @@ import {
   getRevenueChart,
   getTopProducts,
   getRecentActivities,
-} from "../controllers/adminDashboard.controller.js";
+} from "../controllers/adminDashboardController.js";
 import { adminOnly } from "../middleware/auth.js";
 
 const router = express.Router();
