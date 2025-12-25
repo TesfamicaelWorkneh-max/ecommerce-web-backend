@@ -251,6 +251,8 @@ const Dashboard = () => {
   const [ordersChart, setOrdersChart] = useState([]);
   const [usersChart, setUsersChart] = useState([]);
   const [revenueChart, setRevenueChart] = useState([]);
+  const [topProducts, setTopProducts] = useState([]);
+  const [recentActivities, setRecentActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const admin = JSON.parse(localStorage.getItem("user"));
 
@@ -260,85 +262,121 @@ const Dashboard = () => {
     const fetchAllData = async () => {
       try {
         setLoading(true);
-        const [statsRes, ordersRes, usersRes, revenueRes] = await Promise.all([
+        const [
+          statsRes,
+          ordersRes,
+          usersRes,
+          revenueRes,
+          productsRes,
+          ordersData,
+        ] = await Promise.all([
           fetchWithAuth(`${BACKEND_URL}/api/adminanalytics/stats`),
           fetchWithAuth(`${BACKEND_URL}/api/adminanalytics/chart/orders`),
           fetchWithAuth(`${BACKEND_URL}/api/adminanalytics/chart/users`),
           fetchWithAuth(`${BACKEND_URL}/api/adminanalytics/chart/revenue`),
+          fetchWithAuth(`${BACKEND_URL}/api/products/admin?limit=5&sort=likes`),
+          fetchWithAuth(`${BACKEND_URL}/api/orders/all?limit=5&sort=newest`),
         ]);
 
-        setStats(await statsRes.json());
-        setOrdersChart(await ordersRes.json());
-        setUsersChart(await usersRes.json());
-        setRevenueChart(await revenueRes.json());
+        const statsData = await statsRes.json();
+        const ordersChartData = await ordersRes.json();
+        const usersChartData = await usersRes.json();
+        const revenueChartData = await revenueRes.json();
+        const productsData = await productsRes.json();
+        const ordersListData = await ordersData.json();
+
+        setStats(statsData);
+        setOrdersChart(ordersChartData);
+        setUsersChart(usersChartData);
+        setRevenueChart(revenueChartData);
+
+        // Process top products from real data
+        if (productsData.products) {
+          const topProductsData = productsData.products
+            .slice(0, 5)
+            .map((product) => ({
+              name: product.name,
+              sales: product.likesCount || 0,
+              revenue: `$${((product.price || 0) * (product.soldCount || 0)).toFixed(2)}`,
+              stock: product.stock || 0,
+              image: product.image,
+            }));
+          setTopProducts(topProductsData);
+        }
+
+        // Process recent activities from real orders
+        if (ordersListData.data) {
+          const activities = ordersListData.data.slice(0, 5).map((order) => ({
+            user: order.user?.name || order.user?.email || "Customer",
+            action: `Placed a new order #${order.orderNumber}`,
+            time: formatTimeAgo(order.createdAt),
+            orderTotal: `$${order.total?.toFixed(2)}`,
+          }));
+          setRecentActivities(activities);
+        }
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
+        // Fallback to empty arrays to prevent crashes
+        setTopProducts([]);
+        setRecentActivities([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchAllData();
-  }, [admin?.token]);
+  }, [admin?.accessToken]);
 
-  const quickStats = [
-    {
-      title: "Total Revenue",
-      value: "$24,580",
-      change: "+12.5%",
-      icon: <DollarSign className="w-6 h-6" />,
-      color: "from-green-500 to-emerald-500",
-      bgColor: "bg-green-900/20",
-    },
-    {
-      title: "Total Orders",
-      value: "1,248",
-      change: "+8.2%",
-      icon: <ShoppingCart className="w-6 h-6" />,
-      color: "from-blue-500 to-cyan-500",
-      bgColor: "bg-blue-900/20",
-    },
-    {
-      title: "Active Users",
-      value: "5,428",
-      change: "+15.3%",
-      icon: <Users className="w-6 h-6" />,
-      color: "from-purple-500 to-pink-500",
-      bgColor: "bg-purple-900/20",
-    },
-    {
-      title: "Conversion Rate",
-      value: "4.7%",
-      change: "+2.1%",
-      icon: <TrendingUp className="w-6 h-6" />,
-      color: "from-orange-500 to-red-500",
-      bgColor: "bg-orange-900/20",
-    },
-  ];
+  const formatTimeAgo = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
 
-  const topProducts = [
-    { name: "Premium Watch", sales: 234, revenue: "$12,450" },
-    { name: "Wireless Earbuds", sales: 189, revenue: "$8,250" },
-    { name: "Smartphone Case", sales: 156, revenue: "$3,120" },
-    { name: "Laptop Bag", sales: 142, revenue: "$7,100" },
-    { name: "Fitness Tracker", sales: 128, revenue: "$6,400" },
-  ];
+    if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
+    if (diffInSeconds < 3600)
+      return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400)
+      return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    return `${Math.floor(diffInSeconds / 86400)} days ago`;
+  };
 
-  const recentActivities = [
-    { user: "John Doe", action: "Placed a new order", time: "2 min ago" },
-    {
-      user: "Jane Smith",
-      action: "Registered new account",
-      time: "15 min ago",
-    },
-    { user: "Alex Johnson", action: "Completed payment", time: "30 min ago" },
-    {
-      user: "Sarah Wilson",
-      action: "Left a product review",
-      time: "1 hour ago",
-    },
-    { user: "Mike Brown", action: "Requested return", time: "2 hours ago" },
-  ];
+  // Calculate real quick stats from fetched data
+  const quickStats = stats
+    ? [
+        {
+          title: "Total Revenue",
+          value: `$${stats.revenue?.toFixed(2) || "0.00"}`,
+          change: "+12.5%", // This would need separate endpoint for comparison
+          icon: <DollarSign className="w-6 h-6" />,
+          color: "from-green-500 to-emerald-500",
+          bgColor: "bg-green-900/20",
+        },
+        {
+          title: "Total Orders",
+          value: stats.orders?.total || "0",
+          change: "+8.2%", // This would need separate endpoint for comparison
+          icon: <ShoppingCart className="w-6 h-6" />,
+          color: "from-blue-500 to-cyan-500",
+          bgColor: "bg-blue-900/20",
+        },
+        {
+          title: "Active Users",
+          value: stats.users?.total || "0",
+          change: "+15.3%", // This would need separate endpoint for comparison
+          icon: <Users className="w-6 h-6" />,
+          color: "from-purple-500 to-pink-500",
+          bgColor: "bg-purple-900/20",
+        },
+        {
+          title: "Total Products",
+          value: stats.products?.total || "0",
+          change: `+${(((stats.products?.sold || 0) / (stats.products?.total || 1)) * 100).toFixed(1)}% sold`,
+          icon: <Package className="w-6 h-6" />,
+          color: "from-orange-500 to-red-500",
+          bgColor: "bg-orange-900/20",
+        },
+      ]
+    : [];
 
   if (loading) {
     return (
@@ -351,7 +389,18 @@ const Dashboard = () => {
     );
   }
 
-  if (!stats) return null;
+  if (!stats) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <p className="text-red-400 text-lg">Failed to load dashboard data</p>
+          <p className="text-slate-400 mt-2">
+            Please check your connection and try again
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const charts = [
     {
@@ -377,6 +426,25 @@ const Dashboard = () => {
     },
   ];
 
+  // Process order status for pie chart
+  const orderStatusData = stats.orders
+    ? [
+        { name: "Pending", value: stats.orders.pending, color: "#F59E0B" },
+        {
+          name: "Processing",
+          value: stats.orders.processing,
+          color: "#3B82F6",
+        },
+        { name: "Shipped", value: stats.orders.shipped, color: "#8B5CF6" },
+        { name: "Delivered", value: stats.orders.delivered, color: "#10B981" },
+        {
+          name: "Cancelled",
+          value: stats.orders.cancelled || 0,
+          color: "#EF4444",
+        },
+      ].filter((item) => item.value > 0)
+    : [];
+
   return (
     <div className="text-white">
       {/* Welcome Header */}
@@ -389,6 +457,13 @@ const Dashboard = () => {
             <p className="text-slate-400 mt-2">
               Here's what's happening with your store today.
             </p>
+            <div className="mt-2 text-sm text-slate-500">
+              Last updated:{" "}
+              {new Date().toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </div>
           </div>
           <div className="flex items-center space-x-4">
             <button className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium flex items-center space-x-2">
@@ -497,7 +572,7 @@ const Dashboard = () => {
         {/* Top Products */}
         <div className="lg:col-span-2 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold">Top Selling Products</h2>
+            <h2 className="text-xl font-semibold">Top Products</h2>
             <button className="text-green-400 hover:text-green-300 text-sm font-medium">
               View All →
             </button>
@@ -510,88 +585,176 @@ const Dashboard = () => {
                     Product
                   </th>
                   <th className="py-3 px-4 text-left text-slate-400 font-medium">
-                    Sales
+                    Likes
+                  </th>
+                  <th className="py-3 px-4 text-left text-slate-400 font-medium">
+                    Stock
                   </th>
                   <th className="py-3 px-4 text-left text-slate-400 font-medium">
                     Revenue
                   </th>
-                  <th className="py-3 px-4 text-left text-slate-400 font-medium">
-                    Trend
-                  </th>
                 </tr>
               </thead>
               <tbody>
-                {topProducts.map((product, index) => (
-                  <tr
-                    key={index}
-                    className="border-b border-slate-700/30 hover:bg-slate-700/20"
-                  >
-                    <td className="py-4 px-4">
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 bg-slate-700 rounded-lg mr-3"></div>
-                        <div>
-                          <div className="font-medium">{product.name}</div>
-                          <div className="text-sm text-slate-400">
-                            SKU: PROD{1000 + index}
+                {topProducts.length > 0 ? (
+                  topProducts.map((product, index) => (
+                    <tr
+                      key={index}
+                      className="border-b border-slate-700/30 hover:bg-slate-700/20"
+                    >
+                      <td className="py-4 px-4">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 rounded-lg mr-3 overflow-hidden bg-slate-700">
+                            <img
+                              src={product.image}
+                              alt={product.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.src =
+                                  "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&h=800&fit=crop";
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <div className="font-medium">{product.name}</div>
+                            <div className="text-sm text-slate-400">
+                              SKU: PROD{1000 + index}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="font-semibold">{product.sales}</div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="font-semibold text-green-400">
-                        {product.revenue}
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center text-green-400">
-                        <TrendingUp className="w-4 h-4 mr-1" />
-                        <span className="text-sm">
-                          +{Math.floor(Math.random() * 20) + 5}%
-                        </span>
-                      </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="font-semibold">{product.sales}</div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div
+                          className={`font-semibold ${product.stock < 10 ? "text-red-400" : product.stock < 50 ? "text-yellow-400" : "text-green-400"}`}
+                        >
+                          {product.stock}
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="font-semibold text-green-400">
+                          {product.revenue}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="4" className="py-8 text-center text-slate-500">
+                      No product data available
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
         </div>
 
-        {/* Recent Activities */}
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold">Recent Activities</h2>
-            <Activity className="w-5 h-5 text-green-400" />
-          </div>
-          <div className="space-y-4">
-            {recentActivities.map((activity, index) => (
-              <div
-                key={index}
-                className="p-4 bg-slate-800/30 rounded-lg border border-slate-700/30"
-              >
-                <div className="flex items-start space-x-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
-                    <span className="text-white font-bold">
-                      {activity.user.charAt(0)}
-                    </span>
+        {/* Recent Activities & Order Status */}
+        <div className="space-y-8">
+          {/* Recent Activities */}
+          <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold">Recent Activities</h2>
+              <Activity className="w-5 h-5 text-green-400" />
+            </div>
+            <div className="space-y-4">
+              {recentActivities.length > 0 ? (
+                recentActivities.map((activity, index) => (
+                  <div
+                    key={index}
+                    className="p-4 bg-slate-800/30 rounded-lg border border-slate-700/30"
+                  >
+                    <div className="flex items-start space-x-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                        <span className="text-white font-bold">
+                          {activity.user.charAt(0)}
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium">{activity.user}</h4>
+                          <span className="text-xs text-slate-400">
+                            {activity.time}
+                          </span>
+                        </div>
+                        <p className="text-sm text-slate-300 mt-1">
+                          {activity.action}
+                        </p>
+                        <p className="text-xs text-green-400 mt-1">
+                          {activity.orderTotal}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-medium">{activity.user}</h4>
-                      <span className="text-xs text-slate-400">
-                        {activity.time}
+                ))
+              ) : (
+                <div className="text-center py-4 text-slate-500">
+                  No recent activities
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Order Status Pie Chart */}
+          <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold">Order Status</h2>
+            </div>
+            {orderStatusData.length > 0 ? (
+              <>
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie
+                      data={orderStatusData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) =>
+                        `${name}: ${(percent * 100).toFixed(0)}%`
+                      }
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {orderStatusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#1F2937",
+                        border: "1px solid #374151",
+                        color: "white",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="grid grid-cols-2 gap-2 mt-4">
+                  {orderStatusData.map((status, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: status.color }}
+                      ></div>
+                      <span className="text-sm text-slate-300">
+                        {status.name}:
+                      </span>
+                      <span className="text-sm font-semibold">
+                        {status.value}
                       </span>
                     </div>
-                    <p className="text-sm text-slate-300 mt-1">
-                      {activity.action}
-                    </p>
-                  </div>
+                  ))}
                 </div>
+              </>
+            ) : (
+              <div className="text-center py-8 text-slate-500">
+                No order data available
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
