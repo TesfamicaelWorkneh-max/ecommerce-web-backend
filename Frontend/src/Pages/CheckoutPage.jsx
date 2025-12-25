@@ -132,9 +132,13 @@ const CheckoutPage = () => {
       toast.success("Redirecting to secure payment...");
 
       // Redirect user to Chapa checkout after short delay
+      setTxRef(data.tx_ref);
       setTimeout(() => {
         window.location.href = data.payment_url;
-      }, 500); // 0.5s delay so spinner appears
+      }, 500);
+      // 0.5s delay so spinner appears
+      setCart({ items: [] });
+      localStorage.removeItem("cart");
     } catch (err) {
       console.error("Payment error:", err);
       toast.error("Payment request failed");
