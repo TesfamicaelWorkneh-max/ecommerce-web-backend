@@ -9,8 +9,8 @@
 
 //   io = new Server(server, {
 //     cors: {
-//       origin: "http://localhost:5173",
-//       methods: ["GET", "POST", "PUT"],
+//       origin: "https://ecommerce-web-backend-u4em.vercel.app",
+//       methods: ["GET", "POST"],
 //       credentials: true,
 //     },
 //   });
@@ -20,19 +20,12 @@
 //       const token = socket.handshake.auth?.token;
 //       if (!token) return next();
 
-//       const decoded = jwt.verify(
-//         token,
-//         process.env.JWT_SECRET || "yourjwtsecret"
-//       );
+//       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//       const user = await User.findById(decoded.id).select("_id name role");
 
-//       const user = await User.findById(decoded.id).select("_id role");
-//       if (user) {
-//         socket.user = { id: user._id.toString(), role: user.role };
-//       }
-
+//       if (user) socket.user = user;
 //       next();
 //     } catch (err) {
-//       console.log("Socket auth error:", err.message);
 //       next();
 //     }
 //   });
@@ -40,12 +33,8 @@
 //   io.on("connection", (socket) => {
 //     console.log("🟢 Socket connected:", socket.id);
 
-//     if (socket.user?.id) {
-//       socket.join(socket.user.id);
-//     }
-
-//     socket.on("join", (roomId) => {
-//       if (roomId) socket.join(roomId.toString());
+//     socket.on("joinProduct", (productId) => {
+//       socket.join(productId);
 //     });
 
 //     socket.on("disconnect", () => {
@@ -57,14 +46,9 @@
 // };
 
 // export const getIO = () => {
-//   if (!io) {
-//     console.warn("⚠️ getIO called before initSocket");
-//     return null;
-//   }
+//   if (!io) return null;
 //   return io;
 // };
-
-// backend/socket.js
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import User from "./models/User.model.js";
@@ -76,36 +60,80 @@ export const initSocket = (server) => {
 
   io = new Server(server, {
     cors: {
-      origin: "https://ecommerce-web-backend-u4em.vercel.app",
+      origin: [
+        "https://ecommerce-web-backend-u4em.vercel.app",
+        "http://localhost:5174",
+      ],
       methods: ["GET", "POST"],
       credentials: true,
     },
+    pingTimeout: 60000,
+    pingInterval: 25000,
   });
 
   io.use(async (socket, next) => {
     try {
       const token = socket.handshake.auth?.token;
-      if (!token) return next();
+      if (!token) {
+        console.log("❌ No token provided");
+        return next(new Error("Authentication error"));
+      }
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findById(decoded.id).select("_id name role");
+      const user = await User.findById(decoded.id).select(
+        "_id name email role"
+      );
 
-      if (user) socket.user = user;
+      if (!user) {
+        console.log("❌ User not found");
+        return next(new Error("User not found"));
+      }
+
+      socket.user = {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      };
+
+      console.log(`✅ Authenticated: ${user.name} (${user.role})`);
       next();
     } catch (err) {
-      next();
+      console.log("❌ Socket auth error:", err.message);
+      next(new Error("Authentication failed"));
     }
   });
 
   io.on("connection", (socket) => {
-    console.log("🟢 Socket connected:", socket.id);
+    console.log("🟢 Socket connected:", socket.id, socket.user?.name);
+
+    // Join admin room if user is admin
+    if (socket.user?.role === "admin") {
+      socket.join("admin");
+      console.log(`👑 Admin ${socket.user.name} joined admin room`);
+    }
+
+    // Join user's personal room for private notifications
+    if (socket.user?.id) {
+      socket.join(`user_${socket.user.id}`);
+    }
 
     socket.on("joinProduct", (productId) => {
-      socket.join(productId);
+      socket.join(`product_${productId}`);
+      console.log(`📦 ${socket.user?.name} joined product room: ${productId}`);
     });
 
-    socket.on("disconnect", () => {
-      console.log("🔴 Socket disconnected:", socket.id);
+    socket.on("joinOrder", (orderId) => {
+      socket.join(`order_${orderId}`);
+      console.log(`📦 ${socket.user?.name} joined order room: ${orderId}`);
+    });
+
+    socket.on("disconnect", (reason) => {
+      console.log("🔴 Socket disconnected:", socket.id, "Reason:", reason);
+    });
+
+    socket.on("error", (error) => {
+      console.error("Socket error:", error);
     });
   });
 
@@ -113,6 +141,49 @@ export const initSocket = (server) => {
 };
 
 export const getIO = () => {
-  if (!io) return null;
+  if (!io) {
+    throw new Error("Socket.io not initialized");
+  }
   return io;
+};
+
+// Helper functions to emit notifications
+export const emitAdminNotification = (data) => {
+  const io = getIO();
+  io.to("admin").emit("notification", {
+    ...data,
+    createdAt: new Date(),
+    read: false,
+    type: "admin",
+  });
+};
+
+export const emitUserNotification = (userId, data) => {
+  const io = getIO();
+  io.to(`user_${userId}`).emit("notification", {
+    ...data,
+    createdAt: new Date(),
+    read: false,
+    type: "user",
+  });
+};
+
+export const emitProductNotification = (productId, data) => {
+  const io = getIO();
+  io.to(`product_${productId}`).emit("notification", {
+    ...data,
+    createdAt: new Date(),
+    read: false,
+    type: "product",
+  });
+};
+
+export const emitOrderNotification = (orderId, data) => {
+  const io = getIO();
+  io.to(`order_${orderId}`).emit("notification", {
+    ...data,
+    createdAt: new Date(),
+    read: false,
+    type: "order",
+  });
 };
