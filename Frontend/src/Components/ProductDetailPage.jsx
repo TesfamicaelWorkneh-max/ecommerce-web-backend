@@ -2564,7 +2564,7 @@ const ProductDetailPage = () => {
 
   if (!product)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 ">
         <div className="relative">
           <div className="w-20 h-20 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
         </div>
@@ -2589,7 +2589,7 @@ const ProductDetailPage = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
-      className="min-h-screen bg-white dark:bg-gray-900"
+      className="min-h-screen bg-white dark:bg-gray-900 max-sm:py-24 py-16"
     >
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-12">
         {/* Back Button */}

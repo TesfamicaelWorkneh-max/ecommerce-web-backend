@@ -686,7 +686,7 @@ const ContactPage = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6 }}
-        className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100 dark:from-gray-900 dark:to-gray-800 pt-24 pb-12 overflow-hidden relative"
+        className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100 dark:from-gray-900 dark:to-gray-800 pt-24 pb-12 overflow-hidden relative max-sm:py-32"
       >
         {/* Animated Background Elements */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">

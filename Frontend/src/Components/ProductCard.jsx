@@ -340,9 +340,11 @@
 // };
 
 // export default ProductCard;
-import React from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { authContext } from "../Context/authContext";
+import { cartContext } from "../Context/cartContext";
 import {
   FaHeart,
   FaStar,
@@ -354,7 +356,9 @@ import {
 } from "react-icons/fa";
 import { useProducts } from "../Context/ProductContext";
 import { getImageUrl } from "../utils/imageUtils";
-
+import { fetchWithAuth } from "../utils/auth";
+import { toast } from "react-hot-toast";
+const BACKEND_URL = import.meta.env.VITE_API_URL;
 const formatLikes = (num) => {
   const likes = Number(num) || 0;
   if (likes >= 1000000) return (likes / 1000000).toFixed(1) + "M";
@@ -378,9 +382,11 @@ const generateRating = (productId) => {
 };
 
 const ProductCard = ({ product, index = 0 }) => {
+  const { user } = useContext(authContext);
+  const { setCart } = useContext(cartContext);
   const { toggleLike, products } = useProducts();
   const prod = products[product._id] || product;
-
+  const [loadingAdd, setLoadingAdd] = useState(false);
   // Validate product data
   if (!prod || typeof prod !== "object") {
     return (
@@ -389,7 +395,40 @@ const ProductCard = ({ product, index = 0 }) => {
       </div>
     );
   }
-
+  const addToCart = async () => {
+    if (!user) {
+      toast.error("Please login to add to cart");
+      navigate("/login");
+      return;
+    }
+    if (product.isSold) {
+      toast.error("This product is sold out");
+      return;
+    }
+    if (product.stock === 0) {
+      toast.error("This product is out of stock");
+      return;
+    }
+    setLoadingAdd(true);
+    try {
+      const res = await fetchWithAuth(
+        `${BACKEND_URL}/api/cart/add/${product._id}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ quantity: 1 }),
+        }
+      );
+      const data = await res.json();
+      setLoadingAdd(false);
+      if (!res.ok) return toast.error(data.message);
+      toast.success("Added to cart! 🛒");
+      setCart(data);
+    } catch (err) {
+      setLoadingAdd(false);
+      toast.error("Server error");
+    }
+  };
   // Safely extract image path
   let imagePath = "";
   if (prod.images && Array.isArray(prod.images) && prod.images.length > 0) {
@@ -595,6 +634,7 @@ const ProductCard = ({ product, index = 0 }) => {
             className="flex-1 px-2 py-3 bg-amber-500 dark:bg-amber-600 text-white rounded-lg font-semibold hover:bg-amber-600 dark:hover:bg-amber-700 transition-colors duration-300 flex items-center justify-center gap-2"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
+            onClick={addToCart}
           >
             <FaShoppingCart className="text-lg" />
             <span>Add to Cart</span>

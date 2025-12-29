@@ -740,7 +740,7 @@ const ProductsPage = () => {
           >
             <Link
               to="/products/all"
-              className="group px-8 py-4 rounded-xl bg-amber-500 dark:bg-amber-600 text-white font-semibold text-lg flex items-center gap-3 transition-all duration-300"
+              className="group px-8 py-4 mb-4 rounded-xl bg-amber-500 dark:bg-amber-600 text-white font-semibold text-lg flex items-center gap-3 transition-all duration-300"
             >
               <span>Browse All Collections</span>
               <FaArrowRight className="group-hover:translate-x-2 transition-transform duration-300" />
