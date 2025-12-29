@@ -4272,7 +4272,7 @@ export default function AdminOrdersPage() {
 
   return (
     <div
-      className={`min-h-screen transition-all duration-500 ${themeClasses.container} ${themeClasses.text} p-3 sm:p-4 md:p-6 lg:p-8`}
+      className={`min-h-screen overflow-hidden transition-all duration-500 ${themeClasses.container} ${themeClasses.text} p-3 sm:p-4 md:p-6 lg:p-8`}
     >
       <div className="max-w-7xl mx-auto">
         {/* Error Display */}
@@ -4682,7 +4682,7 @@ export default function AdminOrdersPage() {
               {orders.map((order, index) => (
                 <div
                   key={order._id}
-                  className={`order-card p-5 rounded-2xl border shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl min-w-0 transform hover:-translate-y-1 ${themeClasses.card} ${themeClasses.cardHover} ${viewMode === "list" ? "flex flex-col md:flex-row md:items-start gap-5" : ""} ${selectedOrders.has(order._id) ? "ring-2 ring-blue-500" : ""}`}
+                  className={`order-card relative p-5 rounded-2xl border shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl min-w-0 transform hover:-translate-y-1 ${themeClasses.card} ${themeClasses.cardHover} ${viewMode === "list" ? "flex flex-col md:flex-row md:items-start gap-5" : ""} ${selectedOrders.has(order._id) ? "ring-2 ring-blue-500" : ""}`}
                   style={{
                     borderLeft: `6px solid ${getStatusColor(order.status)}`,
                     animationDelay: `${index * 0.1}s`,
