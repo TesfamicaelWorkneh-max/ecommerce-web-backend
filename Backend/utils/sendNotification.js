@@ -1,4 +1,3 @@
-// backend/utils/sendNotification.js
 import Notification from "../models/Notification.model.js";
 import User from "../models/User.model.js";
 import { sendEmail } from "./sendEmail.js";

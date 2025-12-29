@@ -106,6 +106,7 @@ router.get("/:id", protect, getProductById);
 router.get("/category/:name/paginated", getProductsByCategoryPaginated);
 router.get("/related/:id", protect, getRelatedProductsGrouped);
 router.get("/admin/top-liked", protect, adminOnly, getTopLikedProducts);
+// GET products by category (paginated + type filter)
 
 // ✅ CREATE product - USE ONLY ONE UPLOAD MIDDLEWARE
 // Option A: Use uploadToCloudinary only (recommended)

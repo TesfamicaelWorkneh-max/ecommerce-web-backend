@@ -38,27 +38,40 @@ const normalizeImage = (img) => {
   return `${SERVER_URL}${fixed}`;
 };
 
+// controllers/productController.js
 export const getProductsByCategoryPaginated = async (req, res) => {
   try {
     const name = req.params.name;
-    let { page = 1, limit = 8 } = req.query;
+    let { page = 1, limit = 8, sortBy } = req.query;
     page = Number(page);
     limit = Number(limit);
 
     const category = await Category.findOne({
       name: { $regex: new RegExp("^" + name + "$", "i") },
     });
-    if (!category) return res.status(404).json([]);
+    if (!category)
+      return res.status(404).json({ products: [], page: 1, pages: 1 });
 
+    // Sorting logic
+    let sortOption = { createdAt: -1 }; // default: newest first
+    if (sortBy === "priceAsc") sortOption = { price: 1 };
+    else if (sortBy === "priceDesc") sortOption = { price: -1 };
+    else if (sortBy === "newArrival") sortOption = { createdAt: -1 };
+    else if (sortBy === "bestSeller") sortOption = { soldCount: -1 };
+    else if (sortBy === "popularity") sortOption = { likes: -1 }; // most liked first
+
+    // Fetch total count
     const total = await Product.countDocuments({ category: category._id });
+
     const products = await Product.find({ category: category._id })
       .populate("category")
       .skip((page - 1) * limit)
       .limit(limit)
-      .sort({ createdAt: -1 });
+      .sort(sortOption);
 
     const formatted = products.map((p) => ({
       ...p.toObject(),
+      likesCount: p.likes.length || 0, // include likes count for frontend
       image: normalizeImage(p.image || p.images?.[0]),
     }));
 

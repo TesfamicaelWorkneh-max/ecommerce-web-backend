@@ -112,7 +112,8 @@ import contactRoutes from "./routes/contactRoutes.js";
 import returnRoutes from "./routes/returnRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
-
+import userRoutes from "./routes/userRoutes.js";
+import heroImageRoutes from "./routes/heroImageRoutes.js";
 // Add after other routes
 
 import dns from "dns";
@@ -143,7 +144,7 @@ const app = express();
 //   })
 // );
 const allowedOrigins = [
-  "http://localhost:5174", // local dev
+  "http://localhost:5173", // local dev
   "https://ecommerce-web-backend-u4em.vercel.app",
 ];
 
@@ -160,20 +161,6 @@ app.use(
     credentials: true,
   })
 );
-// Alternative 2: OR use manual CORS headers (even simpler)
-/*
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', allowedOrigin);
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-  res.header('Access-Control-Allow-Credentials', 'true');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  next();
-});
-*/
 
 // ========== TRUST PROXY & OTHER MIDDLEWARE ==========
 app.set("trust proxy", 1);
@@ -182,8 +169,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(cookieParser());
-app.use(express.urlencoded({ extended: true, limit: "50mb" }));
-app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "100mb" }));
+app.use(express.json({ limit: "100mb" }));
 
 // Static files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -218,8 +205,10 @@ app.use("/api/return-requests", returnRoutes);
 app.use("/api/adminanalytics", adminDashboardAnalitics);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/admin", adminUserRoutes);
+app.use("/api/admin/uploadHero", heroImageRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/blog", blogRoutes);
+app.use("/api/users", userRoutes);
 // Health check
 app.get("/api/health", (req, res) => {
   res.json({
@@ -230,6 +219,26 @@ app.get("/api/health", (req, res) => {
     },
     timestamp: new Date().toISOString(),
   });
+});
+import multer from "multer";
+
+// 👇 MUST be after app.use(routes)
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+
+  if (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message || "Server error",
+    });
+  }
+
+  next();
 });
 
 // ========== SERVER INITIALIZATION ==========

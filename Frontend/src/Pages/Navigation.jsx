@@ -1,3 +1,5075 @@
+// import React, { useState, useContext, useEffect, useRef } from "react";
+// import { Link, useNavigate, useLocation } from "react-router-dom";
+// import {
+//   FaBars,
+//   FaTimes,
+//   FaShoppingCart,
+//   FaChevronDown,
+//   FaUser,
+//   FaBell,
+//   FaSearch,
+//   FaKey,
+//   FaTrash,
+//   FaSave,
+//   FaUserCircle,
+//   FaSignOutAlt,
+//   FaCheckCircle,
+//   FaTimesCircle,
+// } from "react-icons/fa";
+// import { motion, AnimatePresence } from "framer-motion";
+// import ThemeToggle from "../Components/ThemeToggle";
+// import { authContext } from "../Context/authContext";
+// import { cartContext } from "../Context/cartContext";
+// import { initSocket } from "../utils/socket";
+// import { fetchWithAuth } from "../utils/auth";
+
+// const API = import.meta.env.VITE_API_URL;
+
+// const Navigation = () => {
+//   const [menuOpen, setMenuOpen] = useState(false);
+//   const [openDropdown, setOpenDropdown] = useState(null);
+//   const [userMenuOpen, setUserMenuOpen] = useState(false);
+//   const [categories, setCategories] = useState([]);
+//   const [unreadCount, setUnreadCount] = useState(0);
+//   const [scrolled, setScrolled] = useState(false);
+//   const [searchOpen, setSearchOpen] = useState(false);
+//   const [searchQuery, setSearchQuery] = useState("");
+//   const [cartPulse, setCartPulse] = useState(false);
+//   const [showProfileModal, setShowProfileModal] = useState(false);
+//   const [profileForm, setProfileForm] = useState({
+//     name: "",
+//     email: "",
+//     bio: "",
+//     currentPassword: "",
+//     newPassword: "",
+//     confirmPassword: "",
+//   });
+//   const [profileLoading, setProfileLoading] = useState(false);
+//   const [profileError, setProfileError] = useState("");
+//   const [profileSuccess, setProfileSuccess] = useState("");
+//   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+//   const [deletePassword, setDeletePassword] = useState("");
+
+//   const searchRef = useRef(null);
+//   const profileModalRef = useRef(null);
+//   const userMenuRef = useRef(null);
+//   const navigate = useNavigate();
+//   const location = useLocation();
+//   const { user, logout, updateUser } = useContext(authContext);
+//   const { cart } = useContext(cartContext);
+
+//   // Fetch categories dynamically from backend
+//   useEffect(() => {
+//     const fetchCategories = async () => {
+//       try {
+//         const res = await fetchWithAuth(`${API}/api/categories`);
+//         const data = await res.json();
+//         setCategories(data || []);
+//       } catch (err) {
+//         console.error(err);
+//       }
+//     };
+//     fetchCategories();
+//   }, []);
+
+//   // Scroll effect
+//   useEffect(() => {
+//     const handleScroll = () => {
+//       setScrolled(window.scrollY > 20);
+//     };
+//     window.addEventListener("scroll", handleScroll);
+//     return () => window.removeEventListener("scroll", handleScroll);
+//   }, []);
+
+//   // Cart pulse animation
+//   useEffect(() => {
+//     if (cart?.items?.length > 0) {
+//       setCartPulse(true);
+//       const timer = setTimeout(() => setCartPulse(false), 1000);
+//       return () => clearTimeout(timer);
+//     }
+//   }, [cart?.items]);
+
+//   // Fetch initial unread count
+//   useEffect(() => {
+//     if (!user) return;
+//     fetchUnreadCount();
+//   }, [user]);
+
+//   // Notifications socket
+//   useEffect(() => {
+//     if (!user) return;
+
+//     const s = initSocket(user._id);
+
+//     const onNotif = (notif) => {
+//       playSound();
+//       setUnreadCount((prev) => prev + 1);
+//     };
+
+//     s.on("notification", onNotif);
+
+//     // Poll for new notifications every 10 seconds
+//     const poll = setInterval(fetchUnreadCount, 10000);
+
+//     return () => {
+//       s.off("notification", onNotif);
+//       clearInterval(poll);
+//     };
+//   }, [user]);
+
+//   // Close modals and dropdowns when clicking outside
+//   useEffect(() => {
+//     const handleClickOutside = (event) => {
+//       // Close search
+//       if (searchRef.current && !searchRef.current.contains(event.target)) {
+//         setSearchOpen(false);
+//       }
+
+//       // Close user menu dropdown
+//       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+//         setUserMenuOpen(false);
+//       }
+
+//       // Close profile modal
+//       if (
+//         profileModalRef.current &&
+//         !profileModalRef.current.contains(event.target)
+//       ) {
+//         setShowProfileModal(false);
+//         setShowDeleteConfirm(false);
+//       }
+//     };
+
+//     document.addEventListener("mousedown", handleClickOutside);
+//     return () => document.removeEventListener("mousedown", handleClickOutside);
+//   }, []);
+
+//   // Initialize profile form when user data changes
+//   useEffect(() => {
+//     if (user) {
+//       setProfileForm({
+//         name: user.name || "",
+//         email: user.email || "",
+//         bio: user.bio || "",
+//         currentPassword: "",
+//         newPassword: "",
+//         confirmPassword: "",
+//       });
+//     }
+//   }, [user]);
+
+//   const fetchUnreadCount = async () => {
+//     if (!user) return;
+//     try {
+//       const res = await fetchWithAuth(`${API}/api/notifications`);
+//       if (!res.ok) return;
+//       const data = await res.json();
+//       const unread = data.filter((n) => !n.read).length;
+//       setUnreadCount(unread);
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   };
+
+//   const playSound = () => {
+//     try {
+//       const audio = new Audio(
+//         "https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg"
+//       );
+//       audio.volume = 0.3;
+//       audio.play().catch(() => {});
+//     } catch (e) {
+//       console.error(e);
+//     }
+//   };
+
+//   const links = [
+//     { name: "Home", path: "/" },
+//     { name: "About-us", path: "/about" },
+//     { name: "Contact-us", path: "/contact" },
+//     { name: "Return-policy", path: "/policy" },
+//     { name: "Blog", path: "/blog" },
+//   ];
+
+//   const toggleDropdown = (key) =>
+//     setOpenDropdown(openDropdown === key ? null : key);
+
+//   const handleCategoryClick = (path) => {
+//     navigate(path);
+//     setMenuOpen(false);
+//     setOpenDropdown(null);
+//   };
+
+//   const handleSearch = (e) => {
+//     e.preventDefault();
+//     if (searchQuery.trim()) {
+//       navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+//       setSearchOpen(false);
+//       setSearchQuery("");
+//     }
+//   };
+
+//   const handleProfileChange = (e) => {
+//     const { name, value } = e.target;
+//     setProfileForm((prev) => ({
+//       ...prev,
+//       [name]: value,
+//     }));
+//     setProfileError("");
+//     setProfileSuccess("");
+//   };
+
+//   const validateProfileForm = () => {
+//     if (profileForm.newPassword && profileForm.newPassword.length < 6) {
+//       setProfileError("New password must be at least 6 characters");
+//       return false;
+//     }
+
+//     if (
+//       profileForm.newPassword &&
+//       profileForm.newPassword !== profileForm.confirmPassword
+//     ) {
+//       setProfileError("New passwords do not match");
+//       return false;
+//     }
+
+//     return true;
+//   };
+
+//   const handleProfileSubmit = async (e) => {
+//     e.preventDefault();
+//     setProfileError("");
+//     setProfileSuccess("");
+
+//     if (!validateProfileForm()) return;
+
+//     setProfileLoading(true);
+
+//     try {
+//       const updateData = {
+//         name: profileForm.name,
+//         email: profileForm.email,
+//         bio: profileForm.bio,
+//       };
+
+//       if (profileForm.currentPassword && profileForm.newPassword) {
+//         updateData.currentPassword = profileForm.currentPassword;
+//         updateData.newPassword = profileForm.newPassword;
+//       }
+
+//       console.log("Sending update to:", `${API}/api/users/profile`);
+//       console.log("Update data:", updateData);
+
+//       const res = await fetchWithAuth(`${API}/api/users/profile`, {
+//         method: "PUT",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify(updateData),
+//       });
+
+//       console.log("Response status:", res.status);
+
+//       // Check if response is JSON
+//       const contentType = res.headers.get("content-type");
+//       if (!contentType || !contentType.includes("application/json")) {
+//         const text = await res.text();
+//         console.error("Non-JSON response from server:", text.substring(0, 200));
+//         throw new Error(
+//           "Server returned non-JSON response. Please check if the API endpoint exists."
+//         );
+//       }
+
+//       const data = await res.json();
+//       console.log("Response data:", data);
+
+//       if (!res.ok) {
+//         throw new Error(
+//           data.message || `Failed to update profile (${res.status})`
+//         );
+//       }
+
+//       if (!data.success) {
+//         throw new Error(data.message || "Profile update failed");
+//       }
+
+//       // Update user in context
+//       if (data.user) {
+//         updateUser(data.user);
+//         setProfileSuccess("Profile updated successfully!");
+//       } else {
+//         throw new Error("No user data returned from server");
+//       }
+
+//       // Clear password fields
+//       setProfileForm((prev) => ({
+//         ...prev,
+//         currentPassword: "",
+//         newPassword: "",
+//         confirmPassword: "",
+//       }));
+
+//       setTimeout(() => setProfileSuccess(""), 3000);
+//     } catch (err) {
+//       console.error("Profile update error:", err);
+//       setProfileError(
+//         err.message || "Failed to update profile. Please try again."
+//       );
+//     } finally {
+//       setProfileLoading(false);
+//     }
+//   };
+
+//   const handleDeleteAccount = async () => {
+//     if (!deletePassword.trim()) {
+//       setProfileError("Please enter your password to confirm account deletion");
+//       return;
+//     }
+
+//     setProfileLoading(true);
+
+//     try {
+//       console.log(
+//         "Sending delete request to:",
+//         `${API}/api/users/delete-account`
+//       );
+
+//       const res = await fetchWithAuth(`${API}/api/users/delete-account`, {
+//         method: "DELETE",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({ password: deletePassword }),
+//       });
+
+//       console.log("Delete response status:", res.status);
+
+//       // Check if response is JSON
+//       const contentType = res.headers.get("content-type");
+//       if (!contentType || !contentType.includes("application/json")) {
+//         const text = await res.text();
+//         console.error("Non-JSON response from server:", text.substring(0, 200));
+//         throw new Error(
+//           "Server returned non-JSON response. Please check if the API endpoint exists."
+//         );
+//       }
+
+//       const data = await res.json();
+//       console.log("Delete response data:", data);
+
+//       if (!res.ok || !data.success) {
+//         throw new Error(data.message || "Failed to delete account");
+//       }
+
+//       // Logout and redirect
+//       logout();
+//       setShowProfileModal(false);
+//       navigate("/login");
+//     } catch (err) {
+//       console.error("Delete account error:", err);
+//       setProfileError(
+//         err.message || "Failed to delete account. Please try again."
+//       );
+//       setProfileLoading(false);
+//     }
+//   };
+
+//   const cartItemCount =
+//     cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+
+//   return (
+//     <>
+//       {/* Navigation Container */}
+//       <motion.nav
+//         initial={{ y: -100 }}
+//         animate={{ y: 0 }}
+//         transition={{ duration: 0.5, type: "spring" }}
+//         className="fixed top-0 w-full z-50 transition-all duration-300"
+//       >
+//         {/* Top Announcement Bar */}
+//         <div className="bg-gradient-to-r from-[#E1A95F]/20 via-[#d4a259]/20 to-[#c5954d]/20 py-2 px-4 text-center">
+//           <p className="text-xs text-white/90 font-medium">
+//             🚚{" "}
+//             <span className="text-[#E1A95F] font-semibold">Free Shipping</span>{" "}
+//             on orders over $100 •
+//             <span className="text-green-300 font-semibold ml-2">
+//               🎁 30% OFF
+//             </span>{" "}
+//             for new customers
+//           </p>
+//         </div>
+
+//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+//           <div className="flex justify-between items-center h-16">
+//             {/* Logo */}
+//             <motion.div
+//               whileHover={{ scale: 1.05 }}
+//               whileTap={{ scale: 0.95 }}
+//               className="flex items-center"
+//             >
+//               <Link to="/" className="flex items-center">
+//                 <img
+//                   // src={logo}
+//                   alt="Logo"
+//                   className="w-28 md:w-32 h-auto drop-shadow-lg"
+//                 />
+//               </Link>
+//             </motion.div>
+
+//             {/* Desktop Navigation */}
+//             <ul className="hidden lg:flex items-center gap-1">
+//               {links.map((link, index) => (
+//                 <motion.li
+//                   key={index}
+//                   initial={{ opacity: 0, y: -10 }}
+//                   animate={{ opacity: 1, y: 0 }}
+//                   transition={{ delay: index * 0.1 }}
+//                   className="relative"
+//                 >
+//                   <Link
+//                     to={link.path}
+//                     className={`relative px-4 py-2.5 mx-1 rounded-xl transition-all duration-300 font-medium ${
+//                       location.pathname === link.path
+//                         ? "text-[#E1A95F] bg-[#E1A95F]/10"
+//                         : "text-slate-200 hover:text-[#E1A95F] hover:bg-white/5"
+//                     }`}
+//                   >
+//                     {link.name}
+//                     {location.pathname === link.path && (
+//                       <motion.div
+//                         layoutId="underline"
+//                         className="absolute left-4 right-4 h-0.5 bottom-1.5 bg-[#E1A95F] rounded-full"
+//                       />
+//                     )}
+//                   </Link>
+//                 </motion.li>
+//               ))}
+
+//               {/* Dynamic Shop Dropdown */}
+//               <motion.li className="relative">
+//                 <button
+//                   onClick={() => toggleDropdown("shop")}
+//                   className={`flex items-center gap-2 px-4 py-2.5 mx-1 rounded-xl transition-all duration-300 font-medium ${
+//                     openDropdown === "shop"
+//                       ? "text-[#E1A95F] bg-[#E1A95F]/10"
+//                       : "text-slate-200 hover:text-[#E1A95F] hover:bg-white/5"
+//                   }`}
+//                 >
+//                   Shop
+//                   <motion.span
+//                     animate={{ rotate: openDropdown === "shop" ? 180 : 0 }}
+//                     transition={{ duration: 0.3 }}
+//                   >
+//                     <FaChevronDown className="text-sm" />
+//                   </motion.span>
+//                 </button>
+//                 <AnimatePresence>
+//                   {openDropdown === "shop" && (
+//                     <motion.div
+//                       className="absolute left-0 top-full mt-2 min-w-[220px] bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700 p-3"
+//                       initial={{ opacity: 0, y: -10, scale: 0.95 }}
+//                       animate={{ opacity: 1, y: 0, scale: 1 }}
+//                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
+//                       transition={{ duration: 0.2 }}
+//                     >
+//                       <div className="space-y-2">
+//                         {categories.map((cat, i) => (
+//                           <motion.button
+//                             key={i}
+//                             initial={{ opacity: 0, x: -10 }}
+//                             animate={{ opacity: 1, x: 0 }}
+//                             transition={{ duration: 0.2, delay: i * 0.05 }}
+//                             onClick={() =>
+//                               handleCategoryClick(
+//                                 `/category/${cat.name.toLowerCase()}`
+//                               )
+//                             }
+//                             className="w-full text-left px-3 py-2.5 rounded-lg text-slate-300 hover:text-[#E1A95F] hover:bg-slate-800/50 transition-all duration-300 flex items-center gap-3 group"
+//                           >
+//                             <div className="w-2 h-2 bg-[#E1A95F]/50 rounded-full group-hover:bg-[#E1A95F] transition-all duration-300"></div>
+//                             <span className="font-medium">{cat.name}</span>
+//                           </motion.button>
+//                         ))}
+//                       </div>
+//                     </motion.div>
+//                   )}
+//                 </AnimatePresence>
+//               </motion.li>
+
+//               <li className="ml-2">
+//                 <ThemeToggle />
+//               </li>
+//             </ul>
+
+//             {/* Right Icons */}
+//             <div className="flex items-center gap-3 md:gap-4">
+//               {/* Search */}
+//               <div ref={searchRef} className="relative">
+//                 <motion.button
+//                   whileHover={{ scale: 1.1 }}
+//                   whileTap={{ scale: 0.9 }}
+//                   onClick={() => setSearchOpen(!searchOpen)}
+//                   className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 group"
+//                 >
+//                   <FaSearch className="text-slate-300 group-hover:text-[#E1A95F] text-lg transition-colors duration-300" />
+//                 </motion.button>
+
+//                 <AnimatePresence>
+//                   {searchOpen && (
+//                     <motion.div
+//                       initial={{ opacity: 0, scale: 0.9, y: 10 }}
+//                       animate={{ opacity: 1, scale: 1, y: 0 }}
+//                       exit={{ opacity: 0, scale: 0.9, y: 10 }}
+//                       className="absolute right-0 top-full mt-2 w-80 bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700 p-4"
+//                     >
+//                       <form onSubmit={handleSearch} className="space-y-3">
+//                         <input
+//                           type="text"
+//                           value={searchQuery}
+//                           onChange={(e) => setSearchQuery(e.target.value)}
+//                           placeholder="Search products, brands, categories..."
+//                           className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                           autoFocus
+//                         />
+//                         <button
+//                           type="submit"
+//                           className="w-full py-2.5 bg-gradient-to-r from-[#E1A95F] to-[#d4a259] text-white rounded-xl font-medium hover:shadow-lg hover:shadow-[#E1A95F]/25 transition-all duration-300"
+//                         >
+//                           Search Products
+//                         </button>
+//                       </form>
+//                     </motion.div>
+//                   )}
+//                 </AnimatePresence>
+//               </div>
+
+//               {/* Notifications with YouTube-style badge */}
+//               <div className="relative">
+//                 <motion.div
+//                   whileHover={{ scale: 1.1 }}
+//                   whileTap={{ scale: 0.9 }}
+//                   className="relative cursor-pointer group"
+//                   onClick={() => navigate("/notifications")}
+//                 >
+//                   <div className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300">
+//                     <FaBell className="text-slate-300 group-hover:text-[#E1A95F] text-lg transition-colors duration-300" />
+
+//                     {/* YouTube-style notification badge */}
+//                     {unreadCount > 0 && (
+//                       <div className="absolute top-0 right-0">
+//                         <motion.div
+//                           initial={{ scale: 0 }}
+//                           animate={{ scale: 1 }}
+//                           className="relative"
+//                         >
+//                           {/* Main badge */}
+//                           <div className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-lg border border-white">
+//                             {unreadCount > 9 ? "9+" : unreadCount}
+//                           </div>
+
+//                           {/* Pulsing effect for new notifications */}
+//                           <div className="absolute -top-1 -right-1 w-[18px] h-[18px] bg-red-600 rounded-full opacity-75 animate-ping"></div>
+//                         </motion.div>
+//                       </div>
+//                     )}
+//                   </div>
+//                 </motion.div>
+//               </div>
+
+//               {/* Cart */}
+//               <motion.div
+//                 whileHover={{ scale: 1.1 }}
+//                 whileTap={{ scale: 0.9 }}
+//                 initial={{ opacity: 0, x: 20 }}
+//                 animate={{ opacity: 1, x: 0 }}
+//                 className="relative cursor-pointer group"
+//                 onClick={() => navigate("/cart")}
+//               >
+//                 <div
+//                   className={`p-2.5 rounded-xl border transition-all duration-300 ${
+//                     cartPulse
+//                       ? "bg-[#E1A95F]/20 border-[#E1A95F]/30"
+//                       : "bg-white/5 border-white/10 hover:bg-white/10"
+//                   }`}
+//                 >
+//                   <FaShoppingCart className="text-[#E1A95F] text-lg group-hover:scale-110 transition-transform duration-300" />
+//                 </div>
+//                 {cartItemCount > 0 && (
+//                   <motion.span
+//                     initial={{ scale: 0 }}
+//                     animate={{ scale: 1 }}
+//                     className={`absolute -top-1.5 -right-1.5 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg ${
+//                       cartItemCount > 9
+//                         ? "bg-gradient-to-r from-red-500 to-pink-500"
+//                         : "bg-gradient-to-r from-green-500 to-emerald-500"
+//                     }`}
+//                   >
+//                     {cartItemCount > 9 ? "9+" : cartItemCount}
+//                   </motion.span>
+//                 )}
+//               </motion.div>
+
+//               {/* User */}
+//               {user && (
+//                 <div className="relative" ref={userMenuRef}>
+//                   <motion.div
+//                     whileHover={{ scale: 1.1 }}
+//                     whileTap={{ scale: 0.9 }}
+//                     className="cursor-pointer p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 group"
+//                     onClick={() => setUserMenuOpen(!userMenuOpen)}
+//                   >
+//                     <FaUser className="text-[#E1A95F] text-lg group-hover:scale-110 transition-transform duration-300" />
+//                   </motion.div>
+//                   <AnimatePresence>
+//                     {userMenuOpen && (
+//                       <motion.div
+//                         className="fixed md:absolute right-0 top-20 md:top-full mt-2 w-screen md:w-56 bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700 p-4 md:max-w-[90vw] md:max-w-none"
+//                         initial={{ opacity: 0, y: -10, scale: 0.95 }}
+//                         animate={{ opacity: 1, y: 0, scale: 1 }}
+//                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
+//                         transition={{ duration: 0.2 }}
+//                       >
+//                         <div className="space-y-3">
+//                           <div className="pb-3 border-b border-slate-700">
+//                             <div className="flex items-center gap-3">
+//                               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#E1A95F] to-[#d4a259] flex items-center justify-center text-white font-bold text-lg">
+//                                 {user.name?.charAt(0)?.toUpperCase() || "U"}
+//                               </div>
+//                               <div className="min-w-0 flex-1">
+//                                 <div className="font-bold text-white truncate">
+//                                   Hi, {user.name || "User"}
+//                                 </div>
+//                                 <div className="text-xs text-slate-400 truncate">
+//                                   {user.email}
+//                                 </div>
+//                                 <div className="text-xs text-[#E1A95F] font-semibold mt-1">
+//                                   {user.role === "admin"
+//                                     ? "Administrator"
+//                                     : "User"}
+//                                 </div>
+//                               </div>
+//                             </div>
+//                           </div>
+
+//                           <Link
+//                             to="/my-orders"
+//                             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-[#E1A95F] hover:bg-slate-800/50 transition-all duration-300 group"
+//                             onClick={() => setUserMenuOpen(false)}
+//                           >
+//                             <div className="w-1.5 h-1.5 bg-[#E1A95F]/50 rounded-full group-hover:bg-[#E1A95F] flex-shrink-0"></div>
+//                             <span className="truncate">My Orders</span>
+//                           </Link>
+
+//                           {/* My Profile Link - Only for non-admin users */}
+//                           {user.role !== "admin" && (
+//                             <button
+//                               onClick={() => {
+//                                 setShowProfileModal(true);
+//                                 setUserMenuOpen(false);
+//                               }}
+//                               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-[#E1A95F] hover:bg-slate-800/50 transition-all duration-300 group text-left"
+//                             >
+//                               <div className="w-1.5 h-1.5 bg-[#E1A95F]/50 rounded-full group-hover:bg-[#E1A95F] flex-shrink-0"></div>
+//                               <span className="truncate">My Profile</span>
+//                             </button>
+//                           )}
+
+//                           {user.role === "admin" && (
+//                             <Link
+//                               to="/admin"
+//                               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-green-400 hover:text-green-300 hover:bg-slate-800/50 transition-all duration-300 group"
+//                               onClick={() => setUserMenuOpen(false)}
+//                             >
+//                               <div className="w-1.5 h-1.5 bg-green-500/50 rounded-full group-hover:bg-green-500 flex-shrink-0"></div>
+//                               <span className="truncate">Admin Panel</span>
+//                             </Link>
+//                           )}
+
+//                           <button
+//                             onClick={() => {
+//                               logout();
+//                               setUserMenuOpen(false);
+//                             }}
+//                             className="w-full mt-2 py-2.5 bg-gradient-to-r from-red-600/10 to-pink-600/10 hover:from-red-600/20 hover:to-pink-600/20 text-red-400 hover:text-red-300 rounded-xl font-medium transition-all duration-300 border border-red-500/20 flex items-center justify-center gap-2"
+//                           >
+//                             <FaSignOutAlt />
+//                             <span className="truncate">Sign Out</span>
+//                           </button>
+//                         </div>
+//                       </motion.div>
+//                     )}
+//                   </AnimatePresence>
+//                 </div>
+//               )}
+
+//               {/* Mobile Menu Button */}
+//               <motion.button
+//                 whileHover={{ scale: 1.1 }}
+//                 whileTap={{ scale: 0.9 }}
+//                 onClick={() => setMenuOpen(!menuOpen)}
+//                 className="lg:hidden p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300"
+//               >
+//                 {menuOpen ? (
+//                   <FaTimes className="text-[#E1A95F] text-xl" />
+//                 ) : (
+//                   <FaBars className="text-slate-300 text-xl" />
+//                 )}
+//               </motion.button>
+//             </div>
+//           </div>
+//         </div>
+//       </motion.nav>
+
+//       {/* Mobile Menu Overlay */}
+//       <AnimatePresence>
+//         {menuOpen && (
+//           <>
+//             {/* Backdrop */}
+//             <motion.div
+//               initial={{ opacity: 0 }}
+//               animate={{ opacity: 1 }}
+//               exit={{ opacity: 0 }}
+//               onClick={() => setMenuOpen(false)}
+//               className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+//             />
+
+//             {/* Mobile Menu Panel */}
+//             <motion.div
+//               initial={{ x: "100%" }}
+//               animate={{ x: 0 }}
+//               exit={{ x: "100%" }}
+//               transition={{ type: "spring", damping: 25 }}
+//               className="fixed top-0 right-0 h-full w-full max-w-sm z-50 lg:hidden"
+//             >
+//               <div className="h-full bg-gradient-to-b from-slate-900 to-slate-800 shadow-2xl overflow-y-auto">
+//                 {/* Mobile Header */}
+//                 <div className="p-6 border-b border-slate-700">
+//                   <div className="flex items-center justify-between mb-6">
+//                     <div className="flex items-center gap-3">
+//                       {/* <img src={logo} alt="Logo" className="w-10 h-10" /> */}
+//                       <h2 className="text-2xl font-bold text-white">Menu</h2>
+//                     </div>
+//                     <motion.button
+//                       whileHover={{ scale: 1.1 }}
+//                       whileTap={{ scale: 0.9 }}
+//                       onClick={() => setMenuOpen(false)}
+//                       className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-300"
+//                     >
+//                       <FaTimes className="text-[#E1A95F] text-xl" />
+//                     </motion.button>
+//                   </div>
+
+//                   {/* User Info Mobile */}
+//                   {user && (
+//                     <div className="flex items-center gap-3 mb-6 p-4 rounded-xl bg-gradient-to-r from-[#E1A95F]/10 to-[#d4a259]/10 border border-[#E1A95F]/20">
+//                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#E1A95F] to-[#d4a259] flex items-center justify-center text-white font-bold text-lg">
+//                         {user.name?.charAt(0)?.toUpperCase() || "U"}
+//                       </div>
+//                       <div className="min-w-0 flex-1">
+//                         <div className="font-bold text-white truncate">
+//                           {user.name || "User"}
+//                         </div>
+//                         <div className="text-sm text-slate-400 truncate">
+//                           {user.email}
+//                         </div>
+//                         <div className="text-xs text-[#E1A95F] font-semibold mt-1">
+//                           {user.role === "admin" ? "Administrator" : "User"}
+//                         </div>
+//                       </div>
+//                     </div>
+//                   )}
+//                 </div>
+
+//                 {/* Mobile Links */}
+//                 <div className="p-6 space-y-2">
+//                   {links.map((link, index) => (
+//                     <Link
+//                       key={index}
+//                       to={link.path}
+//                       onClick={() => setMenuOpen(false)}
+//                       className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 ${
+//                         location.pathname === link.path
+//                           ? "bg-gradient-to-r from-[#E1A95F]/20 to-[#d4a259]/20 text-[#E1A95F]"
+//                           : "text-slate-300 hover:text-white hover:bg-slate-800"
+//                       }`}
+//                     >
+//                       <div
+//                         className={`w-1.5 h-1.5 rounded-full ${
+//                           location.pathname === link.path
+//                             ? "bg-[#E1A95F]"
+//                             : "bg-slate-600"
+//                         }`}
+//                       ></div>
+//                       <span className="font-medium truncate">{link.name}</span>
+//                     </Link>
+//                   ))}
+
+//                   {/* Shop Section Mobile */}
+//                   <div className="space-y-2">
+//                     <button
+//                       onClick={() => toggleDropdown("shop-mobile")}
+//                       className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition-all duration-300"
+//                     >
+//                       <div className="flex items-center gap-3">
+//                         <div className="w-1.5 h-1.5 rounded-full bg-slate-600 flex-shrink-0"></div>
+//                         <span className="font-medium truncate">Shop</span>
+//                       </div>
+//                       <FaChevronDown
+//                         className={`transition flex-shrink-0 ${
+//                           openDropdown === "shop-mobile" ? "rotate-180" : ""
+//                         }`}
+//                       />
+//                     </button>
+
+//                     <AnimatePresence>
+//                       {openDropdown === "shop-mobile" && (
+//                         <motion.div
+//                           initial={{ opacity: 0, height: 0 }}
+//                           animate={{ opacity: 1, height: "auto" }}
+//                           exit={{ opacity: 0, height: 0 }}
+//                           className="ml-4 pl-4 border-l border-slate-700 space-y-2"
+//                         >
+//                           {categories.map((cat, i) => (
+//                             <button
+//                               key={i}
+//                               onClick={() => {
+//                                 navigate(`/category/${cat.name.toLowerCase()}`);
+//                                 setMenuOpen(false);
+//                               }}
+//                               className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-slate-400 hover:text-[#E1A95F] hover:bg-slate-800/50 transition-all duration-300 text-left"
+//                             >
+//                               <div className="w-1 h-1 bg-slate-600 rounded-full flex-shrink-0"></div>
+//                               <span className="truncate">{cat.name}</span>
+//                             </button>
+//                           ))}
+//                         </motion.div>
+//                       )}
+//                     </AnimatePresence>
+//                   </div>
+
+//                   {/* My Profile in Mobile Menu - Only for non-admin users */}
+//                   {user && user.role !== "admin" && (
+//                     <button
+//                       onClick={() => {
+//                         setShowProfileModal(true);
+//                         setMenuOpen(false);
+//                       }}
+//                       className="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition-all duration-300"
+//                     >
+//                       <div className="w-1.5 h-1.5 rounded-full bg-slate-600 flex-shrink-0"></div>
+//                       <span className="font-medium truncate">My Profile</span>
+//                     </button>
+//                   )}
+
+//                   {/* Theme Toggle Mobile */}
+//                   <div className="mt-6 pt-6 border-t border-slate-700">
+//                     <div className="flex items-center justify-between px-4">
+//                       <span className="text-slate-300 font-medium truncate">
+//                         Theme
+//                       </span>
+//                       <ThemeToggle />
+//                     </div>
+//                   </div>
+//                 </div>
+
+//                 {/* Mobile Footer */}
+//                 <div className="p-6 border-t border-slate-700 mt-auto">
+//                   <div className="space-y-3">
+//                     <button
+//                       onClick={() => {
+//                         navigate("/notifications");
+//                         setMenuOpen(false);
+//                       }}
+//                       className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 text-slate-300 hover:text-white transition-all duration-300 relative"
+//                     >
+//                       <div className="flex items-center gap-3">
+//                         <div className="relative">
+//                           <FaBell className="text-[#E1A95F]" />
+//                           {unreadCount > 0 && (
+//                             <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-600 rounded-full border border-white animate-pulse"></div>
+//                           )}
+//                         </div>
+//                         <span className="truncate">Notifications</span>
+//                       </div>
+//                       {unreadCount > 0 && (
+//                         <span className="bg-red-600 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1 border border-white">
+//                           {unreadCount > 9 ? "9+" : unreadCount}
+//                         </span>
+//                       )}
+//                     </button>
+
+//                     {user && user.role === "admin" && (
+//                       <button
+//                         onClick={() => {
+//                           navigate("/admin");
+//                           setMenuOpen(false);
+//                         }}
+//                         className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl bg-gradient-to-r from-green-600/10 to-emerald-600/10 border border-green-500/20 text-green-400 hover:text-green-300 transition-all duration-300"
+//                       >
+//                         <div className="w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0"></div>
+//                         <span className="truncate">Admin Panel</span>
+//                       </button>
+//                     )}
+//                   </div>
+//                 </div>
+//               </div>
+//             </motion.div>
+//           </>
+//         )}
+//       </AnimatePresence>
+
+//       {/* Profile Modal */}
+//       <AnimatePresence>
+//         {showProfileModal && user && user.role !== "admin" && (
+//           <>
+//             {/* Backdrop */}
+//             <motion.div
+//               initial={{ opacity: 0 }}
+//               animate={{ opacity: 1 }}
+//               exit={{ opacity: 0 }}
+//               className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100]"
+//             />
+
+//             {/* Modal */}
+//             <div className="fixed inset-0 z-[101] flex items-center justify-center p-4">
+//               <motion.div
+//                 ref={profileModalRef}
+//                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
+//                 animate={{ opacity: 1, scale: 1, y: 0 }}
+//                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
+//                 transition={{ type: "spring", damping: 25 }}
+//                 className="w-full max-w-2xl bg-gradient-to-b from-slate-900 to-slate-800 rounded-2xl shadow-2xl border border-slate-700 overflow-hidden max-h-[90vh] overflow-y-auto"
+//               >
+//                 {/* Modal Header */}
+//                 <div className="p-6 border-b border-slate-700 bg-gradient-to-r from-[#E1A95F]/10 to-[#d4a259]/10">
+//                   <div className="flex items-center justify-between">
+//                     <div className="flex items-center gap-3">
+//                       <FaUserCircle className="text-3xl text-[#E1A95F]" />
+//                       <div>
+//                         <h2 className="text-2xl font-bold text-white">
+//                           My Profile
+//                         </h2>
+//                         <p className="text-slate-400">
+//                           Manage your account settings
+//                         </p>
+//                       </div>
+//                     </div>
+//                     <button
+//                       onClick={() => setShowProfileModal(false)}
+//                       className="p-2 hover:bg-slate-800 rounded-xl transition-colors"
+//                     >
+//                       <FaTimes className="text-slate-400 text-xl" />
+//                     </button>
+//                   </div>
+//                 </div>
+
+//                 {/* Modal Body */}
+//                 <div className="p-6">
+//                   {/* Messages */}
+//                   {profileSuccess && (
+//                     <motion.div
+//                       initial={{ opacity: 0, y: -10 }}
+//                       animate={{ opacity: 1, y: 0 }}
+//                       className="mb-6 p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl"
+//                     >
+//                       <p className="text-green-400 text-center">
+//                         {profileSuccess}
+//                       </p>
+//                     </motion.div>
+//                   )}
+
+//                   {profileError && (
+//                     <motion.div
+//                       initial={{ opacity: 0, y: -10 }}
+//                       animate={{ opacity: 1, y: 0 }}
+//                       className="mb-6 p-4 bg-gradient-to-r from-red-500/10 to-pink-500/10 border border-red-500/20 rounded-xl"
+//                     >
+//                       <p className="text-red-400 text-center">{profileError}</p>
+//                     </motion.div>
+//                   )}
+
+//                   <div className="grid md:grid-cols-3 gap-6">
+//                     {/* Left Column - User Info */}
+//                     <div className="md:col-span-1">
+//                       <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+//                         <div className="flex flex-col items-center">
+//                           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#E1A95F] to-[#d4a259] flex items-center justify-center mb-4">
+//                             <span className="text-white text-3xl font-bold">
+//                               {user.name?.charAt(0)?.toUpperCase() || "U"}
+//                             </span>
+//                           </div>
+
+//                           <h3 className="text-xl font-bold text-white mb-1 truncate w-full text-center">
+//                             {user.name || "User"}
+//                           </h3>
+//                           <p className="text-slate-400 mb-4 truncate w-full text-center">
+//                             {user.email}
+//                           </p>
+
+//                           <div className="w-full bg-slate-700/50 rounded-lg p-3 mt-4">
+//                             <h4 className="text-white font-semibold mb-2">
+//                               Account Status
+//                             </h4>
+//                             <div className="flex items-center justify-between mb-2">
+//                               <span className="text-slate-400">Verified</span>
+//                               <div className="flex items-center gap-2">
+//                                 {user.isVerified ? (
+//                                   <>
+//                                     <FaCheckCircle className="text-green-400 text-sm flex-shrink-0" />
+//                                     <span className="text-xs font-semibold text-green-400 truncate">
+//                                       Verified
+//                                     </span>
+//                                   </>
+//                                 ) : (
+//                                   <>
+//                                     <FaTimesCircle className="text-yellow-400 text-sm flex-shrink-0" />
+//                                     <span className="text-xs font-semibold text-yellow-400 truncate">
+//                                       Not Verified
+//                                     </span>
+//                                   </>
+//                                 )}
+//                               </div>
+//                             </div>
+//                             <div className="flex items-center justify-between">
+//                               <span className="text-slate-400">Active</span>
+//                               <div className="flex items-center gap-2">
+//                                 {!user.isBlocked ? (
+//                                   <>
+//                                     <FaCheckCircle className="text-green-400 text-sm flex-shrink-0" />
+//                                     <span className="text-xs font-semibold text-green-400 truncate">
+//                                       Active
+//                                     </span>
+//                                   </>
+//                                 ) : (
+//                                   <>
+//                                     <FaTimesCircle className="text-red-400 text-sm flex-shrink-0" />
+//                                     <span className="text-xs font-semibold text-red-400 truncate">
+//                                       Blocked
+//                                     </span>
+//                                   </>
+//                                 )}
+//                               </div>
+//                             </div>
+//                           </div>
+
+//                           <p className="text-xs text-slate-500 mt-4 text-center">
+//                             Member since{" "}
+//                             {new Date(user.createdAt).toLocaleDateString()}
+//                           </p>
+//                         </div>
+//                       </div>
+//                     </div>
+
+//                     {/* Right Column - Form */}
+//                     <div className="md:col-span-2">
+//                       <form
+//                         onSubmit={handleProfileSubmit}
+//                         className="space-y-6"
+//                       >
+//                         {/* Basic Info */}
+//                         <div className="space-y-4">
+//                           <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+//                             <FaUser className="text-[#E1A95F]" />
+//                             Basic Information
+//                           </h3>
+
+//                           <div>
+//                             <label className="block text-slate-300 mb-2">
+//                               Full Name
+//                             </label>
+//                             <input
+//                               type="text"
+//                               name="name"
+//                               value={profileForm.name}
+//                               onChange={handleProfileChange}
+//                               className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                               required
+//                             />
+//                           </div>
+
+//                           <div>
+//                             <label className="block text-slate-300 mb-2">
+//                               Email Address
+//                             </label>
+//                             <input
+//                               type="email"
+//                               name="email"
+//                               value={profileForm.email}
+//                               onChange={handleProfileChange}
+//                               className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                               required
+//                             />
+//                           </div>
+
+//                           <div>
+//                             <label className="block text-slate-300 mb-2">
+//                               Bio
+//                             </label>
+//                             <textarea
+//                               name="bio"
+//                               value={profileForm.bio}
+//                               onChange={handleProfileChange}
+//                               rows="2"
+//                               className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                               placeholder="Tell us about yourself..."
+//                             />
+//                           </div>
+//                         </div>
+
+//                         {/* Password Change */}
+//                         <div className="space-y-4 pt-6 border-t border-slate-700">
+//                           <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+//                             <FaKey className="text-[#E1A95F]" />
+//                             Change Password
+//                           </h3>
+
+//                           <div>
+//                             <label className="block text-slate-300 mb-2">
+//                               Current Password
+//                             </label>
+//                             <input
+//                               type="password"
+//                               name="currentPassword"
+//                               value={profileForm.currentPassword}
+//                               onChange={handleProfileChange}
+//                               className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                               placeholder="Required to change password"
+//                             />
+//                           </div>
+
+//                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//                             <div>
+//                               <label className="block text-slate-300 mb-2">
+//                                 New Password
+//                               </label>
+//                               <input
+//                                 type="password"
+//                                 name="newPassword"
+//                                 value={profileForm.newPassword}
+//                                 onChange={handleProfileChange}
+//                                 className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                                 placeholder="At least 6 characters"
+//                               />
+//                             </div>
+
+//                             <div>
+//                               <label className="block text-slate-300 mb-2">
+//                                 Confirm Password
+//                               </label>
+//                               <input
+//                                 type="password"
+//                                 name="confirmPassword"
+//                                 value={profileForm.confirmPassword}
+//                                 onChange={handleProfileChange}
+//                                 className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                                 placeholder="Confirm new password"
+//                               />
+//                             </div>
+//                           </div>
+
+//                           <div className="text-xs text-slate-400 mt-2">
+//                             <FaTimesCircle className="inline mr-1" />
+//                             Leave password fields empty if you don't want to
+//                             change password
+//                           </div>
+//                         </div>
+
+//                         {/* Action Buttons */}
+//                         <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-slate-700">
+//                           <button
+//                             type="submit"
+//                             disabled={profileLoading}
+//                             className="flex-1 py-3 bg-gradient-to-r from-[#E1A95F] to-[#d4a259] text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-[#E1A95F]/25 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50"
+//                           >
+//                             {profileLoading ? (
+//                               <>
+//                                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin flex-shrink-0"></div>
+//                                 <span className="truncate">Saving...</span>
+//                               </>
+//                             ) : (
+//                               <>
+//                                 <FaSave className="flex-shrink-0" />
+//                                 <span className="truncate">Save Changes</span>
+//                               </>
+//                             )}
+//                           </button>
+
+//                           <button
+//                             type="button"
+//                             onClick={() => setShowDeleteConfirm(true)}
+//                             className="py-3 px-6 bg-gradient-to-r from-red-600/10 to-pink-600/10 border border-red-500/20 text-red-400 hover:text-red-300 hover:from-red-600/20 hover:to-pink-600/20 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2"
+//                           >
+//                             <FaTrash className="flex-shrink-0" />
+//                             <span className="truncate">Delete Account</span>
+//                           </button>
+//                         </div>
+//                       </form>
+//                     </div>
+//                   </div>
+//                 </div>
+//               </motion.div>
+//             </div>
+//           </>
+//         )}
+//       </AnimatePresence>
+
+//       {/* Delete Confirmation Modal */}
+//       <AnimatePresence>
+//         {showDeleteConfirm && (
+//           <>
+//             {/* Backdrop */}
+//             <motion.div
+//               initial={{ opacity: 0 }}
+//               animate={{ opacity: 1 }}
+//               exit={{ opacity: 0 }}
+//               className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[102]"
+//             />
+
+//             {/* Modal */}
+//             <div className="fixed inset-0 z-[103] flex items-center justify-center p-4">
+//               <motion.div
+//                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
+//                 animate={{ opacity: 1, scale: 1, y: 0 }}
+//                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
+//                 transition={{ type: "spring", damping: 25 }}
+//                 className="w-full max-w-md bg-gradient-to-b from-slate-900 to-slate-800 rounded-2xl shadow-2xl border border-slate-700 p-6"
+//               >
+//                 <div className="text-center">
+//                   <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-600/20 to-pink-600/20 flex items-center justify-center">
+//                     <FaTrash className="text-red-500 text-2xl" />
+//                   </div>
+
+//                   <h3 className="text-2xl font-bold text-white mb-2 truncate">
+//                     Delete Account
+//                   </h3>
+//                   <p className="text-slate-400 mb-6">
+//                     This action cannot be undone. All your data will be
+//                     permanently removed from our database.
+//                   </p>
+
+//                   <div className="mb-6">
+//                     <label className="block text-slate-300 mb-2 text-left">
+//                       Enter your password to confirm:
+//                     </label>
+//                     <input
+//                       type="password"
+//                       value={deletePassword}
+//                       onChange={(e) => setDeletePassword(e.target.value)}
+//                       className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 transition-all duration-300"
+//                       placeholder="Your password"
+//                     />
+//                   </div>
+
+//                   <div className="flex gap-4">
+//                     <button
+//                       onClick={() => setShowDeleteConfirm(false)}
+//                       className="flex-1 py-3 bg-slate-700 text-white rounded-xl font-semibold hover:bg-slate-600 transition-all duration-300 truncate"
+//                     >
+//                       Cancel
+//                     </button>
+
+//                     <button
+//                       onClick={handleDeleteAccount}
+//                       disabled={profileLoading}
+//                       className="flex-1 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-red-500/25 transition-all duration-300 disabled:opacity-50 truncate"
+//                     >
+//                       {profileLoading ? "Deleting..." : "Delete Account"}
+//                     </button>
+//                   </div>
+//                 </div>
+//               </motion.div>
+//             </div>
+//           </>
+//         )}
+//       </AnimatePresence>
+
+//       {/* Scroll Progress Bar */}
+//       <motion.div
+//         className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#E1A95F] via-[#d4a259] to-[#E1A95F] z-50"
+//         style={{ scaleX: scrolled ? 1 : 0 }}
+//         transition={{ duration: 0.3 }}
+//       />
+//     </>
+//   );
+// };
+// export default Navigation;
+
+// import React, { useState, useContext, useEffect, useRef } from "react";
+// import { Link, useNavigate, useLocation } from "react-router-dom";
+// import {
+//   FaBars,
+//   FaTimes,
+//   FaShoppingCart,
+//   FaChevronDown,
+//   FaUser,
+//   FaBell,
+//   FaSearch,
+//   FaKey,
+//   FaTrash,
+//   FaSave,
+//   FaUserCircle,
+//   FaSignOutAlt,
+//   FaCheckCircle,
+//   FaTimesCircle,
+//   FaSpinner,
+//   FaBox,
+//   FaTag,
+//   FaFire,
+//   FaHistory,
+// } from "react-icons/fa";
+// import { motion, AnimatePresence } from "framer-motion";
+// import ThemeToggle from "../Components/ThemeToggle";
+// import { authContext } from "../Context/authContext";
+// import { cartContext } from "../Context/cartContext";
+// import { initSocket } from "../utils/socket";
+// import { fetchWithAuth } from "../utils/auth";
+
+// const API = import.meta.env.VITE_API_URL;
+
+// const Navigation = () => {
+//   const [menuOpen, setMenuOpen] = useState(false);
+//   const [openDropdown, setOpenDropdown] = useState(null);
+//   const [userMenuOpen, setUserMenuOpen] = useState(false);
+//   const [categories, setCategories] = useState([]);
+//   const [allCategories, setAllCategories] = useState([]);
+//   const [unreadCount, setUnreadCount] = useState(0);
+//   const [scrolled, setScrolled] = useState(false);
+//   const [searchOpen, setSearchOpen] = useState(false);
+//   const [searchQuery, setSearchQuery] = useState("");
+//   const [cartPulse, setCartPulse] = useState(false);
+//   const [showProfileModal, setShowProfileModal] = useState(false);
+//   const [profileForm, setProfileForm] = useState({
+//     name: "",
+//     email: "",
+//     bio: "",
+//     currentPassword: "",
+//     newPassword: "",
+//     confirmPassword: "",
+//   });
+//   const [profileLoading, setProfileLoading] = useState(false);
+//   const [profileError, setProfileError] = useState("");
+//   const [profileSuccess, setProfileSuccess] = useState("");
+//   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+//   const [deletePassword, setDeletePassword] = useState("");
+//   const [searchResults, setSearchResults] = useState([]);
+//   const [isSearching, setIsSearching] = useState(false);
+//   const [recentSearches, setRecentSearches] = useState([]);
+//   const [popularSearches, setPopularSearches] = useState([]);
+//   const [searchHistoryOpen, setSearchHistoryOpen] = useState(true);
+//   const [showAllCategories, setShowAllCategories] = useState(false);
+
+//   const searchRef = useRef(null);
+//   const searchInputRef = useRef(null);
+//   const profileModalRef = useRef(null);
+//   const userMenuRef = useRef(null);
+//   const navigate = useNavigate();
+//   const location = useLocation();
+//   const { user, logout, updateUser } = useContext(authContext);
+//   const { cart } = useContext(cartContext);
+
+//   // Fetch categories for dropdown
+//   useEffect(() => {
+//     const fetchCategories = async () => {
+//       try {
+//         const res = await fetchWithAuth(`${API}/api/categories`);
+//         const data = await res.json();
+//         setCategories(data || []);
+//       } catch (err) {
+//         console.error("Categories fetch error:", err);
+//       }
+//     };
+//     fetchCategories();
+//   }, []);
+
+//   // Fetch all categories for search
+//   useEffect(() => {
+//     const fetchAllCategories = async () => {
+//       try {
+//         const res = await fetchWithAuth(
+//           `${API}/api/products/categories-for-search`
+//         );
+//         if (res.ok) {
+//           const data = await res.json();
+//           setAllCategories(data);
+//         }
+//       } catch (err) {
+//         console.error("All categories fetch error:", err);
+//       }
+//     };
+//     fetchAllCategories();
+//   }, []);
+
+//   // Fetch popular searches
+//   useEffect(() => {
+//     const fetchPopularSearches = async () => {
+//       try {
+//         const res = await fetchWithAuth(`${API}/api/products/popular-searches`);
+//         if (res.ok) {
+//           const data = await res.json();
+//           setPopularSearches(data || []);
+//         }
+//       } catch (err) {
+//         console.error("Popular searches error:", err);
+//       }
+//     };
+//     fetchPopularSearches();
+//   }, []);
+
+//   // Load recent searches
+//   useEffect(() => {
+//     const savedSearches = localStorage.getItem("recent_searches");
+//     if (savedSearches) {
+//       try {
+//         setRecentSearches(JSON.parse(savedSearches));
+//       } catch (e) {
+//         console.error("Error parsing recent searches:", e);
+//       }
+//     }
+//   }, []);
+
+//   // Save recent searches
+//   const saveRecentSearches = (searches) => {
+//     setRecentSearches(searches);
+//     localStorage.setItem("recent_searches", JSON.stringify(searches));
+//   };
+
+//   // Scroll effect
+//   useEffect(() => {
+//     const handleScroll = () => {
+//       setScrolled(window.scrollY > 20);
+//     };
+//     window.addEventListener("scroll", handleScroll);
+//     return () => window.removeEventListener("scroll", handleScroll);
+//   }, []);
+
+//   // Cart pulse animation
+//   useEffect(() => {
+//     if (cart?.items?.length > 0) {
+//       setCartPulse(true);
+//       const timer = setTimeout(() => setCartPulse(false), 1000);
+//       return () => clearTimeout(timer);
+//     }
+//   }, [cart?.items]);
+
+//   // Fetch initial unread count
+//   useEffect(() => {
+//     if (!user) return;
+//     fetchUnreadCount();
+//   }, [user]);
+
+//   // Notifications socket
+//   useEffect(() => {
+//     if (!user) return;
+
+//     const s = initSocket(user._id);
+
+//     const onNotif = (notif) => {
+//       playSound();
+//       setUnreadCount((prev) => prev + 1);
+//     };
+
+//     s.on("notification", onNotif);
+
+//     const poll = setInterval(fetchUnreadCount, 10000);
+
+//     return () => {
+//       s.off("notification", onNotif);
+//       clearInterval(poll);
+//     };
+//   }, [user]);
+
+//   // Close search when clicking outside
+//   useEffect(() => {
+//     const handleClickOutside = (event) => {
+//       if (searchRef.current && !searchRef.current.contains(event.target)) {
+//         setSearchOpen(false);
+//       }
+//     };
+//     document.addEventListener("mousedown", handleClickOutside);
+//     return () => document.removeEventListener("mousedown", handleClickOutside);
+//   }, []);
+
+//   // Focus search input when search opens
+//   useEffect(() => {
+//     if (searchOpen && searchInputRef.current) {
+//       setTimeout(() => {
+//         searchInputRef.current.focus();
+//         setSearchHistoryOpen(true);
+//       }, 100);
+//     }
+//   }, [searchOpen]);
+
+//   // Close modals and dropdowns when clicking outside
+//   useEffect(() => {
+//     const handleClickOutside = (event) => {
+//       // Close user menu dropdown
+//       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+//         setUserMenuOpen(false);
+//       }
+
+//       // Close profile modal
+//       if (
+//         profileModalRef.current &&
+//         !profileModalRef.current.contains(event.target)
+//       ) {
+//         setShowProfileModal(false);
+//         setShowDeleteConfirm(false);
+//       }
+//     };
+
+//     document.addEventListener("mousedown", handleClickOutside);
+//     return () => document.removeEventListener("mousedown", handleClickOutside);
+//   }, []);
+
+//   // Initialize profile form when user data changes
+//   useEffect(() => {
+//     if (user) {
+//       setProfileForm({
+//         name: user.name || "",
+//         email: user.email || "",
+//         bio: user.bio || "",
+//         currentPassword: "",
+//         newPassword: "",
+//         confirmPassword: "",
+//       });
+//     }
+//   }, [user]);
+
+//   // 🔍 SEARCH FUNCTION - Updated
+//   const searchProducts = async (query) => {
+//     if (!query || query.trim() === "") {
+//       setSearchResults([]);
+//       setIsSearching(false);
+//       return;
+//     }
+
+//     setIsSearching(true);
+//     try {
+//       const res = await fetchWithAuth(
+//         `${API}/api/products/quick-search?q=${encodeURIComponent(query)}`
+//       );
+
+//       if (res.ok) {
+//         const data = await res.json();
+//         setSearchResults(data);
+
+//         // Add to recent searches
+//         if (data.length > 0 && !recentSearches.includes(query)) {
+//           const updated = [query, ...recentSearches].slice(0, 8);
+//           saveRecentSearches(updated);
+//         }
+//       } else {
+//         console.error("Search failed with status:", res.status);
+//         setSearchResults([]);
+//       }
+//     } catch (err) {
+//       console.error("Search error:", err);
+//       setSearchResults([]);
+//     } finally {
+//       setIsSearching(false);
+//     }
+//   };
+
+//   // Debounced search
+//   useEffect(() => {
+//     if (!searchOpen) return;
+
+//     const timer = setTimeout(() => {
+//       if (searchQuery.trim()) {
+//         searchProducts(searchQuery);
+//       } else {
+//         setSearchResults([]);
+//         setSearchHistoryOpen(true);
+//       }
+//     }, 350);
+
+//     return () => clearTimeout(timer);
+//   }, [searchQuery, searchOpen]);
+
+//   // Add to recent searches
+//   const addToRecentSearches = (query) => {
+//     const updated = [
+//       query,
+//       ...recentSearches.filter((s) => s.toLowerCase() !== query.toLowerCase()),
+//     ].slice(0, 8);
+//     saveRecentSearches(updated);
+//   };
+
+//   // Clear recent searches
+//   const clearRecentSearches = () => {
+//     saveRecentSearches([]);
+//   };
+
+//   // Handle search submission
+//   const handleSearch = (e, query = null, category = null) => {
+//     e?.preventDefault();
+//     const searchTerm = query || searchQuery.trim();
+
+//     if (searchTerm) {
+//       addToRecentSearches(searchTerm);
+
+//       if (category) {
+//         navigate(`/search?category=${encodeURIComponent(category)}`);
+//       } else {
+//         navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+//       }
+
+//       setSearchOpen(false);
+//       setSearchQuery("");
+//       setSearchResults([]);
+//     }
+//   };
+
+//   // Handle category click from search
+//   const handleCategorySearch = (categoryName) => {
+//     addToRecentSearches(categoryName);
+//     navigate(`/search?category=${encodeURIComponent(categoryName)}`);
+//     setSearchOpen(false);
+//   };
+
+//   const fetchUnreadCount = async () => {
+//     if (!user) return;
+//     try {
+//       const res = await fetchWithAuth(`${API}/api/notifications`);
+//       if (!res.ok) return;
+//       const data = await res.json();
+//       const unread = data.filter((n) => !n.read).length;
+//       setUnreadCount(unread);
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   };
+
+//   const playSound = () => {
+//     try {
+//       const audio = new Audio(
+//         "https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg"
+//       );
+//       audio.volume = 0.3;
+//       audio.play().catch(() => {});
+//     } catch (e) {
+//       console.error(e);
+//     }
+//   };
+
+//   // Format price
+//   const formatPrice = (price) => {
+//     return new Intl.NumberFormat("en-US", {
+//       style: "currency",
+//       currency: "USD",
+//       minimumFractionDigits: 0,
+//     }).format(price);
+//   };
+
+//   const links = [
+//     { name: "Home", path: "/" },
+//     { name: "About-us", path: "/about" },
+//     { name: "Contact-us", path: "/contact" },
+//     { name: "Return-policy", path: "/policy" },
+//     { name: "Blog", path: "/blog" },
+//   ];
+
+//   const toggleDropdown = (key) =>
+//     setOpenDropdown(openDropdown === key ? null : key);
+
+//   const handleCategoryClick = (path) => {
+//     navigate(path);
+//     setMenuOpen(false);
+//     setOpenDropdown(null);
+//   };
+
+//   const handleProfileChange = (e) => {
+//     const { name, value } = e.target;
+//     setProfileForm((prev) => ({
+//       ...prev,
+//       [name]: value,
+//     }));
+//     setProfileError("");
+//     setProfileSuccess("");
+//   };
+
+//   const validateProfileForm = () => {
+//     if (profileForm.newPassword && profileForm.newPassword.length < 6) {
+//       setProfileError("New password must be at least 6 characters");
+//       return false;
+//     }
+
+//     if (
+//       profileForm.newPassword &&
+//       profileForm.newPassword !== profileForm.confirmPassword
+//     ) {
+//       setProfileError("New passwords do not match");
+//       return false;
+//     }
+
+//     return true;
+//   };
+
+//   const handleProfileSubmit = async (e) => {
+//     e.preventDefault();
+//     setProfileError("");
+//     setProfileSuccess("");
+
+//     if (!validateProfileForm()) return;
+
+//     setProfileLoading(true);
+
+//     try {
+//       const updateData = {
+//         name: profileForm.name,
+//         email: profileForm.email,
+//         bio: profileForm.bio,
+//       };
+
+//       if (profileForm.currentPassword && profileForm.newPassword) {
+//         updateData.currentPassword = profileForm.currentPassword;
+//         updateData.newPassword = profileForm.newPassword;
+//       }
+
+//       console.log("Sending update to:", `${API}/api/users/profile`);
+//       console.log("Update data:", updateData);
+
+//       const res = await fetchWithAuth(`${API}/api/users/profile`, {
+//         method: "PUT",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify(updateData),
+//       });
+
+//       console.log("Response status:", res.status);
+
+//       // Check if response is JSON
+//       const contentType = res.headers.get("content-type");
+//       if (!contentType || !contentType.includes("application/json")) {
+//         const text = await res.text();
+//         console.error("Non-JSON response from server:", text.substring(0, 200));
+//         throw new Error(
+//           "Server returned non-JSON response. Please check if the API endpoint exists."
+//         );
+//       }
+
+//       const data = await res.json();
+//       console.log("Response data:", data);
+
+//       if (!res.ok) {
+//         throw new Error(
+//           data.message || `Failed to update profile (${res.status})`
+//         );
+//       }
+
+//       if (!data.success) {
+//         throw new Error(data.message || "Profile update failed");
+//       }
+
+//       // Update user in context
+//       if (data.user) {
+//         updateUser(data.user);
+//         setProfileSuccess("Profile updated successfully!");
+//       } else {
+//         throw new Error("No user data returned from server");
+//       }
+
+//       // Clear password fields
+//       setProfileForm((prev) => ({
+//         ...prev,
+//         currentPassword: "",
+//         newPassword: "",
+//         confirmPassword: "",
+//       }));
+
+//       setTimeout(() => setProfileSuccess(""), 3000);
+//     } catch (err) {
+//       console.error("Profile update error:", err);
+//       setProfileError(
+//         err.message || "Failed to update profile. Please try again."
+//       );
+//     } finally {
+//       setProfileLoading(false);
+//     }
+//   };
+
+//   const handleDeleteAccount = async () => {
+//     if (!deletePassword.trim()) {
+//       setProfileError("Please enter your password to confirm account deletion");
+//       return;
+//     }
+
+//     setProfileLoading(true);
+
+//     try {
+//       console.log(
+//         "Sending delete request to:",
+//         `${API}/api/users/delete-account`
+//       );
+
+//       const res = await fetchWithAuth(`${API}/api/users/delete-account`, {
+//         method: "DELETE",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({ password: deletePassword }),
+//       });
+
+//       console.log("Delete response status:", res.status);
+
+//       // Check if response is JSON
+//       const contentType = res.headers.get("content-type");
+//       if (!contentType || !contentType.includes("application/json")) {
+//         const text = await res.text();
+//         console.error("Non-JSON response from server:", text.substring(0, 200));
+//         throw new Error(
+//           "Server returned non-JSON response. Please check if the API endpoint exists."
+//         );
+//       }
+
+//       const data = await res.json();
+//       console.log("Delete response data:", data);
+
+//       if (!res.ok || !data.success) {
+//         throw new Error(data.message || "Failed to delete account");
+//       }
+
+//       // Logout and redirect
+//       logout();
+//       setShowProfileModal(false);
+//       navigate("/login");
+//     } catch (err) {
+//       console.error("Delete account error:", err);
+//       setProfileError(
+//         err.message || "Failed to delete account. Please try again."
+//       );
+//       setProfileLoading(false);
+//     }
+//   };
+
+//   const cartItemCount =
+//     cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+
+//   return (
+//     <>
+//       {/* Navigation Container */}
+//       <motion.nav
+//         initial={{ y: -100 }}
+//         animate={{ y: 0 }}
+//         transition={{ duration: 0.5, type: "spring" }}
+//         className="fixed top-0 w-full z-50 transition-all duration-300"
+//       >
+//         {/* Top Announcement Bar */}
+//         <div className="bg-gradient-to-r from-[#E1A95F]/20 via-[#d4a259]/20 to-[#c5954d]/20 py-2 px-4 text-center">
+//           <p className="text-xs text-white/90 font-medium">
+//             🚚{" "}
+//             <span className="text-[#E1A95F] font-semibold">Free Shipping</span>{" "}
+//             on orders over $100 •
+//             <span className="text-green-300 font-semibold ml-2">
+//               🎁 30% OFF
+//             </span>{" "}
+//             for new customers
+//           </p>
+//         </div>
+
+//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+//           <div className="flex justify-between items-center h-16">
+//             {/* Logo */}
+//             <motion.div
+//               whileHover={{ scale: 1.05 }}
+//               whileTap={{ scale: 0.95 }}
+//               className="flex items-center"
+//             >
+//               <Link to="/" className="flex items-center">
+//                 <img
+//                   // src={logo}
+//                   alt="Logo"
+//                   className="w-28 md:w-32 h-auto drop-shadow-lg"
+//                 />
+//               </Link>
+//             </motion.div>
+
+//             {/* Desktop Navigation */}
+//             <ul className="hidden lg:flex items-center gap-1">
+//               {links.map((link, index) => (
+//                 <motion.li
+//                   key={index}
+//                   initial={{ opacity: 0, y: -10 }}
+//                   animate={{ opacity: 1, y: 0 }}
+//                   transition={{ delay: index * 0.1 }}
+//                   className="relative"
+//                 >
+//                   <Link
+//                     to={link.path}
+//                     className={`relative px-4 py-2.5 mx-1 rounded-xl transition-all duration-300 font-medium ${
+//                       location.pathname === link.path
+//                         ? "text-[#E1A95F] bg-[#E1A95F]/10"
+//                         : "text-slate-200 hover:text-[#E1A95F] hover:bg-white/5"
+//                     }`}
+//                   >
+//                     {link.name}
+//                     {location.pathname === link.path && (
+//                       <motion.div
+//                         layoutId="underline"
+//                         className="absolute left-4 right-4 h-0.5 bottom-1.5 bg-[#E1A95F] rounded-full"
+//                       />
+//                     )}
+//                   </Link>
+//                 </motion.li>
+//               ))}
+
+//               {/* Dynamic Shop Dropdown */}
+//               <motion.li className="relative">
+//                 <button
+//                   onClick={() => toggleDropdown("shop")}
+//                   className={`flex items-center gap-2 px-4 py-2.5 mx-1 rounded-xl transition-all duration-300 font-medium ${
+//                     openDropdown === "shop"
+//                       ? "text-[#E1A95F] bg-[#E1A95F]/10"
+//                       : "text-slate-200 hover:text-[#E1A95F] hover:bg-white/5"
+//                   }`}
+//                 >
+//                   Shop
+//                   <motion.span
+//                     animate={{ rotate: openDropdown === "shop" ? 180 : 0 }}
+//                     transition={{ duration: 0.3 }}
+//                   >
+//                     <FaChevronDown className="text-sm" />
+//                   </motion.span>
+//                 </button>
+//                 <AnimatePresence>
+//                   {openDropdown === "shop" && (
+//                     <motion.div
+//                       className="absolute left-0 top-full mt-2 min-w-[220px] bg-slate-900/95 dark:bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700 dark:border-gray-300 p-3"
+//                       initial={{ opacity: 0, y: -10, scale: 0.95 }}
+//                       animate={{ opacity: 1, y: 0, scale: 1 }}
+//                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
+//                       transition={{ duration: 0.2 }}
+//                     >
+//                       <div className="space-y-2">
+//                         {categories.map((cat, i) => (
+//                           <motion.button
+//                             key={i}
+//                             initial={{ opacity: 0, x: -10 }}
+//                             animate={{ opacity: 1, x: 0 }}
+//                             transition={{ duration: 0.2, delay: i * 0.05 }}
+//                             onClick={() =>
+//                               handleCategoryClick(
+//                                 `/category/${cat.name.toLowerCase()}`
+//                               )
+//                             }
+//                             className="w-full text-left px-3 py-2.5 rounded-lg text-slate-300 dark:text-gray-700 hover:text-[#E1A95F] hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 flex items-center gap-3 group"
+//                           >
+//                             <div className="w-2 h-2 bg-[#E1A95F]/50 rounded-full group-hover:bg-[#E1A95F] transition-all duration-300"></div>
+//                             <span className="font-medium">{cat.name}</span>
+//                           </motion.button>
+//                         ))}
+//                       </div>
+//                     </motion.div>
+//                   )}
+//                 </AnimatePresence>
+//               </motion.li>
+
+//               <li className="ml-2">
+//                 <ThemeToggle />
+//               </li>
+//             </ul>
+
+//             {/* Right Icons */}
+//             <div className="flex items-center gap-3 md:gap-4">
+//               {/* Enhanced Search */}
+//               <div ref={searchRef} className="">
+//                 <motion.button
+//                   whileHover={{ scale: 1.1 }}
+//                   whileTap={{ scale: 0.9 }}
+//                   onClick={() => {
+//                     setSearchOpen(!searchOpen);
+//                     setSearchHistoryOpen(true);
+//                   }}
+//                   className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 dark:bg-gray-800/50 dark:hover:bg-gray-800 transition-all duration-300 group"
+//                 >
+//                   <FaSearch className="text-slate-300 dark:text-gray-600 group-hover:text-[#E1A95F] text-lg transition-colors duration-300" />
+//                 </motion.button>
+
+//                 <AnimatePresence>
+//                   {searchOpen && (
+//                     <motion.div
+//                       initial={{ opacity: 0, scale: 0.9, y: 10 }}
+//                       animate={{ opacity: 1, scale: 1, y: 0 }}
+//                       exit={{ opacity: 0, scale: 0.9, y: 10 }}
+//                       className="absolute max-sm:right-0 right-10 top-full mt-2 max-sm:w-full w-[50%] max-w-2xl backdrop-blur-sm rounded-xl shadow-2xl border border-slate-700 dark:border-gray-300 overflow-hidden z-50"
+//                     >
+//                       {/* Search Input */}
+//                       <div className="p-4 border-b border-slate-700 dark:border-gray-300 bg-slate-900/50 dark:bg-white">
+//                         <form
+//                           onSubmit={(e) => handleSearch(e)}
+//                           className="relative"
+//                         >
+//                           <div className="relative">
+//                             <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 dark:text-gray-500" />
+//                             <input
+//                               ref={searchInputRef}
+//                               type="text"
+//                               value={searchQuery}
+//                               onChange={(e) => {
+//                                 setSearchQuery(e.target.value);
+//                                 setSearchHistoryOpen(e.target.value === "");
+//                               }}
+//                               placeholder="Search products, brands, categories..."
+//                               className="w-full pl-10 pr-10 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                             />
+//                             {searchQuery && (
+//                               <button
+//                                 type="button"
+//                                 onClick={() => {
+//                                   setSearchQuery("");
+//                                   setSearchResults([]);
+//                                   setSearchHistoryOpen(true);
+//                                 }}
+//                                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 dark:text-gray-500 hover:text-slate-300 dark:hover:text-gray-700 transition-colors"
+//                               >
+//                                 <FaTimesCircle />
+//                               </button>
+//                             )}
+//                           </div>
+//                           {isSearching && (
+//                             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+//                               <FaSpinner className="animate-spin text-[#E1A95F]" />
+//                             </div>
+//                           )}
+//                         </form>
+//                       </div>
+
+//                       {/* Search Content */}
+//                       <div className="max-h-96 overflow-y-auto bg-slate-900/95 dark:bg-white/95">
+//                         {/* Recent Searches */}
+//                         {searchHistoryOpen &&
+//                           recentSearches.length > 0 &&
+//                           !searchQuery && (
+//                             <div className="p-4 border-b border-slate-700 dark:border-gray-300">
+//                               <div className="flex items-center justify-between mb-3">
+//                                 <div className="flex items-center gap-2">
+//                                   <FaHistory className="text-slate-500 dark:text-gray-500 text-sm" />
+//                                   <h3 className="text-sm font-semibold text-slate-400 dark:text-gray-600">
+//                                     Recent Searches
+//                                   </h3>
+//                                 </div>
+//                                 <button
+//                                   onClick={clearRecentSearches}
+//                                   className="text-xs text-slate-500 dark:text-gray-500 hover:text-slate-300 dark:hover:text-gray-700 transition-colors"
+//                                 >
+//                                   Clear All
+//                                 </button>
+//                               </div>
+//                               <div className="space-y-2">
+//                                 {recentSearches.map((search, index) => (
+//                                   <button
+//                                     key={index}
+//                                     onClick={() => {
+//                                       setSearchQuery(search);
+//                                       handleSearch(null, search);
+//                                     }}
+//                                     className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 group"
+//                                   >
+//                                     <div className="flex items-center gap-3">
+//                                       <FaSearch className="text-slate-500 dark:text-gray-500 text-sm group-hover:text-[#E1A95F]" />
+//                                       <span className="text-slate-300 dark:text-gray-700 group-hover:text-white dark:group-hover:text-gray-900">
+//                                         {search}
+//                                       </span>
+//                                     </div>
+//                                     <FaTimesCircle
+//                                       onClick={(e) => {
+//                                         e.stopPropagation();
+//                                         const updated = recentSearches.filter(
+//                                           (_, i) => i !== index
+//                                         );
+//                                         saveRecentSearches(updated);
+//                                       }}
+//                                       className="text-slate-600 dark:text-gray-400 hover:text-slate-400 dark:hover:text-gray-600 text-sm opacity-0 group-hover:opacity-100 transition-all"
+//                                     />
+//                                   </button>
+//                                 ))}
+//                               </div>
+//                             </div>
+//                           )}
+
+//                         {/* Popular Searches */}
+//                         {searchHistoryOpen &&
+//                           popularSearches.length > 0 &&
+//                           !searchQuery && (
+//                             <div className="p-4 border-b border-slate-700 dark:border-gray-300">
+//                               <div className="flex items-center gap-2 mb-3">
+//                                 <FaFire className="text-amber-500 text-sm" />
+//                                 <h3 className="text-sm font-semibold text-slate-400 dark:text-gray-600">
+//                                   Popular Searches
+//                                 </h3>
+//                               </div>
+//                               <div className="flex flex-wrap gap-2">
+//                                 {popularSearches
+//                                   .slice(0, 6)
+//                                   .map((search, index) => (
+//                                     <button
+//                                       key={index}
+//                                       onClick={() => {
+//                                         setSearchQuery(search);
+//                                         handleSearch(null, search);
+//                                       }}
+//                                       className="px-3 py-1.5 bg-slate-800/50 dark:bg-gray-100 hover:bg-[#E1A95F]/20 text-slate-300 dark:text-gray-700 hover:text-[#E1A95F] rounded-lg text-sm transition-all duration-300 border border-slate-700 dark:border-gray-300 hover:border-[#E1A95F]/30"
+//                                     >
+//                                       {search}
+//                                     </button>
+//                                   ))}
+//                               </div>
+//                             </div>
+//                           )}
+
+//                         {/* Categories */}
+//                         {searchHistoryOpen &&
+//                           allCategories.length > 0 &&
+//                           !searchQuery && (
+//                             <div className="p-4">
+//                               <div className="flex items-center gap-2 mb-3">
+//                                 <FaTag className="text-[#E1A95F] text-sm" />
+//                                 <h3 className="text-sm font-semibold text-slate-400 dark:text-gray-600">
+//                                   Browse Categories
+//                                 </h3>
+//                               </div>
+//                               <div className="grid grid-cols-2 gap-2">
+//                                 {allCategories
+//                                   .slice(0, showAllCategories ? 20 : 6)
+//                                   .map((category, index) => (
+//                                     <button
+//                                       key={index}
+//                                       onClick={() =>
+//                                         handleCategorySearch(category.name)
+//                                       }
+//                                       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800/30 dark:bg-gray-100 hover:bg-slate-800/70 dark:hover:bg-gray-200 transition-all duration-300 group"
+//                                     >
+//                                       <FaBox className="text-slate-500 dark:text-gray-500 text-sm group-hover:text-[#E1A95F]" />
+//                                       <span className="text-slate-300 dark:text-gray-700 text-sm truncate">
+//                                         {category.name}
+//                                       </span>
+//                                     </button>
+//                                   ))}
+//                               </div>
+//                               {allCategories.length > 6 && (
+//                                 <button
+//                                   onClick={() =>
+//                                     setShowAllCategories(!showAllCategories)
+//                                   }
+//                                   className="w-full mt-3 text-center text-xs text-slate-500 dark:text-gray-500 hover:text-[#E1A95F] transition-colors"
+//                                 >
+//                                   {showAllCategories
+//                                     ? "Show Less"
+//                                     : `Show All ${allCategories.length} Categories`}
+//                                 </button>
+//                               )}
+//                             </div>
+//                           )}
+
+//                         {/* Search Results */}
+//                         {searchQuery && (
+//                           <div className="p-4">
+//                             <div className="flex items-center justify-between mb-3">
+//                               <h3 className="text-sm font-semibold text-slate-400 dark:text-gray-600">
+//                                 {searchResults.length > 0
+//                                   ? `Found ${searchResults.length} results`
+//                                   : isSearching
+//                                     ? "Searching..."
+//                                     : "No results found"}
+//                               </h3>
+//                               {searchResults.length > 0 && (
+//                                 <button
+//                                   onClick={(e) => handleSearch(e)}
+//                                   className="text-xs text-[#E1A95F] hover:text-[#d4a259] font-medium"
+//                                 >
+//                                   See all →
+//                                 </button>
+//                               )}
+//                             </div>
+
+//                             {searchResults.length > 0 ? (
+//                               <div className="space-y-3">
+//                                 {searchResults.slice(0, 5).map((product) => (
+//                                   <Link
+//                                     key={product._id}
+//                                     to={`/product/${product._id}`}
+//                                     onClick={() => {
+//                                       setSearchOpen(false);
+//                                       setSearchQuery("");
+//                                     }}
+//                                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 group"
+//                                   >
+//                                     <div className="w-20 h-20 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+//                                       {product.image ? (
+//                                         <img
+//                                           src={
+//                                             product.image.startsWith("http")
+//                                               ? product.image
+//                                               : `${API}${product.image}`
+//                                           }
+//                                           alt={product.name}
+//                                           className="w-full h-full object-contain"
+//                                           onError={(e) => {
+//                                             e.target.onerror = null;
+//                                             e.target.src =
+//                                               "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop";
+//                                           }}
+//                                         />
+//                                       ) : (
+//                                         <FaBox className="text-slate-500 dark:text-gray-500" />
+//                                       )}
+//                                     </div>
+//                                     <div className="flex-1 min-w-0">
+//                                       <div className="flex items-start justify-between gap-2">
+//                                         <h4 className="text-sm font-medium text-white dark:text-gray-900 truncate group-hover:text-[#E1A95F]">
+//                                           {product.name}
+//                                         </h4>
+//                                         <span className="text-sm font-semibold text-[#E1A95F] flex-shrink-0">
+//                                           {formatPrice(product.price)}
+//                                         </span>
+//                                       </div>
+//                                       <p className="text-xs text-slate-400 dark:text-gray-600 truncate">
+//                                         {product.category || "Uncategorized"}
+//                                       </p>
+//                                       <div className="flex items-center gap-2 mt-1">
+//                                         {product.isSold ||
+//                                         product.stock === 0 ? (
+//                                           <span className="text-xs text-red-500">
+//                                             Sold Out
+//                                           </span>
+//                                         ) : (
+//                                           <span className="text-xs text-green-500">
+//                                             {product.stock || 0} in stock
+//                                           </span>
+//                                         )}
+//                                       </div>
+//                                     </div>
+//                                   </Link>
+//                                 ))}
+//                               </div>
+//                             ) : !isSearching ? (
+//                               <div className="text-center py-6">
+//                                 <div className="w-12 h-12 mx-auto rounded-full bg-slate-800/50 dark:bg-gray-100 flex items-center justify-center mb-3">
+//                                   <FaSearch className="text-slate-500 dark:text-gray-500" />
+//                                 </div>
+//                                 <p className="text-slate-400 dark:text-gray-600 text-sm">
+//                                   No products found for "{searchQuery}"
+//                                 </p>
+//                                 <p className="text-slate-500 dark:text-gray-500 text-xs mt-2">
+//                                   Try different keywords
+//                                 </p>
+//                               </div>
+//                             ) : null}
+//                           </div>
+//                         )}
+//                       </div>
+
+//                       {/* Search Footer */}
+//                       {searchQuery && (
+//                         <div className="p-4 border-t border-slate-700 dark:border-gray-300 bg-slate-900/50 dark:bg-gray-100">
+//                           <button
+//                             onClick={(e) => handleSearch(e)}
+//                             className="w-full py-2.5 bg-gradient-to-r from-[#E1A95F] to-[#d4a259] text-white rounded-xl font-medium hover:shadow-lg hover:shadow-[#E1A95F]/25 transition-all duration-300 flex items-center justify-center gap-2"
+//                           >
+//                             <FaSearch />
+//                             Search for "{searchQuery}"
+//                           </button>
+//                         </div>
+//                       )}
+//                     </motion.div>
+//                   )}
+//                 </AnimatePresence>
+//               </div>
+
+//               {/* Notifications with YouTube-style badge */}
+//               <div className="relative">
+//                 <motion.div
+//                   whileHover={{ scale: 1.1 }}
+//                   whileTap={{ scale: 0.9 }}
+//                   className="relative cursor-pointer group"
+//                   onClick={() => navigate("/notifications")}
+//                 >
+//                   <div className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 dark:bg-gray-800/50 dark:hover:bg-gray-800 transition-all duration-300">
+//                     <FaBell className="text-slate-300 dark:text-gray-600 group-hover:text-[#E1A95F] text-lg transition-colors duration-300" />
+
+//                     {/* YouTube-style notification badge */}
+//                     {unreadCount > 0 && (
+//                       <div className="absolute top-0 right-0">
+//                         <motion.div
+//                           initial={{ scale: 0 }}
+//                           animate={{ scale: 1 }}
+//                           className="relative"
+//                         >
+//                           {/* Main badge */}
+//                           <div className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-lg border border-white">
+//                             {unreadCount > 9 ? "9+" : unreadCount}
+//                           </div>
+
+//                           {/* Pulsing effect for new notifications */}
+//                           <div className="absolute -top-1 -right-1 w-[18px] h-[18px] bg-red-600 rounded-full opacity-75 animate-ping"></div>
+//                         </motion.div>
+//                       </div>
+//                     )}
+//                   </div>
+//                 </motion.div>
+//               </div>
+
+//               {/* Cart */}
+//               <motion.div
+//                 whileHover={{ scale: 1.1 }}
+//                 whileTap={{ scale: 0.9 }}
+//                 initial={{ opacity: 0, x: 20 }}
+//                 animate={{ opacity: 1, x: 0 }}
+//                 className="relative cursor-pointer group"
+//                 onClick={() => navigate("/cart")}
+//               >
+//                 <div
+//                   className={`p-2.5 rounded-xl border transition-all duration-300 ${
+//                     cartPulse
+//                       ? "bg-[#E1A95F]/20 border-[#E1A95F]/30"
+//                       : "bg-white/5 border-white/10 dark:bg-gray-800/50 dark:border-gray-700 hover:bg-white/10 dark:hover:bg-gray-800"
+//                   }`}
+//                 >
+//                   <FaShoppingCart className="text-[#E1A95F] text-lg group-hover:scale-110 transition-transform duration-300" />
+//                 </div>
+//                 {cartItemCount > 0 && (
+//                   <motion.span
+//                     initial={{ scale: 0 }}
+//                     animate={{ scale: 1 }}
+//                     className={`absolute -top-1.5 -right-1.5 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg ${
+//                       cartItemCount > 9
+//                         ? "bg-gradient-to-r from-red-500 to-pink-500"
+//                         : "bg-gradient-to-r from-green-500 to-emerald-500"
+//                     }`}
+//                   >
+//                     {cartItemCount > 9 ? "9+" : cartItemCount}
+//                   </motion.span>
+//                 )}
+//               </motion.div>
+
+//               {/* User */}
+//               {user && (
+//                 <div className="relative" ref={userMenuRef}>
+//                   <motion.div
+//                     whileHover={{ scale: 1.1 }}
+//                     whileTap={{ scale: 0.9 }}
+//                     className="cursor-pointer p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 dark:bg-gray-800/50 dark:hover:bg-gray-800 transition-all duration-300 group"
+//                     onClick={() => setUserMenuOpen(!userMenuOpen)}
+//                   >
+//                     <FaUser className="text-[#E1A95F] text-lg group-hover:scale-110 transition-transform duration-300" />
+//                   </motion.div>
+//                   <AnimatePresence>
+//                     {userMenuOpen && (
+//                       <motion.div
+//                         className="fixed md:absolute right-0 top-20 md:top-full mt-2 w-screen md:w-56 bg-slate-900/95 dark:bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700 dark:border-gray-300 p-4 md:max-w-[90vw] md:max-w-none"
+//                         initial={{ opacity: 0, y: -10, scale: 0.95 }}
+//                         animate={{ opacity: 1, y: 0, scale: 1 }}
+//                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
+//                         transition={{ duration: 0.2 }}
+//                       >
+//                         <div className="space-y-3">
+//                           <div className="pb-3 border-b border-slate-700 dark:border-gray-300">
+//                             <div className="flex items-center gap-3">
+//                               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#E1A95F] to-[#d4a259] flex items-center justify-center text-white font-bold text-lg">
+//                                 {user.name?.charAt(0)?.toUpperCase() || "U"}
+//                               </div>
+//                               <div className="min-w-0 flex-1">
+//                                 <div className="font-bold text-white dark:text-gray-900 truncate">
+//                                   Hi, {user.name || "User"}
+//                                 </div>
+//                                 <div className="text-xs text-slate-400 dark:text-gray-600 truncate">
+//                                   {user.email}
+//                                 </div>
+//                                 <div className="text-xs text-[#E1A95F] font-semibold mt-1">
+//                                   {user.role === "admin"
+//                                     ? "Administrator"
+//                                     : "User"}
+//                                 </div>
+//                               </div>
+//                             </div>
+//                           </div>
+
+//                           <Link
+//                             to="/my-orders"
+//                             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 dark:text-gray-700 hover:text-[#E1A95F] hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 group"
+//                             onClick={() => setUserMenuOpen(false)}
+//                           >
+//                             <div className="w-1.5 h-1.5 bg-[#E1A95F]/50 rounded-full group-hover:bg-[#E1A95F] flex-shrink-0"></div>
+//                             <span className="truncate">My Orders</span>
+//                           </Link>
+
+//                           {/* My Profile Link - Only for non-admin users */}
+//                           {user.role !== "admin" && (
+//                             <button
+//                               onClick={() => {
+//                                 setShowProfileModal(true);
+//                                 setUserMenuOpen(false);
+//                               }}
+//                               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 dark:text-gray-700 hover:text-[#E1A95F] hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 group text-left"
+//                             >
+//                               <div className="w-1.5 h-1.5 bg-[#E1A95F]/50 rounded-full group-hover:bg-[#E1A95F] flex-shrink-0"></div>
+//                               <span className="truncate">My Profile</span>
+//                             </button>
+//                           )}
+
+//                           {user.role === "admin" && (
+//                             <Link
+//                               to="/admin"
+//                               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-green-400 hover:text-green-300 hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 group"
+//                               onClick={() => setUserMenuOpen(false)}
+//                             >
+//                               <div className="w-1.5 h-1.5 bg-green-500/50 rounded-full group-hover:bg-green-500 flex-shrink-0"></div>
+//                               <span className="truncate">Admin Panel</span>
+//                             </Link>
+//                           )}
+
+//                           <button
+//                             onClick={() => {
+//                               logout();
+//                               setUserMenuOpen(false);
+//                             }}
+//                             className="w-full mt-2 py-2.5 bg-gradient-to-r from-red-600/10 to-pink-600/10 hover:from-red-600/20 hover:to-pink-600/20 text-red-400 hover:text-red-300 rounded-xl font-medium transition-all duration-300 border border-red-500/20 flex items-center justify-center gap-2"
+//                           >
+//                             <FaSignOutAlt />
+//                             <span className="truncate">Sign Out</span>
+//                           </button>
+//                         </div>
+//                       </motion.div>
+//                     )}
+//                   </AnimatePresence>
+//                 </div>
+//               )}
+
+//               {/* Mobile Menu Button */}
+//               <motion.button
+//                 whileHover={{ scale: 1.1 }}
+//                 whileTap={{ scale: 0.9 }}
+//                 onClick={() => setMenuOpen(!menuOpen)}
+//                 className="lg:hidden p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 dark:bg-gray-800/50 dark:hover:bg-gray-800 transition-all duration-300"
+//               >
+//                 {menuOpen ? (
+//                   <FaTimes className="text-[#E1A95F] text-xl" />
+//                 ) : (
+//                   <FaBars className="text-slate-300 dark:text-gray-600 text-xl" />
+//                 )}
+//               </motion.button>
+//             </div>
+//           </div>
+//         </div>
+//       </motion.nav>
+
+//       {/* Mobile Menu Overlay */}
+//       <AnimatePresence>
+//         {menuOpen && (
+//           <>
+//             {/* Backdrop */}
+//             <motion.div
+//               initial={{ opacity: 0 }}
+//               animate={{ opacity: 1 }}
+//               exit={{ opacity: 0 }}
+//               onClick={() => setMenuOpen(false)}
+//               className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+//             />
+
+//             {/* Mobile Menu Panel */}
+//             <motion.div
+//               initial={{ x: "100%" }}
+//               animate={{ x: 0 }}
+//               exit={{ x: "100%" }}
+//               transition={{ type: "spring", damping: 25 }}
+//               className="fixed top-0 right-0 h-full w-full max-w-sm z-50 lg:hidden"
+//             >
+//               <div className="h-full bg-gradient-to-b from-slate-900 to-slate-800 dark:from-white dark:to-gray-100 shadow-2xl overflow-y-auto">
+//                 {/* Mobile Header */}
+//                 <div className="p-6 border-b border-slate-700 dark:border-gray-300">
+//                   <div className="flex items-center justify-between mb-6">
+//                     <div className="flex items-center gap-3">
+//                       {/* <img src={logo} alt="Logo" className="w-10 h-10" /> */}
+//                       <h2 className="text-2xl font-bold text-white dark:text-gray-900">
+//                         Menu
+//                       </h2>
+//                     </div>
+//                     <motion.button
+//                       whileHover={{ scale: 1.1 }}
+//                       whileTap={{ scale: 0.9 }}
+//                       onClick={() => setMenuOpen(false)}
+//                       className="p-2 rounded-xl bg-white/5 hover:bg-white/10 dark:bg-gray-800/50 dark:hover:bg-gray-800 transition-all duration-300"
+//                     >
+//                       <FaTimes className="text-[#E1A95F] text-xl" />
+//                     </motion.button>
+//                   </div>
+
+//                   {/* User Info Mobile */}
+//                   {user && (
+//                     <div className="flex items-center gap-3 mb-6 p-4 rounded-xl bg-gradient-to-r from-[#E1A95F]/10 to-[#d4a259]/10 border border-[#E1A95F]/20">
+//                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#E1A95F] to-[#d4a259] flex items-center justify-center text-white font-bold text-lg">
+//                         {user.name?.charAt(0)?.toUpperCase() || "U"}
+//                       </div>
+//                       <div className="min-w-0 flex-1">
+//                         <div className="font-bold text-white dark:text-gray-900 truncate">
+//                           {user.name || "User"}
+//                         </div>
+//                         <div className="text-sm text-slate-400 dark:text-gray-600 truncate">
+//                           {user.email}
+//                         </div>
+//                         <div className="text-xs text-[#E1A95F] font-semibold mt-1">
+//                           {user.role === "admin" ? "Administrator" : "User"}
+//                         </div>
+//                       </div>
+//                     </div>
+//                   )}
+//                 </div>
+
+//                 {/* Mobile Links */}
+//                 <div className="p-6 space-y-2">
+//                   {links.map((link, index) => (
+//                     <Link
+//                       key={index}
+//                       to={link.path}
+//                       onClick={() => setMenuOpen(false)}
+//                       className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 ${
+//                         location.pathname === link.path
+//                           ? "bg-gradient-to-r from-[#E1A95F]/20 to-[#d4a259]/20 text-[#E1A95F]"
+//                           : "text-slate-300 dark:text-gray-700 hover:text-white dark:hover:text-gray-900 hover:bg-slate-800 dark:hover:bg-gray-200"
+//                       }`}
+//                     >
+//                       <div
+//                         className={`w-1.5 h-1.5 rounded-full ${
+//                           location.pathname === link.path
+//                             ? "bg-[#E1A95F]"
+//                             : "bg-slate-600 dark:bg-gray-400"
+//                         }`}
+//                       ></div>
+//                       <span className="font-medium truncate">{link.name}</span>
+//                     </Link>
+//                   ))}
+
+//                   {/* Shop Section Mobile */}
+//                   <div className="space-y-2">
+//                     <button
+//                       onClick={() => toggleDropdown("shop-mobile")}
+//                       className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl text-slate-300 dark:text-gray-700 hover:text-white dark:hover:text-gray-900 hover:bg-slate-800 dark:hover:bg-gray-200 transition-all duration-300"
+//                     >
+//                       <div className="flex items-center gap-3">
+//                         <div className="w-1.5 h-1.5 rounded-full bg-slate-600 dark:bg-gray-400 flex-shrink-0"></div>
+//                         <span className="font-medium truncate">Shop</span>
+//                       </div>
+//                       <FaChevronDown
+//                         className={`transition flex-shrink-0 ${
+//                           openDropdown === "shop-mobile" ? "rotate-180" : ""
+//                         }`}
+//                       />
+//                     </button>
+
+//                     <AnimatePresence>
+//                       {openDropdown === "shop-mobile" && (
+//                         <motion.div
+//                           initial={{ opacity: 0, height: 0 }}
+//                           animate={{ opacity: 1, height: "auto" }}
+//                           exit={{ opacity: 0, height: 0 }}
+//                           className="ml-4 pl-4 border-l border-slate-700 dark:border-gray-300 space-y-2"
+//                         >
+//                           {categories.map((cat, i) => (
+//                             <button
+//                               key={i}
+//                               onClick={() => {
+//                                 navigate(`/category/${cat.name.toLowerCase()}`);
+//                                 setMenuOpen(false);
+//                               }}
+//                               className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-slate-400 dark:text-gray-600 hover:text-[#E1A95F] hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 text-left"
+//                             >
+//                               <div className="w-1 h-1 bg-slate-600 dark:bg-gray-400 rounded-full flex-shrink-0"></div>
+//                               <span className="truncate">{cat.name}</span>
+//                             </button>
+//                           ))}
+//                         </motion.div>
+//                       )}
+//                     </AnimatePresence>
+//                   </div>
+
+//                   {/* My Profile in Mobile Menu - Only for non-admin users */}
+//                   {user && user.role !== "admin" && (
+//                     <button
+//                       onClick={() => {
+//                         setShowProfileModal(true);
+//                         setMenuOpen(false);
+//                       }}
+//                       className="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl text-slate-300 dark:text-gray-700 hover:text-white dark:hover:text-gray-900 hover:bg-slate-800 dark:hover:bg-gray-200 transition-all duration-300"
+//                     >
+//                       <div className="w-1.5 h-1.5 rounded-full bg-slate-600 dark:bg-gray-400 flex-shrink-0"></div>
+//                       <span className="font-medium truncate">My Profile</span>
+//                     </button>
+//                   )}
+
+//                   {/* Theme Toggle Mobile */}
+//                   <div className="mt-6 pt-6 border-t border-slate-700 dark:border-gray-300">
+//                     <div className="flex items-center justify-between px-4">
+//                       <span className="text-slate-300 dark:text-gray-700 font-medium truncate">
+//                         Theme
+//                       </span>
+//                       <ThemeToggle />
+//                     </div>
+//                   </div>
+//                 </div>
+
+//                 {/* Mobile Footer */}
+//                 <div className="p-6 border-t border-slate-700 dark:border-gray-300 mt-auto">
+//                   <div className="space-y-3">
+//                     <button
+//                       onClick={() => {
+//                         navigate("/notifications");
+//                         setMenuOpen(false);
+//                       }}
+//                       className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl bg-slate-800/50 dark:bg-gray-200 hover:bg-slate-800 dark:hover:bg-gray-300 text-slate-300 dark:text-gray-700 hover:text-white dark:hover:text-gray-900 transition-all duration-300 relative"
+//                     >
+//                       <div className="flex items-center gap-3">
+//                         <div className="relative">
+//                           <FaBell className="text-[#E1A95F]" />
+//                           {unreadCount > 0 && (
+//                             <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-600 rounded-full border border-white animate-pulse"></div>
+//                           )}
+//                         </div>
+//                         <span className="truncate">Notifications</span>
+//                       </div>
+//                       {unreadCount > 0 && (
+//                         <span className="bg-red-600 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1 border border-white">
+//                           {unreadCount > 9 ? "9+" : unreadCount}
+//                         </span>
+//                       )}
+//                     </button>
+
+//                     {user && user.role === "admin" && (
+//                       <button
+//                         onClick={() => {
+//                           navigate("/admin");
+//                           setMenuOpen(false);
+//                         }}
+//                         className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl bg-gradient-to-r from-green-600/10 to-emerald-600/10 border border-green-500/20 text-green-400 hover:text-green-300 transition-all duration-300"
+//                       >
+//                         <div className="w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0"></div>
+//                         <span className="truncate">Admin Panel</span>
+//                       </button>
+//                     )}
+//                   </div>
+//                 </div>
+//               </div>
+//             </motion.div>
+//           </>
+//         )}
+//       </AnimatePresence>
+
+//       {/* Profile Modal */}
+//       <AnimatePresence>
+//         {showProfileModal && user && user.role !== "admin" && (
+//           <>
+//             {/* Backdrop */}
+//             <motion.div
+//               initial={{ opacity: 0 }}
+//               animate={{ opacity: 1 }}
+//               exit={{ opacity: 0 }}
+//               className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100]"
+//             />
+
+//             {/* Modal */}
+//             <div className="fixed inset-0 z-[101] flex items-center justify-center p-4">
+//               <motion.div
+//                 ref={profileModalRef}
+//                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
+//                 animate={{ opacity: 1, scale: 1, y: 0 }}
+//                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
+//                 transition={{ type: "spring", damping: 25 }}
+//                 className="w-full max-w-2xl bg-gradient-to-b from-slate-900 to-slate-800 dark:from-white dark:to-gray-100 rounded-2xl shadow-2xl border border-slate-700 dark:border-gray-300 overflow-hidden max-h-[90vh] overflow-y-auto"
+//               >
+//                 {/* Modal Header */}
+//                 <div className="p-6 border-b border-slate-700 dark:border-gray-300 bg-gradient-to-r from-[#E1A95F]/10 to-[#d4a259]/10">
+//                   <div className="flex items-center justify-between">
+//                     <div className="flex items-center gap-3">
+//                       <FaUserCircle className="text-3xl text-[#E1A95F]" />
+//                       <div>
+//                         <h2 className="text-2xl font-bold text-white dark:text-gray-900">
+//                           My Profile
+//                         </h2>
+//                         <p className="text-slate-400 dark:text-gray-600">
+//                           Manage your account settings
+//                         </p>
+//                       </div>
+//                     </div>
+//                     <button
+//                       onClick={() => setShowProfileModal(false)}
+//                       className="p-2 hover:bg-slate-800 dark:hover:bg-gray-200 rounded-xl transition-colors"
+//                     >
+//                       <FaTimes className="text-slate-400 dark:text-gray-600 text-xl" />
+//                     </button>
+//                   </div>
+//                 </div>
+
+//                 {/* Modal Body */}
+//                 <div className="p-6">
+//                   {/* Messages */}
+//                   {profileSuccess && (
+//                     <motion.div
+//                       initial={{ opacity: 0, y: -10 }}
+//                       animate={{ opacity: 1, y: 0 }}
+//                       className="mb-6 p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl"
+//                     >
+//                       <p className="text-green-400 text-center">
+//                         {profileSuccess}
+//                       </p>
+//                     </motion.div>
+//                   )}
+
+//                   {profileError && (
+//                     <motion.div
+//                       initial={{ opacity: 0, y: -10 }}
+//                       animate={{ opacity: 1, y: 0 }}
+//                       className="mb-6 p-4 bg-gradient-to-r from-red-500/10 to-pink-500/10 border border-red-500/20 rounded-xl"
+//                     >
+//                       <p className="text-red-400 text-center">{profileError}</p>
+//                     </motion.div>
+//                   )}
+
+//                   <div className="grid md:grid-cols-3 gap-6">
+//                     {/* Left Column - User Info */}
+//                     <div className="md:col-span-1">
+//                       <div className="bg-slate-800/50 dark:bg-gray-200 rounded-xl p-6 border border-slate-700 dark:border-gray-300">
+//                         <div className="flex flex-col items-center">
+//                           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#E1A95F] to-[#d4a259] flex items-center justify-center mb-4">
+//                             <span className="text-white text-3xl font-bold">
+//                               {user.name?.charAt(0)?.toUpperCase() || "U"}
+//                             </span>
+//                           </div>
+
+//                           <h3 className="text-xl font-bold text-white dark:text-gray-900 mb-1 truncate w-full text-center">
+//                             {user.name || "User"}
+//                           </h3>
+//                           <p className="text-slate-400 dark:text-gray-600 mb-4 truncate w-full text-center">
+//                             {user.email}
+//                           </p>
+
+//                           <div className="w-full bg-slate-700/50 dark:bg-gray-300 rounded-lg p-3 mt-4">
+//                             <h4 className="text-white dark:text-gray-900 font-semibold mb-2">
+//                               Account Status
+//                             </h4>
+//                             <div className="flex items-center justify-between mb-2">
+//                               <span className="text-slate-400 dark:text-gray-700">
+//                                 Verified
+//                               </span>
+//                               <div className="flex items-center gap-2">
+//                                 {user.isVerified ? (
+//                                   <>
+//                                     <FaCheckCircle className="text-green-400 text-sm flex-shrink-0" />
+//                                     <span className="text-xs font-semibold text-green-400 truncate">
+//                                       Verified
+//                                     </span>
+//                                   </>
+//                                 ) : (
+//                                   <>
+//                                     <FaTimesCircle className="text-yellow-400 text-sm flex-shrink-0" />
+//                                     <span className="text-xs font-semibold text-yellow-400 truncate">
+//                                       Not Verified
+//                                     </span>
+//                                   </>
+//                                 )}
+//                               </div>
+//                             </div>
+//                             <div className="flex items-center justify-between">
+//                               <span className="text-slate-400 dark:text-gray-700">
+//                                 Active
+//                               </span>
+//                               <div className="flex items-center gap-2">
+//                                 {!user.isBlocked ? (
+//                                   <>
+//                                     <FaCheckCircle className="text-green-400 text-sm flex-shrink-0" />
+//                                     <span className="text-xs font-semibold text-green-400 truncate">
+//                                       Active
+//                                     </span>
+//                                   </>
+//                                 ) : (
+//                                   <>
+//                                     <FaTimesCircle className="text-red-400 text-sm flex-shrink-0" />
+//                                     <span className="text-xs font-semibold text-red-400 truncate">
+//                                       Blocked
+//                                     </span>
+//                                   </>
+//                                 )}
+//                               </div>
+//                             </div>
+//                           </div>
+
+//                           <p className="text-xs text-slate-500 dark:text-gray-500 mt-4 text-center">
+//                             Member since{" "}
+//                             {new Date(user.createdAt).toLocaleDateString()}
+//                           </p>
+//                         </div>
+//                       </div>
+//                     </div>
+
+//                     {/* Right Column - Form */}
+//                     <div className="md:col-span-2">
+//                       <form
+//                         onSubmit={handleProfileSubmit}
+//                         className="space-y-6"
+//                       >
+//                         {/* Basic Info */}
+//                         <div className="space-y-4">
+//                           <h3 className="text-lg font-semibold text-white dark:text-gray-900 flex items-center gap-2">
+//                             <FaUser className="text-[#E1A95F]" />
+//                             Basic Information
+//                           </h3>
+
+//                           <div>
+//                             <label className="block text-slate-300 dark:text-gray-700 mb-2">
+//                               Full Name
+//                             </label>
+//                             <input
+//                               type="text"
+//                               name="name"
+//                               value={profileForm.name}
+//                               onChange={handleProfileChange}
+//                               className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                               required
+//                             />
+//                           </div>
+
+//                           <div>
+//                             <label className="block text-slate-300 dark:text-gray-700 mb-2">
+//                               Email Address
+//                             </label>
+//                             <input
+//                               type="email"
+//                               name="email"
+//                               value={profileForm.email}
+//                               onChange={handleProfileChange}
+//                               className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                               required
+//                             />
+//                           </div>
+
+//                           <div>
+//                             <label className="block text-slate-300 dark:text-gray-700 mb-2">
+//                               Bio
+//                             </label>
+//                             <textarea
+//                               name="bio"
+//                               value={profileForm.bio}
+//                               onChange={handleProfileChange}
+//                               rows="2"
+//                               className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                               placeholder="Tell us about yourself..."
+//                             />
+//                           </div>
+//                         </div>
+
+//                         {/* Password Change */}
+//                         <div className="space-y-4 pt-6 border-t border-slate-700 dark:border-gray-300">
+//                           <h3 className="text-lg font-semibold text-white dark:text-gray-900 flex items-center gap-2">
+//                             <FaKey className="text-[#E1A95F]" />
+//                             Change Password
+//                           </h3>
+
+//                           <div>
+//                             <label className="block text-slate-300 dark:text-gray-700 mb-2">
+//                               Current Password
+//                             </label>
+//                             <input
+//                               type="password"
+//                               name="currentPassword"
+//                               value={profileForm.currentPassword}
+//                               onChange={handleProfileChange}
+//                               className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                               placeholder="Required to change password"
+//                             />
+//                           </div>
+
+//                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//                             <div>
+//                               <label className="block text-slate-300 dark:text-gray-700 mb-2">
+//                                 New Password
+//                               </label>
+//                               <input
+//                                 type="password"
+//                                 name="newPassword"
+//                                 value={profileForm.newPassword}
+//                                 onChange={handleProfileChange}
+//                                 className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                                 placeholder="At least 6 characters"
+//                               />
+//                             </div>
+
+//                             <div>
+//                               <label className="block text-slate-300 dark:text-gray-700 mb-2">
+//                                 Confirm Password
+//                               </label>
+//                               <input
+//                                 type="password"
+//                                 name="confirmPassword"
+//                                 value={profileForm.confirmPassword}
+//                                 onChange={handleProfileChange}
+//                                 className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                                 placeholder="Confirm new password"
+//                               />
+//                             </div>
+//                           </div>
+
+//                           <div className="text-xs text-slate-400 dark:text-gray-600 mt-2">
+//                             <FaTimesCircle className="inline mr-1" />
+//                             Leave password fields empty if you don't want to
+//                             change password
+//                           </div>
+//                         </div>
+
+//                         {/* Action Buttons */}
+//                         <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-slate-700 dark:border-gray-300">
+//                           <button
+//                             type="submit"
+//                             disabled={profileLoading}
+//                             className="flex-1 py-3 bg-gradient-to-r from-[#E1A95F] to-[#d4a259] text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-[#E1A95F]/25 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50"
+//                           >
+//                             {profileLoading ? (
+//                               <>
+//                                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin flex-shrink-0"></div>
+//                                 <span className="truncate">Saving...</span>
+//                               </>
+//                             ) : (
+//                               <>
+//                                 <FaSave className="flex-shrink-0" />
+//                                 <span className="truncate">Save Changes</span>
+//                               </>
+//                             )}
+//                           </button>
+
+//                           <button
+//                             type="button"
+//                             onClick={() => setShowDeleteConfirm(true)}
+//                             className="py-3 px-6 bg-gradient-to-r from-red-600/10 to-pink-600/10 border border-red-500/20 text-red-400 hover:text-red-300 hover:from-red-600/20 hover:to-pink-600/20 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2"
+//                           >
+//                             <FaTrash className="flex-shrink-0" />
+//                             <span className="truncate">Delete Account</span>
+//                           </button>
+//                         </div>
+//                       </form>
+//                     </div>
+//                   </div>
+//                 </div>
+//               </motion.div>
+//             </div>
+//           </>
+//         )}
+//       </AnimatePresence>
+
+//       {/* Delete Confirmation Modal */}
+//       <AnimatePresence>
+//         {showDeleteConfirm && (
+//           <>
+//             {/* Backdrop */}
+//             <motion.div
+//               initial={{ opacity: 0 }}
+//               animate={{ opacity: 1 }}
+//               exit={{ opacity: 0 }}
+//               className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[102]"
+//             />
+
+//             {/* Modal */}
+//             <div className="fixed inset-0 z-[103] flex items-center justify-center p-4">
+//               <motion.div
+//                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
+//                 animate={{ opacity: 1, scale: 1, y: 0 }}
+//                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
+//                 transition={{ type: "spring", damping: 25 }}
+//                 className="w-full max-w-md bg-gradient-to-b from-slate-900 to-slate-800 dark:from-white dark:to-gray-100 rounded-2xl shadow-2xl border border-slate-700 dark:border-gray-300 p-6"
+//               >
+//                 <div className="text-center">
+//                   <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-600/20 to-pink-600/20 flex items-center justify-center">
+//                     <FaTrash className="text-red-500 text-2xl" />
+//                   </div>
+
+//                   <h3 className="text-2xl font-bold text-white dark:text-gray-900 mb-2 truncate">
+//                     Delete Account
+//                   </h3>
+//                   <p className="text-slate-400 dark:text-gray-600 mb-6">
+//                     This action cannot be undone. All your data will be
+//                     permanently removed from our database.
+//                   </p>
+
+//                   <div className="mb-6">
+//                     <label className="block text-slate-300 dark:text-gray-700 mb-2 text-left">
+//                       Enter your password to confirm:
+//                     </label>
+//                     <input
+//                       type="password"
+//                       value={deletePassword}
+//                       onChange={(e) => setDeletePassword(e.target.value)}
+//                       className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 transition-all duration-300"
+//                       placeholder="Your password"
+//                     />
+//                   </div>
+
+//                   <div className="flex gap-4">
+//                     <button
+//                       onClick={() => setShowDeleteConfirm(false)}
+//                       className="flex-1 py-3 bg-slate-700 dark:bg-gray-300 text-white dark:text-gray-900 rounded-xl font-semibold hover:bg-slate-600 dark:hover:bg-gray-400 transition-all duration-300 truncate"
+//                     >
+//                       Cancel
+//                     </button>
+
+//                     <button
+//                       onClick={handleDeleteAccount}
+//                       disabled={profileLoading}
+//                       className="flex-1 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-red-500/25 transition-all duration-300 disabled:opacity-50 truncate"
+//                     >
+//                       {profileLoading ? "Deleting..." : "Delete Account"}
+//                     </button>
+//                   </div>
+//                 </div>
+//               </motion.div>
+//             </div>
+//           </>
+//         )}
+//       </AnimatePresence>
+
+//       {/* Scroll Progress Bar */}
+//       <motion.div
+//         className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#E1A95F] via-[#d4a259] to-[#E1A95F] z-50"
+//         style={{ scaleX: scrolled ? 1 : 0 }}
+//         transition={{ duration: 0.3 }}
+//       />
+//     </>
+//   );
+// };
+
+// export default Navigation;
+// import React, { useState, useContext, useEffect, useRef } from "react";
+// import { Link, useNavigate, useLocation } from "react-router-dom";
+// import {
+//   FaBars,
+//   FaTimes,
+//   FaShoppingCart,
+//   FaChevronDown,
+//   FaUser,
+//   FaBell,
+//   FaSearch,
+//   FaKey,
+//   FaTrash,
+//   FaSave,
+//   FaUserCircle,
+//   FaSignOutAlt,
+//   FaCheckCircle,
+//   FaTimesCircle,
+//   FaSpinner,
+//   FaBox,
+//   FaTag,
+//   FaFire,
+//   FaHistory,
+// } from "react-icons/fa";
+// import { motion, AnimatePresence } from "framer-motion";
+// import ThemeToggle from "../Components/ThemeToggle";
+// import { authContext } from "../Context/authContext";
+// import { cartContext } from "../Context/cartContext";
+// import { initSocket } from "../utils/socket";
+// import { fetchWithAuth } from "../utils/auth";
+
+// const API = import.meta.env.VITE_API_URL;
+
+// const Navigation = () => {
+//   const [menuOpen, setMenuOpen] = useState(false);
+//   const [openDropdown, setOpenDropdown] = useState(null);
+//   const [userMenuOpen, setUserMenuOpen] = useState(false);
+//   const [categories, setCategories] = useState([]);
+//   const [allCategories, setAllCategories] = useState([]);
+//   const [unreadCount, setUnreadCount] = useState(() => {
+//     // Initialize from localStorage to persist across refreshes
+//     const saved = localStorage.getItem("notification_unread_count");
+//     return saved ? parseInt(saved, 10) : 0;
+//   });
+//   const [scrolled, setScrolled] = useState(false);
+//   const [searchOpen, setSearchOpen] = useState(false);
+//   const [searchQuery, setSearchQuery] = useState("");
+//   const [cartPulse, setCartPulse] = useState(false);
+//   const [showProfileModal, setShowProfileModal] = useState(false);
+//   const [profileForm, setProfileForm] = useState({
+//     name: "",
+//     email: "",
+//     bio: "",
+//     currentPassword: "",
+//     newPassword: "",
+//     confirmPassword: "",
+//   });
+//   const [profileLoading, setProfileLoading] = useState(false);
+//   const [profileError, setProfileError] = useState("");
+//   const [profileSuccess, setProfileSuccess] = useState("");
+//   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+//   const [deletePassword, setDeletePassword] = useState("");
+//   const [searchResults, setSearchResults] = useState([]);
+//   const [isSearching, setIsSearching] = useState(false);
+//   const [recentSearches, setRecentSearches] = useState([]);
+//   const [popularSearches, setPopularSearches] = useState([]);
+//   const [searchHistoryOpen, setSearchHistoryOpen] = useState(true);
+//   const [showAllCategories, setShowAllCategories] = useState(false);
+//   const [badgeAnimation, setBadgeAnimation] = useState(false);
+//   const [socketConnected, setSocketConnected] = useState(false);
+
+//   const searchRef = useRef(null);
+//   const searchInputRef = useRef(null);
+//   const profileModalRef = useRef(null);
+//   const userMenuRef = useRef(null);
+//   const socketRef = useRef(null);
+//   const soundRef = useRef(null);
+//   const mountedRef = useRef(true);
+//   const navigate = useNavigate();
+//   const location = useLocation();
+//   const { user, logout, updateUser } = useContext(authContext);
+//   const { cart } = useContext(cartContext);
+
+//   // Initialize sound
+//   useEffect(() => {
+//     soundRef.current = new Audio("/sounds/notification.mp3");
+//     soundRef.current.volume = 0.3;
+
+//     return () => {
+//       mountedRef.current = false;
+//       if (socketRef.current) {
+//         socketRef.current.disconnect();
+//         socketRef.current = null;
+//       }
+//     };
+//   }, []);
+
+//   // Update localStorage and document title when unreadCount changes
+//   useEffect(() => {
+//     localStorage.setItem("notification_unread_count", unreadCount.toString());
+//     updateDocumentTitle(unreadCount);
+//   }, [unreadCount]);
+
+//   // Update document title
+//   const updateDocumentTitle = (count) => {
+//     const baseTitle = document.title.replace(/^\(\d+\)\s*/, "") || "E-Commerce";
+//     if (count > 0) {
+//       document.title = `(${count}) ${baseTitle}`;
+//     } else {
+//       document.title = baseTitle;
+//     }
+//   };
+
+//   // Play notification sound
+//   const playNotificationSound = () => {
+//     if (soundRef.current) {
+//       soundRef.current.currentTime = 0;
+//       soundRef.current
+//         .play()
+//         .catch((e) => console.log("Sound play failed:", e));
+//     }
+//   };
+
+//   // Fetch categories for dropdown
+//   useEffect(() => {
+//     const fetchCategories = async () => {
+//       try {
+//         const res = await fetchWithAuth(`${API}/api/categories`);
+//         const data = await res.json();
+//         setCategories(data || []);
+//       } catch (err) {
+//         console.error("Categories fetch error:", err);
+//       }
+//     };
+//     fetchCategories();
+//   }, []);
+
+//   // Fetch all categories for search
+//   useEffect(() => {
+//     const fetchAllCategories = async () => {
+//       try {
+//         const res = await fetchWithAuth(
+//           `${API}/api/products/categories-for-search`
+//         );
+//         if (res.ok) {
+//           const data = await res.json();
+//           setAllCategories(data);
+//         }
+//       } catch (err) {
+//         console.error("All categories fetch error:", err);
+//       }
+//     };
+//     fetchAllCategories();
+//   }, []);
+
+//   // Fetch popular searches
+//   useEffect(() => {
+//     const fetchPopularSearches = async () => {
+//       try {
+//         const res = await fetchWithAuth(`${API}/api/products/popular-searches`);
+//         if (res.ok) {
+//           const data = await res.json();
+//           setPopularSearches(data || []);
+//         }
+//       } catch (err) {
+//         console.error("Popular searches error:", err);
+//       }
+//     };
+//     fetchPopularSearches();
+//   }, []);
+
+//   // Load recent searches
+//   useEffect(() => {
+//     const savedSearches = localStorage.getItem("recent_searches");
+//     if (savedSearches) {
+//       try {
+//         setRecentSearches(JSON.parse(savedSearches));
+//       } catch (e) {
+//         console.error("Error parsing recent searches:", e);
+//       }
+//     }
+//   }, []);
+
+//   // Save recent searches
+//   const saveRecentSearches = (searches) => {
+//     setRecentSearches(searches);
+//     localStorage.setItem("recent_searches", JSON.stringify(searches));
+//   };
+
+//   // Scroll effect
+//   useEffect(() => {
+//     const handleScroll = () => {
+//       setScrolled(window.scrollY > 20);
+//     };
+//     window.addEventListener("scroll", handleScroll);
+//     return () => window.removeEventListener("scroll", handleScroll);
+//   }, []);
+
+//   // Cart pulse animation
+//   useEffect(() => {
+//     if (cart?.items?.length > 0) {
+//       setCartPulse(true);
+//       const timer = setTimeout(() => setCartPulse(false), 1000);
+//       return () => clearTimeout(timer);
+//     }
+//   }, [cart?.items]);
+
+//   // Fetch initial unread count IMMEDIATELY on mount - FIXED
+//   useEffect(() => {
+//     if (!user) {
+//       setUnreadCount(0);
+//       localStorage.setItem("notification_unread_count", "0");
+//       return;
+//     }
+
+//     // Fetch count from server on mount
+//     fetchUnreadCount();
+
+//     // Setup socket connection
+//     setupSocketConnection();
+
+//     // Set up polling interval for count updates
+//     const pollingInterval = setInterval(() => {
+//       if (mountedRef.current && user) {
+//         fetchUnreadCount();
+//       }
+//     }, 60000); // Check every minute
+
+//     return () => {
+//       clearInterval(pollingInterval);
+//     };
+//   }, [user]);
+
+//   // Setup socket connection for notifications
+//   const setupSocketConnection = () => {
+//     if (!user || !mountedRef.current) return;
+
+//     console.log("🔌 Setting up socket connection for user:", user._id);
+
+//     // Setup socket connection
+//     try {
+//       const socket = initSocket();
+//       socketRef.current = socket;
+
+//       // Socket connection events
+//       socket.on("connect", () => {
+//         console.log("✅ Navigation socket connected:", socket.id);
+//         setSocketConnected(true);
+
+//         // Join user room immediately after connection
+//         if (user._id) {
+//           socket.emit("join", user._id);
+//           console.log(`👤 User ${user._id} joined socket room`);
+//         }
+//       });
+
+//       socket.on("connect_error", (error) => {
+//         console.error("❌ Navigation socket connect error:", error);
+//         setSocketConnected(false);
+//       });
+
+//       socket.on("disconnect", (reason) => {
+//         console.log("🔌 Navigation socket disconnected:", reason);
+//         setSocketConnected(false);
+//       });
+
+//       // Listen for new notifications
+//       socket.on("notification", (newNotification) => {
+//         console.log("🔔 Navigation received notification:", newNotification);
+
+//         if (!mountedRef.current) return;
+
+//         // Update unread count
+//         setUnreadCount((prev) => {
+//           const newCount = prev + 1;
+//           localStorage.setItem(
+//             "notification_unread_count",
+//             newCount.toString()
+//           );
+//           return newCount;
+//         });
+
+//         // Trigger badge animation
+//         setBadgeAnimation(true);
+//         playNotificationSound();
+//         setTimeout(() => setBadgeAnimation(false), 500);
+
+//         // Show browser notification if permission granted
+//         if ("Notification" in window && Notification.permission === "granted") {
+//           try {
+//             new Notification(newNotification.title || "New Notification", {
+//               body: newNotification.message,
+//               icon: "/logo.png",
+//               badge: "/logo.png",
+//               tag: newNotification._id || Date.now().toString(),
+//               requireInteraction: false,
+//             });
+//           } catch (notificationError) {
+//             console.log("Browser notification error:", notificationError);
+//           }
+//         }
+//       });
+
+//       // Listen for notification count updates
+//       socket.on("notification-count", (data) => {
+//         console.log("📊 Navigation received notification count:", data);
+
+//         if (!mountedRef.current) return;
+
+//         const newCount = data.count || 0;
+//         setUnreadCount(newCount);
+//         localStorage.setItem("notification_unread_count", newCount.toString());
+//         setBadgeAnimation(true);
+//         setTimeout(() => setBadgeAnimation(false), 300);
+//       });
+
+//       // Listen for notification count response
+//       socket.on("notification-count-response", (data) => {
+//         console.log(
+//           "📊 Navigation received notification count response:",
+//           data
+//         );
+
+//         if (!mountedRef.current) return;
+
+//         const newCount = data.count || 0;
+//         setUnreadCount(newCount);
+//         localStorage.setItem("notification_unread_count", newCount.toString());
+//         setBadgeAnimation(true);
+//         setTimeout(() => setBadgeAnimation(false), 300);
+//       });
+
+//       // Listen for app-notification events (from socket.js)
+//       const handleAppNotification = (event) => {
+//         const newNotification = event.detail;
+//         console.log(
+//           "📢 Navigation received app-notification:",
+//           newNotification
+//         );
+
+//         if (!mountedRef.current) return;
+
+//         setUnreadCount((prev) => {
+//           const newCount = prev + 1;
+//           localStorage.setItem(
+//             "notification_unread_count",
+//             newCount.toString()
+//           );
+//           return newCount;
+//         });
+
+//         setBadgeAnimation(true);
+//         playNotificationSound();
+//         setTimeout(() => setBadgeAnimation(false), 500);
+//       };
+
+//       const handleUpdateNotificationCount = (event) => {
+//         const { increment, decrement, count } = event.detail;
+//         console.log(
+//           "🔢 Navigation received update-notification-count:",
+//           event.detail
+//         );
+
+//         setUnreadCount((prev) => {
+//           let newCount = prev;
+
+//           if (count !== undefined) {
+//             newCount = count; // Set absolute count
+//           } else if (increment !== undefined) {
+//             newCount = prev + (increment || 1); // Increment by value
+//           } else if (decrement !== undefined) {
+//             newCount = Math.max(0, prev - (decrement || 1)); // Decrement by value, not below 0
+//           }
+
+//           console.log(`🔄 Updating badge count: ${prev} -> ${newCount}`);
+//           localStorage.setItem(
+//             "notification_unread_count",
+//             newCount.toString()
+//           );
+//           return newCount;
+//         });
+
+//         setBadgeAnimation(true);
+//         setTimeout(() => setBadgeAnimation(false), 300);
+//       };
+
+//       // Listen for notification action events
+//       const handleNotificationAction = (event) => {
+//         const { action, count } = event.detail;
+//         console.log("📢 Navigation received notification action:", action);
+
+//         if (count !== undefined) {
+//           setUnreadCount(count);
+//           localStorage.setItem("notification_unread_count", count.toString());
+//         } else if (action === "mark-all-read" || action === "delete-all") {
+//           setUnreadCount(0);
+//           localStorage.setItem("notification_unread_count", "0");
+//         }
+//         setBadgeAnimation(true);
+//         setTimeout(() => setBadgeAnimation(false), 300);
+//       };
+
+//       window.addEventListener("app-notification", handleAppNotification);
+//       window.addEventListener(
+//         "update-notification-count",
+//         handleUpdateNotificationCount
+//       );
+//       window.addEventListener(
+//         "notification-action-completed",
+//         handleNotificationAction
+//       );
+
+//       return () => {
+//         if (socketRef.current) {
+//           socketRef.current.disconnect();
+//           socketRef.current = null;
+//         }
+//         window.removeEventListener("app-notification", handleAppNotification);
+//         window.removeEventListener(
+//           "update-notification-count",
+//           handleUpdateNotificationCount
+//         );
+//         window.removeEventListener(
+//           "notification-action-completed",
+//           handleNotificationAction
+//         );
+//         setSocketConnected(false);
+//       };
+//     } catch (error) {
+//       console.error("❌ Socket setup error:", error);
+//     }
+//   };
+
+//   // Fetch unread count function - IMPROVED with retry logic
+//   const fetchUnreadCount = async (retryCount = 0) => {
+//     if (!user) {
+//       setUnreadCount(0);
+//       localStorage.setItem("notification_unread_count", "0");
+//       return;
+//     }
+
+//     try {
+//       console.log("📊 Fetching unread count from server...");
+//       const res = await fetchWithAuth(`${API}/api/notifications/unread-count`);
+
+//       if (!res.ok) {
+//         throw new Error(`Failed to fetch unread count: ${res.status}`);
+//       }
+
+//       const data = await res.json();
+
+//       if (data.success) {
+//         const newCount = data.data?.count || 0;
+//         console.log("✅ Unread count fetched from server:", newCount);
+
+//         // Update state and localStorage
+//         setUnreadCount(newCount);
+//         localStorage.setItem("notification_unread_count", newCount.toString());
+
+//         // Dispatch event for other components
+//         window.dispatchEvent(
+//           new CustomEvent("update-notification-count", {
+//             detail: { count: newCount },
+//           })
+//         );
+//       } else {
+//         console.error("❌ API error:", data.message);
+//         setUnreadCount(0);
+//         localStorage.setItem("notification_unread_count", "0");
+//       }
+//     } catch (err) {
+//       console.error("❌ Fetch unread count error:", err);
+
+//       // Retry logic (max 2 retries)
+//       if (retryCount < 2) {
+//         console.log(`🔄 Retrying fetch unread count (${retryCount + 1}/2)...`);
+//         setTimeout(() => fetchUnreadCount(retryCount + 1), 2000);
+//       } else {
+//         setUnreadCount(0);
+//         localStorage.setItem("notification_unread_count", "0");
+//       }
+//     }
+//   };
+
+//   // Close search when clicking outside
+//   useEffect(() => {
+//     const handleClickOutside = (event) => {
+//       if (searchRef.current && !searchRef.current.contains(event.target)) {
+//         setSearchOpen(false);
+//       }
+//     };
+//     document.addEventListener("mousedown", handleClickOutside);
+//     return () => document.removeEventListener("mousedown", handleClickOutside);
+//   }, []);
+
+//   // Focus search input when search opens
+//   useEffect(() => {
+//     if (searchOpen && searchInputRef.current) {
+//       setTimeout(() => {
+//         searchInputRef.current.focus();
+//         setSearchHistoryOpen(true);
+//       }, 100);
+//     }
+//   }, [searchOpen]);
+
+//   // Close modals and dropdowns when clicking outside
+//   useEffect(() => {
+//     const handleClickOutside = (event) => {
+//       // Close user menu dropdown
+//       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+//         setUserMenuOpen(false);
+//       }
+
+//       // Close profile modal
+//       if (
+//         profileModalRef.current &&
+//         !profileModalRef.current.contains(event.target)
+//       ) {
+//         setShowProfileModal(false);
+//         setShowDeleteConfirm(false);
+//       }
+//     };
+
+//     document.addEventListener("mousedown", handleClickOutside);
+//     return () => document.removeEventListener("mousedown", handleClickOutside);
+//   }, []);
+
+//   // Initialize profile form when user data changes
+//   useEffect(() => {
+//     if (user) {
+//       setProfileForm({
+//         name: user.name || "",
+//         email: user.email || "",
+//         bio: user.bio || "",
+//         currentPassword: "",
+//         newPassword: "",
+//         confirmPassword: "",
+//       });
+//     }
+//   }, [user]);
+
+//   // 🔍 SEARCH FUNCTION - Updated
+//   const searchProducts = async (query) => {
+//     if (!query || query.trim() === "") {
+//       setSearchResults([]);
+//       setIsSearching(false);
+//       return;
+//     }
+
+//     setIsSearching(true);
+//     try {
+//       const res = await fetchWithAuth(
+//         `${API}/api/products/quick-search?q=${encodeURIComponent(query)}`
+//       );
+
+//       if (res.ok) {
+//         const data = await res.json();
+//         setSearchResults(data);
+
+//         // Add to recent searches
+//         if (data.length > 0 && !recentSearches.includes(query)) {
+//           const updated = [query, ...recentSearches].slice(0, 8);
+//           saveRecentSearches(updated);
+//         }
+//       } else {
+//         console.error("Search failed with status:", res.status);
+//         setSearchResults([]);
+//       }
+//     } catch (err) {
+//       console.error("Search error:", err);
+//       setSearchResults([]);
+//     } finally {
+//       setIsSearching(false);
+//     }
+//   };
+
+//   // Debounced search
+//   useEffect(() => {
+//     if (!searchOpen) return;
+
+//     const timer = setTimeout(() => {
+//       if (searchQuery.trim()) {
+//         searchProducts(searchQuery);
+//       } else {
+//         setSearchResults([]);
+//         setSearchHistoryOpen(true);
+//       }
+//     }, 350);
+
+//     return () => clearTimeout(timer);
+//   }, [searchQuery, searchOpen]);
+
+//   // Add to recent searches
+//   const addToRecentSearches = (query) => {
+//     const updated = [
+//       query,
+//       ...recentSearches.filter((s) => s.toLowerCase() !== query.toLowerCase()),
+//     ].slice(0, 8);
+//     saveRecentSearches(updated);
+//   };
+
+//   // Clear recent searches
+//   const clearRecentSearches = () => {
+//     saveRecentSearches([]);
+//   };
+
+//   // Handle search submission
+//   const handleSearch = (e, query = null, category = null) => {
+//     e?.preventDefault();
+//     const searchTerm = query || searchQuery.trim();
+
+//     if (searchTerm) {
+//       addToRecentSearches(searchTerm);
+
+//       if (category) {
+//         navigate(`/search?category=${encodeURIComponent(category)}`);
+//       } else {
+//         navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+//       }
+
+//       setSearchOpen(false);
+//       setSearchQuery("");
+//       setSearchResults([]);
+//     }
+//   };
+
+//   // Handle category click from search
+//   const handleCategorySearch = (categoryName) => {
+//     addToRecentSearches(categoryName);
+//     navigate(`/search?category=${encodeURIComponent(categoryName)}`);
+//     setSearchOpen(false);
+//   };
+
+//   // Format price
+//   const formatPrice = (price) => {
+//     return new Intl.NumberFormat("en-US", {
+//       style: "currency",
+//       currency: "USD",
+//       minimumFractionDigits: 0,
+//     }).format(price);
+//   };
+
+//   const links = [
+//     { name: "Home", path: "/" },
+//     { name: "About-us", path: "/about" },
+//     { name: "Contact-us", path: "/contact" },
+//     { name: "Return-policy", path: "/policy" },
+//     { name: "Blog", path: "/blog" },
+//   ];
+
+//   const toggleDropdown = (key) =>
+//     setOpenDropdown(openDropdown === key ? null : key);
+
+//   const handleCategoryClick = (path) => {
+//     navigate(path);
+//     setMenuOpen(false);
+//     setOpenDropdown(null);
+//   };
+
+//   const handleProfileChange = (e) => {
+//     const { name, value } = e.target;
+//     setProfileForm((prev) => ({
+//       ...prev,
+//       [name]: value,
+//     }));
+//     setProfileError("");
+//     setProfileSuccess("");
+//   };
+
+//   const validateProfileForm = () => {
+//     if (profileForm.newPassword && profileForm.newPassword.length < 6) {
+//       setProfileError("New password must be at least 6 characters");
+//       return false;
+//     }
+
+//     if (
+//       profileForm.newPassword &&
+//       profileForm.newPassword !== profileForm.confirmPassword
+//     ) {
+//       setProfileError("New passwords do not match");
+//       return false;
+//     }
+
+//     return true;
+//   };
+
+//   const handleProfileSubmit = async (e) => {
+//     e.preventDefault();
+//     setProfileError("");
+//     setProfileSuccess("");
+
+//     if (!validateProfileForm()) return;
+
+//     setProfileLoading(true);
+
+//     try {
+//       const updateData = {
+//         name: profileForm.name,
+//         email: profileForm.email,
+//         bio: profileForm.bio,
+//       };
+
+//       if (profileForm.currentPassword && profileForm.newPassword) {
+//         updateData.currentPassword = profileForm.currentPassword;
+//         updateData.newPassword = profileForm.newPassword;
+//       }
+
+//       console.log("Sending update to:", `${API}/api/users/profile`);
+//       console.log("Update data:", updateData);
+
+//       const res = await fetchWithAuth(`${API}/api/users/profile`, {
+//         method: "PUT",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify(updateData),
+//       });
+
+//       console.log("Response status:", res.status);
+
+//       // Check if response is JSON
+//       const contentType = res.headers.get("content-type");
+//       if (!contentType || !contentType.includes("application/json")) {
+//         const text = await res.text();
+//         console.error("Non-JSON response from server:", text.substring(0, 200));
+//         throw new Error(
+//           "Server returned non-JSON response. Please check if the API endpoint exists."
+//         );
+//       }
+
+//       const data = await res.json();
+//       console.log("Response data:", data);
+
+//       if (!res.ok) {
+//         throw new Error(
+//           data.message || `Failed to update profile (${res.status})`
+//         );
+//       }
+
+//       if (!data.success) {
+//         throw new Error(data.message || "Profile update failed");
+//       }
+
+//       // Update user in context
+//       if (data.user) {
+//         updateUser(data.user);
+//         setProfileSuccess("Profile updated successfully!");
+//       } else {
+//         throw new Error("No user data returned from server");
+//       }
+
+//       // Clear password fields
+//       setProfileForm((prev) => ({
+//         ...prev,
+//         currentPassword: "",
+//         newPassword: "",
+//         confirmPassword: "",
+//       }));
+
+//       setTimeout(() => setProfileSuccess(""), 3000);
+//     } catch (err) {
+//       console.error("Profile update error:", err);
+//       setProfileError(
+//         err.message || "Failed to update profile. Please try again."
+//       );
+//     } finally {
+//       setProfileLoading(false);
+//     }
+//   };
+
+//   const handleDeleteAccount = async () => {
+//     if (!deletePassword.trim()) {
+//       setProfileError("Please enter your password to confirm account deletion");
+//       return;
+//     }
+
+//     setProfileLoading(true);
+
+//     try {
+//       console.log(
+//         "Sending delete request to:",
+//         `${API}/api/users/delete-account`
+//       );
+
+//       const res = await fetchWithAuth(`${API}/api/users/delete-account`, {
+//         method: "DELETE",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({ password: deletePassword }),
+//       });
+
+//       console.log("Delete response status:", res.status);
+
+//       // Check if response is JSON
+//       const contentType = res.headers.get("content-type");
+//       if (!contentType || !contentType.includes("application/json")) {
+//         const text = await res.text();
+//         console.error("Non-JSON response from server:", text.substring(0, 200));
+//         throw new Error(
+//           "Server returned non-JSON response. Please check if the API endpoint exists."
+//         );
+//       }
+
+//       const data = await res.json();
+//       console.log("Delete response data:", data);
+
+//       if (!res.ok || !data.success) {
+//         throw new Error(data.message || "Failed to delete account");
+//       }
+
+//       // Logout and redirect
+//       logout();
+//       setShowProfileModal(false);
+//       navigate("/login");
+//     } catch (err) {
+//       console.error("Delete account error:", err);
+//       setProfileError(
+//         err.message || "Failed to delete account. Please try again."
+//       );
+//       setProfileLoading(false);
+//     }
+//   };
+
+//   const cartItemCount =
+//     cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+
+//   return (
+//     <>
+//       {/* Navigation Container */}
+//       <motion.nav
+//         initial={{ y: -100 }}
+//         animate={{ y: 0 }}
+//         transition={{ duration: 0.5, type: "spring" }}
+//         className="fixed top-0 w-full z-50 transition-all duration-300"
+//       >
+//         {/* Top Announcement Bar */}
+//         <div className="bg-gradient-to-r from-[#E1A95F]/20 via-[#d4a259]/20 to-[#c5954d]/20 py-2 px-4 text-center">
+//           <p className="text-xs text-white/90 font-medium">
+//             🚚{" "}
+//             <span className="text-[#E1A95F] font-semibold">Free Shipping</span>{" "}
+//             on orders over $100 •
+//             <span className="text-green-300 font-semibold ml-2">
+//               🎁 30% OFF
+//             </span>{" "}
+//             for new customers
+//           </p>
+//         </div>
+
+//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+//           <div className="flex justify-between items-center h-16">
+//             {/* Logo */}
+//             <motion.div
+//               whileHover={{ scale: 1.05 }}
+//               whileTap={{ scale: 0.95 }}
+//               className="flex items-center"
+//             >
+//               <Link to="/" className="flex items-center">
+//                 <img
+//                   // src={logo}
+//                   alt="Logo"
+//                   className="w-28 md:w-32 h-auto drop-shadow-lg"
+//                 />
+//               </Link>
+//             </motion.div>
+
+//             {/* Desktop Navigation */}
+//             <ul className="hidden lg:flex items-center gap-1">
+//               {links.map((link, index) => (
+//                 <motion.li
+//                   key={index}
+//                   initial={{ opacity: 0, y: -10 }}
+//                   animate={{ opacity: 1, y: 0 }}
+//                   transition={{ delay: index * 0.1 }}
+//                   className="relative"
+//                 >
+//                   <Link
+//                     to={link.path}
+//                     className={`relative px-4 py-2.5 mx-1 rounded-xl transition-all duration-300 font-medium ${
+//                       location.pathname === link.path
+//                         ? "text-[#E1A95F] bg-[#E1A95F]/10"
+//                         : "text-slate-200 hover:text-[#E1A95F] hover:bg-white/5"
+//                     }`}
+//                   >
+//                     {link.name}
+//                     {location.pathname === link.path && (
+//                       <motion.div
+//                         layoutId="underline"
+//                         className="absolute left-4 right-4 h-0.5 bottom-1.5 bg-[#E1A95F] rounded-full"
+//                       />
+//                     )}
+//                   </Link>
+//                 </motion.li>
+//               ))}
+
+//               {/* Dynamic Shop Dropdown */}
+//               <motion.li className="relative">
+//                 <button
+//                   onClick={() => toggleDropdown("shop")}
+//                   className={`flex items-center gap-2 px-4 py-2.5 mx-1 rounded-xl transition-all duration-300 font-medium ${
+//                     openDropdown === "shop"
+//                       ? "text-[#E1A95F] bg-[#E1A95F]/10"
+//                       : "text-slate-200 hover:text-[#E1A95F] hover:bg-white/5"
+//                   }`}
+//                 >
+//                   Shop
+//                   <motion.span
+//                     animate={{ rotate: openDropdown === "shop" ? 180 : 0 }}
+//                     transition={{ duration: 0.3 }}
+//                   >
+//                     <FaChevronDown className="text-sm" />
+//                   </motion.span>
+//                 </button>
+//                 <AnimatePresence>
+//                   {openDropdown === "shop" && (
+//                     <motion.div
+//                       className="absolute left-0 top-full mt-2 min-w-[220px] bg-slate-900/95 dark:bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700 dark:border-gray-300 p-3"
+//                       initial={{ opacity: 0, y: -10, scale: 0.95 }}
+//                       animate={{ opacity: 1, y: 0, scale: 1 }}
+//                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
+//                       transition={{ duration: 0.2 }}
+//                     >
+//                       <div className="space-y-2">
+//                         {categories.map((cat, i) => (
+//                           <motion.button
+//                             key={i}
+//                             initial={{ opacity: 0, x: -10 }}
+//                             animate={{ opacity: 1, x: 0 }}
+//                             transition={{ duration: 0.2, delay: i * 0.05 }}
+//                             onClick={() =>
+//                               handleCategoryClick(
+//                                 `/category/${cat.name.toLowerCase()}`
+//                               )
+//                             }
+//                             className="w-full text-left px-3 py-2.5 rounded-lg text-slate-300 dark:text-gray-700 hover:text-[#E1A95F] hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 flex items-center gap-3 group"
+//                           >
+//                             <div className="w-2 h-2 bg-[#E1A95F]/50 rounded-full group-hover:bg-[#E1A95F] transition-all duration-300"></div>
+//                             <span className="font-medium">{cat.name}</span>
+//                           </motion.button>
+//                         ))}
+//                       </div>
+//                     </motion.div>
+//                   )}
+//                 </AnimatePresence>
+//               </motion.li>
+
+//               <li className="ml-2">
+//                 <ThemeToggle />
+//               </li>
+//             </ul>
+
+//             {/* Right Icons */}
+//             <div className="flex items-center gap-3 md:gap-4">
+//               {/* Enhanced Search */}
+//               <div ref={searchRef} className="">
+//                 <motion.button
+//                   whileHover={{ scale: 1.1 }}
+//                   whileTap={{ scale: 0.9 }}
+//                   onClick={() => {
+//                     setSearchOpen(!searchOpen);
+//                     setSearchHistoryOpen(true);
+//                   }}
+//                   className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 dark:bg-gray-800/50 dark:hover:bg-gray-800 transition-all duration-300 group"
+//                 >
+//                   <FaSearch className="text-slate-300 dark:text-gray-600 group-hover:text-[#E1A95F] text-lg transition-colors duration-300" />
+//                 </motion.button>
+
+//                 <AnimatePresence>
+//                   {searchOpen && (
+//                     <motion.div
+//                       initial={{ opacity: 0, scale: 0.9, y: 10 }}
+//                       animate={{ opacity: 1, scale: 1, y: 0 }}
+//                       exit={{ opacity: 0, scale: 0.9, y: 10 }}
+//                       className="absolute max-sm:right-0 right-10 top-full mt-2 max-sm:w-full w-[50%] max-w-2xl backdrop-blur-sm rounded-xl shadow-2xl border border-slate-700 dark:border-gray-300 overflow-hidden z-50"
+//                     >
+//                       {/* Search Input */}
+//                       <div className="p-4 border-b border-slate-700 dark:border-gray-300 bg-slate-900/50 dark:bg-white">
+//                         <form
+//                           onSubmit={(e) => handleSearch(e)}
+//                           className="relative"
+//                         >
+//                           <div className="relative">
+//                             <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 dark:text-gray-500" />
+//                             <input
+//                               ref={searchInputRef}
+//                               type="text"
+//                               value={searchQuery}
+//                               onChange={(e) => {
+//                                 setSearchQuery(e.target.value);
+//                                 setSearchHistoryOpen(e.target.value === "");
+//                               }}
+//                               placeholder="Search products, brands, categories..."
+//                               className="w-full pl-10 pr-10 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                             />
+//                             {searchQuery && (
+//                               <button
+//                                 type="button"
+//                                 onClick={() => {
+//                                   setSearchQuery("");
+//                                   setSearchResults([]);
+//                                   setSearchHistoryOpen(true);
+//                                 }}
+//                                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 dark:text-gray-500 hover:text-slate-300 dark:hover:text-gray-700 transition-colors"
+//                               >
+//                                 <FaTimesCircle />
+//                               </button>
+//                             )}
+//                           </div>
+//                           {isSearching && (
+//                             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+//                               <FaSpinner className="animate-spin text-[#E1A95F]" />
+//                             </div>
+//                           )}
+//                         </form>
+//                       </div>
+
+//                       {/* Search Content */}
+//                       <div className="max-h-96 overflow-y-auto bg-slate-900/95 dark:bg-white/95">
+//                         {/* Recent Searches */}
+//                         {searchHistoryOpen &&
+//                           recentSearches.length > 0 &&
+//                           !searchQuery && (
+//                             <div className="p-4 border-b border-slate-700 dark:border-gray-300">
+//                               <div className="flex items-center justify-between mb-3">
+//                                 <div className="flex items-center gap-2">
+//                                   <FaHistory className="text-slate-500 dark:text-gray-500 text-sm" />
+//                                   <h3 className="text-sm font-semibold text-slate-400 dark:text-gray-600">
+//                                     Recent Searches
+//                                   </h3>
+//                                 </div>
+//                                 <button
+//                                   onClick={clearRecentSearches}
+//                                   className="text-xs text-slate-500 dark:text-gray-500 hover:text-slate-300 dark:hover:text-gray-700 transition-colors"
+//                                 >
+//                                   Clear All
+//                                 </button>
+//                               </div>
+//                               <div className="space-y-2">
+//                                 {recentSearches.map((search, index) => (
+//                                   <button
+//                                     key={index}
+//                                     onClick={() => {
+//                                       setSearchQuery(search);
+//                                       handleSearch(null, search);
+//                                     }}
+//                                     className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 group"
+//                                   >
+//                                     <div className="flex items-center gap-3">
+//                                       <FaSearch className="text-slate-500 dark:text-gray-500 text-sm group-hover:text-[#E1A95F]" />
+//                                       <span className="text-slate-300 dark:text-gray-700 group-hover:text-white dark:group-hover:text-gray-900">
+//                                         {search}
+//                                       </span>
+//                                     </div>
+//                                     <FaTimesCircle
+//                                       onClick={(e) => {
+//                                         e.stopPropagation();
+//                                         const updated = recentSearches.filter(
+//                                           (_, i) => i !== index
+//                                         );
+//                                         saveRecentSearches(updated);
+//                                       }}
+//                                       className="text-slate-600 dark:text-gray-400 hover:text-slate-400 dark:hover:text-gray-600 text-sm opacity-0 group-hover:opacity-100 transition-all"
+//                                     />
+//                                   </button>
+//                                 ))}
+//                               </div>
+//                             </div>
+//                           )}
+
+//                         {/* Popular Searches */}
+//                         {searchHistoryOpen &&
+//                           popularSearches.length > 0 &&
+//                           !searchQuery && (
+//                             <div className="p-4 border-b border-slate-700 dark:border-gray-300">
+//                               <div className="flex items-center gap-2 mb-3">
+//                                 <FaFire className="text-amber-500 text-sm" />
+//                                 <h3 className="text-sm font-semibold text-slate-400 dark:text-gray-600">
+//                                   Popular Searches
+//                                 </h3>
+//                               </div>
+//                               <div className="flex flex-wrap gap-2">
+//                                 {popularSearches
+//                                   .slice(0, 6)
+//                                   .map((search, index) => (
+//                                     <button
+//                                       key={index}
+//                                       onClick={() => {
+//                                         setSearchQuery(search);
+//                                         handleSearch(null, search);
+//                                       }}
+//                                       className="px-3 py-1.5 bg-slate-800/50 dark:bg-gray-100 hover:bg-[#E1A95F]/20 text-slate-300 dark:text-gray-700 hover:text-[#E1A95F] rounded-lg text-sm transition-all duration-300 border border-slate-700 dark:border-gray-300 hover:border-[#E1A95F]/30"
+//                                     >
+//                                       {search}
+//                                     </button>
+//                                   ))}
+//                               </div>
+//                             </div>
+//                           )}
+
+//                         {/* Categories */}
+//                         {searchHistoryOpen &&
+//                           allCategories.length > 0 &&
+//                           !searchQuery && (
+//                             <div className="p-4">
+//                               <div className="flex items-center gap-2 mb-3">
+//                                 <FaTag className="text-[#E1A95F] text-sm" />
+//                                 <h3 className="text-sm font-semibold text-slate-400 dark:text-gray-600">
+//                                   Browse Categories
+//                                 </h3>
+//                               </div>
+//                               <div className="grid grid-cols-2 gap-2">
+//                                 {allCategories
+//                                   .slice(0, showAllCategories ? 20 : 6)
+//                                   .map((category, index) => (
+//                                     <button
+//                                       key={index}
+//                                       onClick={() =>
+//                                         handleCategorySearch(category.name)
+//                                       }
+//                                       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800/30 dark:bg-gray-100 hover:bg-slate-800/70 dark:hover:bg-gray-200 transition-all duration-300 group"
+//                                     >
+//                                       <FaBox className="text-slate-500 dark:text-gray-500 text-sm group-hover:text-[#E1A95F]" />
+//                                       <span className="text-slate-300 dark:text-gray-700 text-sm truncate">
+//                                         {category.name}
+//                                       </span>
+//                                     </button>
+//                                   ))}
+//                               </div>
+//                               {allCategories.length > 6 && (
+//                                 <button
+//                                   onClick={() =>
+//                                     setShowAllCategories(!showAllCategories)
+//                                   }
+//                                   className="w-full mt-3 text-center text-xs text-slate-500 dark:text-gray-500 hover:text-[#E1A95F] transition-colors"
+//                                 >
+//                                   {showAllCategories
+//                                     ? "Show Less"
+//                                     : `Show All ${allCategories.length} Categories`}
+//                                 </button>
+//                               )}
+//                             </div>
+//                           )}
+
+//                         {/* Search Results */}
+//                         {searchQuery && (
+//                           <div className="p-4">
+//                             <div className="flex items-center justify-between mb-3">
+//                               <h3 className="text-sm font-semibold text-slate-400 dark:text-gray-600">
+//                                 {searchResults.length > 0
+//                                   ? `Found ${searchResults.length} results`
+//                                   : isSearching
+//                                     ? "Searching..."
+//                                     : "No results found"}
+//                               </h3>
+//                               {searchResults.length > 0 && (
+//                                 <button
+//                                   onClick={(e) => handleSearch(e)}
+//                                   className="text-xs text-[#E1A95F] hover:text-[#d4a259] font-medium"
+//                                 >
+//                                   See all →
+//                                 </button>
+//                               )}
+//                             </div>
+
+//                             {searchResults.length > 0 ? (
+//                               <div className="space-y-3">
+//                                 {searchResults.slice(0, 5).map((product) => (
+//                                   <Link
+//                                     key={product._id}
+//                                     to={`/product/${product._id}`}
+//                                     onClick={() => {
+//                                       setSearchOpen(false);
+//                                       setSearchQuery("");
+//                                     }}
+//                                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 group"
+//                                   >
+//                                     <div className="w-20 h-20 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+//                                       {product.image ? (
+//                                         <img
+//                                           src={
+//                                             product.image.startsWith("http")
+//                                               ? product.image
+//                                               : `${API}${product.image}`
+//                                           }
+//                                           alt={product.name}
+//                                           className="w-full h-full object-contain"
+//                                           onError={(e) => {
+//                                             e.target.onerror = null;
+//                                             e.target.src =
+//                                               "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop";
+//                                           }}
+//                                         />
+//                                       ) : (
+//                                         <FaBox className="text-slate-500 dark:text-gray-500" />
+//                                       )}
+//                                     </div>
+//                                     <div className="flex-1 min-w-0">
+//                                       <div className="flex items-start justify-between gap-2">
+//                                         <h4 className="text-sm font-medium text-white dark:text-gray-900 truncate group-hover:text-[#E1A95F]">
+//                                           {product.name}
+//                                         </h4>
+//                                         <span className="text-sm font-semibold text-[#E1A95F] flex-shrink-0">
+//                                           {formatPrice(product.price)}
+//                                         </span>
+//                                       </div>
+//                                       <p className="text-xs text-slate-400 dark:text-gray-600 truncate">
+//                                         {product.category || "Uncategorized"}
+//                                       </p>
+//                                       <div className="flex items-center gap-2 mt-1">
+//                                         {product.isSold ||
+//                                         product.stock === 0 ? (
+//                                           <span className="text-xs text-red-500">
+//                                             Sold Out
+//                                           </span>
+//                                         ) : (
+//                                           <span className="text-xs text-green-500">
+//                                             {product.stock || 0} in stock
+//                                           </span>
+//                                         )}
+//                                       </div>
+//                                     </div>
+//                                   </Link>
+//                                 ))}
+//                               </div>
+//                             ) : !isSearching ? (
+//                               <div className="text-center py-6">
+//                                 <div className="w-12 h-12 mx-auto rounded-full bg-slate-800/50 dark:bg-gray-100 flex items-center justify-center mb-3">
+//                                   <FaSearch className="text-slate-500 dark:text-gray-500" />
+//                                 </div>
+//                                 <p className="text-slate-400 dark:text-gray-600 text-sm">
+//                                   No products found for "{searchQuery}"
+//                                 </p>
+//                                 <p className="text-slate-500 dark:text-gray-500 text-xs mt-2">
+//                                   Try different keywords
+//                                 </p>
+//                               </div>
+//                             ) : null}
+//                           </div>
+//                         )}
+//                       </div>
+
+//                       {/* Search Footer */}
+//                       {searchQuery && (
+//                         <div className="p-4 border-t border-slate-700 dark:border-gray-300 bg-slate-900/50 dark:bg-gray-100">
+//                           <button
+//                             onClick={(e) => handleSearch(e)}
+//                             className="w-full py-2.5 bg-gradient-to-r from-[#E1A95F] to-[#d4a259] text-white rounded-xl font-medium hover:shadow-lg hover:shadow-[#E1A95F]/25 transition-all duration-300 flex items-center justify-center gap-2"
+//                           >
+//                             <FaSearch />
+//                             Search for "{searchQuery}"
+//                           </button>
+//                         </div>
+//                       )}
+//                     </motion.div>
+//                   )}
+//                 </AnimatePresence>
+//               </div>
+
+//               {/* Notifications with YouTube-style badge - FIXED with localStorage */}
+//               <div className="relative">
+//                 <motion.div
+//                   whileHover={{ scale: 1.1 }}
+//                   whileTap={{ scale: 0.9 }}
+//                   className="relative cursor-pointer group"
+//                   onClick={() => navigate("/notifications")}
+//                 >
+//                   <div className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 dark:bg-gray-800/50 dark:hover:bg-gray-800 transition-all duration-300 relative">
+//                     <FaBell className="text-slate-300 dark:text-gray-600 group-hover:text-[#E1A95F] text-lg transition-colors duration-300" />
+
+//                     {/* Socket connection indicator (small dot) */}
+//                     {socketConnected && (
+//                       <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse border border-white"></div>
+//                     )}
+
+//                     {/* YouTube-style notification badge */}
+//                     {unreadCount > 0 && (
+//                       <div className="absolute top-0 right-0">
+//                         <motion.div
+//                           key={`badge-${unreadCount}-${badgeAnimation}`}
+//                           initial={{ scale: 0 }}
+//                           animate={{
+//                             scale: badgeAnimation ? [1, 1.4, 1] : 1,
+//                             rotate: badgeAnimation ? [0, 10, -10, 0] : 0,
+//                           }}
+//                           transition={{
+//                             duration: badgeAnimation ? 0.5 : 0.2,
+//                             type: "spring",
+//                             stiffness: 500,
+//                           }}
+//                           className="relative"
+//                         >
+//                           {/* Main badge */}
+//                           <div className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-lg border-2 border-white/20">
+//                             {unreadCount > 9 ? "9+" : unreadCount}
+//                           </div>
+
+//                           {/* Pulsing effect for new notifications */}
+//                           {badgeAnimation && (
+//                             <div className="absolute -top-1 -right-1 w-[18px] h-[18px] bg-red-600 rounded-full opacity-75 animate-ping"></div>
+//                           )}
+//                         </motion.div>
+//                       </div>
+//                     )}
+//                   </div>
+//                 </motion.div>
+//               </div>
+
+//               {/* Cart */}
+//               <motion.div
+//                 whileHover={{ scale: 1.1 }}
+//                 whileTap={{ scale: 0.9 }}
+//                 initial={{ opacity: 0, x: 20 }}
+//                 animate={{ opacity: 1, x: 0 }}
+//                 className="relative cursor-pointer group"
+//                 onClick={() => navigate("/cart")}
+//               >
+//                 <div
+//                   className={`p-2.5 rounded-xl border transition-all duration-300 ${
+//                     cartPulse
+//                       ? "bg-[#E1A95F]/20 border-[#E1A95F]/30"
+//                       : "bg-white/5 border-white/10 dark:bg-gray-800/50 dark:border-gray-700 hover:bg-white/10 dark:hover:bg-gray-800"
+//                   }`}
+//                 >
+//                   <FaShoppingCart className="text-[#E1A95F] text-lg group-hover:scale-110 transition-transform duration-300" />
+//                 </div>
+//                 {cartItemCount > 0 && (
+//                   <motion.span
+//                     initial={{ scale: 0 }}
+//                     animate={{ scale: 1 }}
+//                     className={`absolute -top-1.5 -right-1.5 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg ${
+//                       cartItemCount > 9
+//                         ? "bg-gradient-to-r from-red-500 to-pink-500"
+//                         : "bg-gradient-to-r from-green-500 to-emerald-500"
+//                     }`}
+//                   >
+//                     {cartItemCount > 9 ? "9+" : cartItemCount}
+//                   </motion.span>
+//                 )}
+//               </motion.div>
+
+//               {/* User */}
+//               {user && (
+//                 <div className="relative" ref={userMenuRef}>
+//                   <motion.div
+//                     whileHover={{ scale: 1.1 }}
+//                     whileTap={{ scale: 0.9 }}
+//                     className="cursor-pointer p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 dark:bg-gray-800/50 dark:hover:bg-gray-800 transition-all duration-300 group"
+//                     onClick={() => setUserMenuOpen(!userMenuOpen)}
+//                   >
+//                     <FaUser className="text-[#E1A95F] text-lg group-hover:scale-110 transition-transform duration-300" />
+//                   </motion.div>
+//                   <AnimatePresence>
+//                     {userMenuOpen && (
+//                       <motion.div
+//                         className="fixed md:absolute right-0 top-20 md:top-full mt-2 w-screen md:w-56 bg-slate-900/95 dark:bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700 dark:border-gray-300 p-4 md:max-w-[90vw] md:max-w-none"
+//                         initial={{ opacity: 0, y: -10, scale: 0.95 }}
+//                         animate={{ opacity: 1, y: 0, scale: 1 }}
+//                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
+//                         transition={{ duration: 0.2 }}
+//                       >
+//                         <div className="space-y-3">
+//                           <div className="pb-3 border-b border-slate-700 dark:border-gray-300">
+//                             <div className="flex items-center gap-3">
+//                               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#E1A95F] to-[#d4a259] flex items-center justify-center text-white font-bold text-lg">
+//                                 {user.name?.charAt(0)?.toUpperCase() || "U"}
+//                               </div>
+//                               <div className="min-w-0 flex-1">
+//                                 <div className="font-bold text-white dark:text-gray-900 truncate">
+//                                   Hi, {user.name || "User"}
+//                                 </div>
+//                                 <div className="text-xs text-slate-400 dark:text-gray-600 truncate">
+//                                   {user.email}
+//                                 </div>
+//                                 <div className="text-xs text-[#E1A95F] font-semibold mt-1">
+//                                   {user.role === "admin"
+//                                     ? "Administrator"
+//                                     : "User"}
+//                                 </div>
+//                               </div>
+//                             </div>
+//                           </div>
+
+//                           <Link
+//                             to="/my-orders"
+//                             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 dark:text-gray-700 hover:text-[#E1A95F] hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 group"
+//                             onClick={() => setUserMenuOpen(false)}
+//                           >
+//                             <div className="w-1.5 h-1.5 bg-[#E1A95F]/50 rounded-full group-hover:bg-[#E1A95F] flex-shrink-0"></div>
+//                             <span className="truncate">My Orders</span>
+//                           </Link>
+
+//                           {/* My Profile Link - Only for non-admin users */}
+//                           {user.role !== "admin" && (
+//                             <button
+//                               onClick={() => {
+//                                 setShowProfileModal(true);
+//                                 setUserMenuOpen(false);
+//                               }}
+//                               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 dark:text-gray-700 hover:text-[#E1A95F] hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 group text-left"
+//                             >
+//                               <div className="w-1.5 h-1.5 bg-[#E1A95F]/50 rounded-full group-hover:bg-[#E1A95F] flex-shrink-0"></div>
+//                               <span className="truncate">My Profile</span>
+//                             </button>
+//                           )}
+
+//                           {user.role === "admin" && (
+//                             <Link
+//                               to="/admin"
+//                               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-green-400 hover:text-green-300 hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 group"
+//                               onClick={() => setUserMenuOpen(false)}
+//                             >
+//                               <div className="w-1.5 h-1.5 bg-green-500/50 rounded-full group-hover:bg-green-500 flex-shrink-0"></div>
+//                               <span className="truncate">Admin Panel</span>
+//                             </Link>
+//                           )}
+
+//                           <button
+//                             onClick={() => {
+//                               logout();
+//                               setUserMenuOpen(false);
+//                               // Clear notification count on logout
+//                               localStorage.removeItem(
+//                                 "notification_unread_count"
+//                               );
+//                               setUnreadCount(0);
+//                             }}
+//                             className="w-full mt-2 py-2.5 bg-gradient-to-r from-red-600/10 to-pink-600/10 hover:from-red-600/20 hover:to-pink-600/20 text-red-400 hover:text-red-300 rounded-xl font-medium transition-all duration-300 border border-red-500/20 flex items-center justify-center gap-2"
+//                           >
+//                             <FaSignOutAlt />
+//                             <span className="truncate">Sign Out</span>
+//                           </button>
+//                         </div>
+//                       </motion.div>
+//                     )}
+//                   </AnimatePresence>
+//                 </div>
+//               )}
+
+//               {/* Mobile Menu Button */}
+//               <motion.button
+//                 whileHover={{ scale: 1.1 }}
+//                 whileTap={{ scale: 0.9 }}
+//                 onClick={() => setMenuOpen(!menuOpen)}
+//                 className="lg:hidden p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 dark:bg-gray-800/50 dark:hover:bg-gray-800 transition-all duration-300"
+//               >
+//                 {menuOpen ? (
+//                   <FaTimes className="text-[#E1A95F] text-xl" />
+//                 ) : (
+//                   <FaBars className="text-slate-300 dark:text-gray-600 text-xl" />
+//                 )}
+//               </motion.button>
+//             </div>
+//           </div>
+//         </div>
+//       </motion.nav>
+
+//       {/* Mobile Menu Overlay */}
+//       <AnimatePresence>
+//         {menuOpen && (
+//           <>
+//             {/* Backdrop */}
+//             <motion.div
+//               initial={{ opacity: 0 }}
+//               animate={{ opacity: 1 }}
+//               exit={{ opacity: 0 }}
+//               onClick={() => setMenuOpen(false)}
+//               className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+//             />
+
+//             {/* Mobile Menu Panel */}
+//             <motion.div
+//               initial={{ x: "100%" }}
+//               animate={{ x: 0 }}
+//               exit={{ x: "100%" }}
+//               transition={{ type: "spring", damping: 25 }}
+//               className="fixed top-0 right-0 h-full w-full max-w-sm z-50 lg:hidden"
+//             >
+//               <div className="h-full bg-gradient-to-b from-slate-900 to-slate-800 dark:from-white dark:to-gray-100 shadow-2xl overflow-y-auto">
+//                 {/* Mobile Header */}
+//                 <div className="p-6 border-b border-slate-700 dark:border-gray-300">
+//                   <div className="flex items-center justify-between mb-6">
+//                     <div className="flex items-center gap-3">
+//                       {/* <img src={logo} alt="Logo" className="w-10 h-10" /> */}
+//                       <h2 className="text-2xl font-bold text-white dark:text-gray-900">
+//                         Menu
+//                       </h2>
+//                     </div>
+//                     <motion.button
+//                       whileHover={{ scale: 1.1 }}
+//                       whileTap={{ scale: 0.9 }}
+//                       onClick={() => setMenuOpen(false)}
+//                       className="p-2 rounded-xl bg-white/5 hover:bg-white/10 dark:bg-gray-800/50 dark:hover:bg-gray-800 transition-all duration-300"
+//                     >
+//                       <FaTimes className="text-[#E1A95F] text-xl" />
+//                     </motion.button>
+//                   </div>
+
+//                   {/* User Info Mobile */}
+//                   {user && (
+//                     <div className="flex items-center gap-3 mb-6 p-4 rounded-xl bg-gradient-to-r from-[#E1A95F]/10 to-[#d4a259]/10 border border-[#E1A95F]/20">
+//                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#E1A95F] to-[#d4a259] flex items-center justify-center text-white font-bold text-lg">
+//                         {user.name?.charAt(0)?.toUpperCase() || "U"}
+//                       </div>
+//                       <div className="min-w-0 flex-1">
+//                         <div className="font-bold text-white dark:text-gray-900 truncate">
+//                           {user.name || "User"}
+//                         </div>
+//                         <div className="text-sm text-slate-400 dark:text-gray-600 truncate">
+//                           {user.email}
+//                         </div>
+//                         <div className="text-xs text-[#E1A95F] font-semibold mt-1">
+//                           {user.role === "admin" ? "Administrator" : "User"}
+//                         </div>
+//                       </div>
+//                     </div>
+//                   )}
+//                 </div>
+
+//                 {/* Mobile Links */}
+//                 <div className="p-6 space-y-2">
+//                   {links.map((link, index) => (
+//                     <Link
+//                       key={index}
+//                       to={link.path}
+//                       onClick={() => setMenuOpen(false)}
+//                       className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 ${
+//                         location.pathname === link.path
+//                           ? "bg-gradient-to-r from-[#E1A95F]/20 to-[#d4a259]/20 text-[#E1A95F]"
+//                           : "text-slate-300 dark:text-gray-700 hover:text-white dark:hover:text-gray-900 hover:bg-slate-800 dark:hover:bg-gray-200"
+//                       }`}
+//                     >
+//                       <div
+//                         className={`w-1.5 h-1.5 rounded-full ${
+//                           location.pathname === link.path
+//                             ? "bg-[#E1A95F]"
+//                             : "bg-slate-600 dark:bg-gray-400"
+//                         }`}
+//                       ></div>
+//                       <span className="font-medium truncate">{link.name}</span>
+//                     </Link>
+//                   ))}
+
+//                   {/* Shop Section Mobile */}
+//                   <div className="space-y-2">
+//                     <button
+//                       onClick={() => toggleDropdown("shop-mobile")}
+//                       className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl text-slate-300 dark:text-gray-700 hover:text-white dark:hover:text-gray-900 hover:bg-slate-800 dark:hover:bg-gray-200 transition-all duration-300"
+//                     >
+//                       <div className="flex items-center gap-3">
+//                         <div className="w-1.5 h-1.5 rounded-full bg-slate-600 dark:bg-gray-400 flex-shrink-0"></div>
+//                         <span className="font-medium truncate">Shop</span>
+//                       </div>
+//                       <FaChevronDown
+//                         className={`transition flex-shrink-0 ${
+//                           openDropdown === "shop-mobile" ? "rotate-180" : ""
+//                         }`}
+//                       />
+//                     </button>
+
+//                     <AnimatePresence>
+//                       {openDropdown === "shop-mobile" && (
+//                         <motion.div
+//                           initial={{ opacity: 0, height: 0 }}
+//                           animate={{ opacity: 1, height: "auto" }}
+//                           exit={{ opacity: 0, height: 0 }}
+//                           className="ml-4 pl-4 border-l border-slate-700 dark:border-gray-300 space-y-2"
+//                         >
+//                           {categories.map((cat, i) => (
+//                             <button
+//                               key={i}
+//                               onClick={() => {
+//                                 navigate(`/category/${cat.name.toLowerCase()}`);
+//                                 setMenuOpen(false);
+//                               }}
+//                               className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-slate-400 dark:text-gray-600 hover:text-[#E1A95F] hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 text-left"
+//                             >
+//                               <div className="w-1 h-1 bg-slate-600 dark:bg-gray-400 rounded-full flex-shrink-0"></div>
+//                               <span className="truncate">{cat.name}</span>
+//                             </button>
+//                           ))}
+//                         </motion.div>
+//                       )}
+//                     </AnimatePresence>
+//                   </div>
+
+//                   {/* My Profile in Mobile Menu - Only for non-admin users */}
+//                   {user && user.role !== "admin" && (
+//                     <button
+//                       onClick={() => {
+//                         setShowProfileModal(true);
+//                         setMenuOpen(false);
+//                       }}
+//                       className="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl text-slate-300 dark:text-gray-700 hover:text-white dark:hover:text-gray-900 hover:bg-slate-800 dark:hover:bg-gray-200 transition-all duration-300"
+//                     >
+//                       <div className="w-1.5 h-1.5 rounded-full bg-slate-600 dark:bg-gray-400 flex-shrink-0"></div>
+//                       <span className="font-medium truncate">My Profile</span>
+//                     </button>
+//                   )}
+
+//                   {/* Theme Toggle Mobile */}
+//                   <div className="mt-6 pt-6 border-t border-slate-700 dark:border-gray-300">
+//                     <div className="flex items-center justify-between px-4">
+//                       <span className="text-slate-300 dark:text-gray-700 font-medium truncate">
+//                         Theme
+//                       </span>
+//                       <ThemeToggle />
+//                     </div>
+//                   </div>
+//                 </div>
+
+//                 {/* Mobile Footer */}
+//                 <div className="p-6 border-t border-slate-700 dark:border-gray-300 mt-auto">
+//                   <div className="space-y-3">
+//                     <button
+//                       onClick={() => {
+//                         navigate("/notifications");
+//                         setMenuOpen(false);
+//                       }}
+//                       className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl bg-slate-800/50 dark:bg-gray-200 hover:bg-slate-800 dark:hover:bg-gray-300 text-slate-300 dark:text-gray-700 hover:text-white dark:hover:text-gray-900 transition-all duration-300 relative"
+//                     >
+//                       <div className="flex items-center gap-3">
+//                         <div className="relative">
+//                           <FaBell className="text-[#E1A95F]" />
+//                           {unreadCount > 0 && (
+//                             <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-600 rounded-full border border-white animate-pulse"></div>
+//                           )}
+//                         </div>
+//                         <span className="truncate">Notifications</span>
+//                       </div>
+//                       {unreadCount > 0 && (
+//                         <span className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1 border-2 border-white/20">
+//                           {unreadCount > 9 ? "9+" : unreadCount}
+//                         </span>
+//                       )}
+//                     </button>
+
+//                     {user && user.role === "admin" && (
+//                       <button
+//                         onClick={() => {
+//                           navigate("/admin");
+//                           setMenuOpen(false);
+//                         }}
+//                         className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl bg-gradient-to-r from-green-600/10 to-emerald-600/10 border border-green-500/20 text-green-400 hover:text-green-300 transition-all duration-300"
+//                       >
+//                         <div className="w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0"></div>
+//                         <span className="truncate">Admin Panel</span>
+//                       </button>
+//                     )}
+//                   </div>
+//                 </div>
+//               </div>
+//             </motion.div>
+//           </>
+//         )}
+//       </AnimatePresence>
+
+//       {/* Profile Modal */}
+//       <AnimatePresence>
+//         {showProfileModal && user && user.role !== "admin" && (
+//           <>
+//             {/* Backdrop */}
+//             <motion.div
+//               initial={{ opacity: 0 }}
+//               animate={{ opacity: 1 }}
+//               exit={{ opacity: 0 }}
+//               className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100]"
+//             />
+
+//             {/* Modal */}
+//             <div className="fixed inset-0 z-[101] flex items-center justify-center p-4">
+//               <motion.div
+//                 ref={profileModalRef}
+//                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
+//                 animate={{ opacity: 1, scale: 1, y: 0 }}
+//                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
+//                 transition={{ type: "spring", damping: 25 }}
+//                 className="w-full max-w-2xl bg-gradient-to-b from-slate-900 to-slate-800 dark:from-white dark:to-gray-100 rounded-2xl shadow-2xl border border-slate-700 dark:border-gray-300 overflow-hidden max-h-[90vh] overflow-y-auto"
+//               >
+//                 {/* Modal Header */}
+//                 <div className="p-6 border-b border-slate-700 dark:border-gray-300 bg-gradient-to-r from-[#E1A95F]/10 to-[#d4a259]/10">
+//                   <div className="flex items-center justify-between">
+//                     <div className="flex items-center gap-3">
+//                       <FaUserCircle className="text-3xl text-[#E1A95F]" />
+//                       <div>
+//                         <h2 className="text-2xl font-bold text-white dark:text-gray-900">
+//                           My Profile
+//                         </h2>
+//                         <p className="text-slate-400 dark:text-gray-600">
+//                           Manage your account settings
+//                         </p>
+//                       </div>
+//                     </div>
+//                     <button
+//                       onClick={() => setShowProfileModal(false)}
+//                       className="p-2 hover:bg-slate-800 dark:hover:bg-gray-200 rounded-xl transition-colors"
+//                     >
+//                       <FaTimes className="text-slate-400 dark:text-gray-600 text-xl" />
+//                     </button>
+//                   </div>
+//                 </div>
+
+//                 {/* Modal Body */}
+//                 <div className="p-6">
+//                   {/* Messages */}
+//                   {profileSuccess && (
+//                     <motion.div
+//                       initial={{ opacity: 0, y: -10 }}
+//                       animate={{ opacity: 1, y: 0 }}
+//                       className="mb-6 p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl"
+//                     >
+//                       <p className="text-green-400 text-center">
+//                         {profileSuccess}
+//                       </p>
+//                     </motion.div>
+//                   )}
+
+//                   {profileError && (
+//                     <motion.div
+//                       initial={{ opacity: 0, y: -10 }}
+//                       animate={{ opacity: 1, y: 0 }}
+//                       className="mb-6 p-4 bg-gradient-to-r from-red-500/10 to-pink-500/10 border border-red-500/20 rounded-xl"
+//                     >
+//                       <p className="text-red-400 text-center">{profileError}</p>
+//                     </motion.div>
+//                   )}
+
+//                   <div className="grid md:grid-cols-3 gap-6">
+//                     {/* Left Column - User Info */}
+//                     <div className="md:col-span-1">
+//                       <div className="bg-slate-800/50 dark:bg-gray-200 rounded-xl p-6 border border-slate-700 dark:border-gray-300">
+//                         <div className="flex flex-col items-center">
+//                           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#E1A95F] to-[#d4a259] flex items-center justify-center mb-4">
+//                             <span className="text-white text-3xl font-bold">
+//                               {user.name?.charAt(0)?.toUpperCase() || "U"}
+//                             </span>
+//                           </div>
+
+//                           <h3 className="text-xl font-bold text-white dark:text-gray-900 mb-1 truncate w-full text-center">
+//                             {user.name || "User"}
+//                           </h3>
+//                           <p className="text-slate-400 dark:text-gray-600 mb-4 truncate w-full text-center">
+//                             {user.email}
+//                           </p>
+
+//                           <div className="w-full bg-slate-700/50 dark:bg-gray-300 rounded-lg p-3 mt-4">
+//                             <h4 className="text-white dark:text-gray-900 font-semibold mb-2">
+//                               Account Status
+//                             </h4>
+//                             <div className="flex items-center justify-between mb-2">
+//                               <span className="text-slate-400 dark:text-gray-700">
+//                                 Verified
+//                               </span>
+//                               <div className="flex items-center gap-2">
+//                                 {user.isVerified ? (
+//                                   <>
+//                                     <FaCheckCircle className="text-green-400 text-sm flex-shrink-0" />
+//                                     <span className="text-xs font-semibold text-green-400 truncate">
+//                                       Verified
+//                                     </span>
+//                                   </>
+//                                 ) : (
+//                                   <>
+//                                     <FaTimesCircle className="text-yellow-400 text-sm flex-shrink-0" />
+//                                     <span className="text-xs font-semibold text-yellow-400 truncate">
+//                                       Not Verified
+//                                     </span>
+//                                   </>
+//                                 )}
+//                               </div>
+//                             </div>
+//                             <div className="flex items-center justify-between">
+//                               <span className="text-slate-400 dark:text-gray-700">
+//                                 Active
+//                               </span>
+//                               <div className="flex items-center gap-2">
+//                                 {!user.isBlocked ? (
+//                                   <>
+//                                     <FaCheckCircle className="text-green-400 text-sm flex-shrink-0" />
+//                                     <span className="text-xs font-semibold text-green-400 truncate">
+//                                       Active
+//                                     </span>
+//                                   </>
+//                                 ) : (
+//                                   <>
+//                                     <FaTimesCircle className="text-red-400 text-sm flex-shrink-0" />
+//                                     <span className="text-xs font-semibold text-red-400 truncate">
+//                                       Blocked
+//                                     </span>
+//                                   </>
+//                                 )}
+//                               </div>
+//                             </div>
+//                           </div>
+
+//                           <p className="text-xs text-slate-500 dark:text-gray-500 mt-4 text-center">
+//                             Member since{" "}
+//                             {new Date(user.createdAt).toLocaleDateString()}
+//                           </p>
+//                         </div>
+//                       </div>
+//                     </div>
+
+//                     {/* Right Column - Form */}
+//                     <div className="md:col-span-2">
+//                       <form
+//                         onSubmit={handleProfileSubmit}
+//                         className="space-y-6"
+//                       >
+//                         {/* Basic Info */}
+//                         <div className="space-y-4">
+//                           <h3 className="text-lg font-semibold text-white dark:text-gray-900 flex items-center gap-2">
+//                             <FaUser className="text-[#E1A95F]" />
+//                             Basic Information
+//                           </h3>
+
+//                           <div>
+//                             <label className="block text-slate-300 dark:text-gray-700 mb-2">
+//                               Full Name
+//                             </label>
+//                             <input
+//                               type="text"
+//                               name="name"
+//                               value={profileForm.name}
+//                               onChange={handleProfileChange}
+//                               className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                               required
+//                             />
+//                           </div>
+
+//                           <div>
+//                             <label className="block text-slate-300 dark:text-gray-700 mb-2">
+//                               Email Address
+//                             </label>
+//                             <input
+//                               type="email"
+//                               name="email"
+//                               value={profileForm.email}
+//                               onChange={handleProfileChange}
+//                               className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                               required
+//                             />
+//                           </div>
+
+//                           <div>
+//                             <label className="block text-slate-300 dark:text-gray-700 mb-2">
+//                               Bio
+//                             </label>
+//                             <textarea
+//                               name="bio"
+//                               value={profileForm.bio}
+//                               onChange={handleProfileChange}
+//                               rows="2"
+//                               className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                               placeholder="Tell us about yourself..."
+//                             />
+//                           </div>
+//                         </div>
+
+//                         {/* Password Change */}
+//                         <div className="space-y-4 pt-6 border-t border-slate-700 dark:border-gray-300">
+//                           <h3 className="text-lg font-semibold text-white dark:text-gray-900 flex items-center gap-2">
+//                             <FaKey className="text-[#E1A95F]" />
+//                             Change Password
+//                           </h3>
+
+//                           <div>
+//                             <label className="block text-slate-300 dark:text-gray-700 mb-2">
+//                               Current Password
+//                             </label>
+//                             <input
+//                               type="password"
+//                               name="currentPassword"
+//                               value={profileForm.currentPassword}
+//                               onChange={handleProfileChange}
+//                               className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                               placeholder="Required to change password"
+//                             />
+//                           </div>
+
+//                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//                             <div>
+//                               <label className="block text-slate-300 dark:text-gray-700 mb-2">
+//                                 New Password
+//                               </label>
+//                               <input
+//                                 type="password"
+//                                 name="newPassword"
+//                                 value={profileForm.newPassword}
+//                                 onChange={handleProfileChange}
+//                                 className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                                 placeholder="At least 6 characters"
+//                               />
+//                             </div>
+
+//                             <div>
+//                               <label className="block text-slate-300 dark:text-gray-700 mb-2">
+//                                 Confirm Password
+//                               </label>
+//                               <input
+//                                 type="password"
+//                                 name="confirmPassword"
+//                                 value={profileForm.confirmPassword}
+//                                 onChange={handleProfileChange}
+//                                 className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+//                                 placeholder="Confirm new password"
+//                               />
+//                             </div>
+//                           </div>
+
+//                           <div className="text-xs text-slate-400 dark:text-gray-600 mt-2">
+//                             <FaTimesCircle className="inline mr-1" />
+//                             Leave password fields empty if you don't want to
+//                             change password
+//                           </div>
+//                         </div>
+
+//                         {/* Action Buttons */}
+//                         <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-slate-700 dark:border-gray-300">
+//                           <button
+//                             type="submit"
+//                             disabled={profileLoading}
+//                             className="flex-1 py-3 bg-gradient-to-r from-[#E1A95F] to-[#d4a259] text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-[#E1A95F]/25 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50"
+//                           >
+//                             {profileLoading ? (
+//                               <>
+//                                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin flex-shrink-0"></div>
+//                                 <span className="truncate">Saving...</span>
+//                               </>
+//                             ) : (
+//                               <>
+//                                 <FaSave className="flex-shrink-0" />
+//                                 <span className="truncate">Save Changes</span>
+//                               </>
+//                             )}
+//                           </button>
+
+//                           <button
+//                             type="button"
+//                             onClick={() => setShowDeleteConfirm(true)}
+//                             className="py-3 px-6 bg-gradient-to-r from-red-600/10 to-pink-600/10 border border-red-500/20 text-red-400 hover:text-red-300 hover:from-red-600/20 hover:to-pink-600/20 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2"
+//                           >
+//                             <FaTrash className="flex-shrink-0" />
+//                             <span className="truncate">Delete Account</span>
+//                           </button>
+//                         </div>
+//                       </form>
+//                     </div>
+//                   </div>
+//                 </div>
+//               </motion.div>
+//             </div>
+//           </>
+//         )}
+//       </AnimatePresence>
+
+//       {/* Delete Confirmation Modal */}
+//       <AnimatePresence>
+//         {showDeleteConfirm && (
+//           <>
+//             {/* Backdrop */}
+//             <motion.div
+//               initial={{ opacity: 0 }}
+//               animate={{ opacity: 1 }}
+//               exit={{ opacity: 0 }}
+//               className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[102]"
+//             />
+
+//             {/* Modal */}
+//             <div className="fixed inset-0 z-[103] flex items-center justify-center p-4">
+//               <motion.div
+//                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
+//                 animate={{ opacity: 1, scale: 1, y: 0 }}
+//                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
+//                 transition={{ type: "spring", damping: 25 }}
+//                 className="w-full max-w-md bg-gradient-to-b from-slate-900 to-slate-800 dark:from-white dark:to-gray-100 rounded-2xl shadow-2xl border border-slate-700 dark:border-gray-300 p-6"
+//               >
+//                 <div className="text-center">
+//                   <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-600/20 to-pink-600/20 flex items-center justify-center">
+//                     <FaTrash className="text-red-500 text-2xl" />
+//                   </div>
+
+//                   <h3 className="text-2xl font-bold text-white dark:text-gray-900 mb-2 truncate">
+//                     Delete Account
+//                   </h3>
+//                   <p className="text-slate-400 dark:text-gray-600 mb-6">
+//                     This action cannot be undone. All your data will be
+//                     permanently removed from our database.
+//                   </p>
+
+//                   <div className="mb-6">
+//                     <label className="block text-slate-300 dark:text-gray-700 mb-2 text-left">
+//                       Enter your password to confirm:
+//                     </label>
+//                     <input
+//                       type="password"
+//                       value={deletePassword}
+//                       onChange={(e) => setDeletePassword(e.target.value)}
+//                       className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 transition-all duration-300"
+//                       placeholder="Your password"
+//                     />
+//                   </div>
+
+//                   <div className="flex gap-4">
+//                     <button
+//                       onClick={() => setShowDeleteConfirm(false)}
+//                       className="flex-1 py-3 bg-slate-700 dark:bg-gray-300 text-white dark:text-gray-900 rounded-xl font-semibold hover:bg-slate-600 dark:hover:bg-gray-400 transition-all duration-300 truncate"
+//                     >
+//                       Cancel
+//                     </button>
+
+//                     <button
+//                       onClick={handleDeleteAccount}
+//                       disabled={profileLoading}
+//                       className="flex-1 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-red-500/25 transition-all duration-300 disabled:opacity-50 truncate"
+//                     >
+//                       {profileLoading ? "Deleting..." : "Delete Account"}
+//                     </button>
+//                   </div>
+//                 </div>
+//               </motion.div>
+//             </div>
+//           </>
+//         )}
+//       </AnimatePresence>
+
+//       {/* Scroll Progress Bar */}
+//       <motion.div
+//         className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#E1A95F] via-[#d4a259] to-[#E1A95F] z-50"
+//         style={{ scaleX: scrolled ? 1 : 0 }}
+//         transition={{ duration: 0.3 }}
+//       />
+//     </>
+//   );
+// };
+
+// export default Navigation;
 import React, { useState, useContext, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
@@ -8,6 +5080,18 @@ import {
   FaUser,
   FaBell,
   FaSearch,
+  FaKey,
+  FaTrash,
+  FaSave,
+  FaUserCircle,
+  FaSignOutAlt,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaSpinner,
+  FaBox,
+  FaTag,
+  FaFire,
+  FaHistory,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import ThemeToggle from "../Components/ThemeToggle";
@@ -15,7 +5099,6 @@ import { authContext } from "../Context/authContext";
 import { cartContext } from "../Context/cartContext";
 import { initSocket } from "../utils/socket";
 import { fetchWithAuth } from "../utils/auth";
-// import logo from "./src/assets/"
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -24,18 +5107,92 @@ const Navigation = () => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [allCategories, setAllCategories] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(() => {
+    // Initialize from localStorage to persist across refreshes
+    const saved = localStorage.getItem("notification_unread_count");
+    return saved ? parseInt(saved, 10) : 0;
+  });
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [cartPulse, setCartPulse] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    name: "",
+    email: "",
+    bio: "",
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileError, setProfileError] = useState("");
+  const [profileSuccess, setProfileSuccess] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [recentSearches, setRecentSearches] = useState([]);
+  const [popularSearches, setPopularSearches] = useState([]);
+  const [searchHistoryOpen, setSearchHistoryOpen] = useState(true);
+  const [showAllCategories, setShowAllCategories] = useState(false);
+  const [badgeAnimation, setBadgeAnimation] = useState(false);
+  const [socketConnected, setSocketConnected] = useState(false);
+
   const searchRef = useRef(null);
+  const searchInputRef = useRef(null);
+  const profileModalRef = useRef(null);
+  const userMenuRef = useRef(null);
+  const socketRef = useRef(null);
+  const soundRef = useRef(null);
+  const mountedRef = useRef(true);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout } = useContext(authContext);
+  const { user, logout, updateUser } = useContext(authContext);
   const { cart } = useContext(cartContext);
 
-  // Fetch categories dynamically from backend
+  // Initialize sound
+  useEffect(() => {
+    soundRef.current = new Audio("/sounds/notification.mp3");
+    soundRef.current.volume = 0.3;
+
+    return () => {
+      mountedRef.current = false;
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+    };
+  }, []);
+
+  // Update localStorage and document title when unreadCount changes
+  useEffect(() => {
+    localStorage.setItem("notification_unread_count", unreadCount.toString());
+    updateDocumentTitle(unreadCount);
+  }, [unreadCount]);
+
+  // Update document title
+  const updateDocumentTitle = (count) => {
+    const baseTitle = document.title.replace(/^\(\d+\)\s*/, "") || "E-Commerce";
+    if (count > 0) {
+      document.title = `(${count}) ${baseTitle}`;
+    } else {
+      document.title = baseTitle;
+    }
+  };
+
+  // Play notification sound
+  const playNotificationSound = () => {
+    if (soundRef.current) {
+      soundRef.current.currentTime = 0;
+      soundRef.current
+        .play()
+        .catch((e) => console.log("Sound play failed:", e));
+    }
+  };
+
+  // Fetch categories for dropdown
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -43,11 +5200,63 @@ const Navigation = () => {
         const data = await res.json();
         setCategories(data || []);
       } catch (err) {
-        console.error(err);
+        console.error("Categories fetch error:", err);
       }
     };
     fetchCategories();
   }, []);
+
+  // Fetch all categories for search
+  useEffect(() => {
+    const fetchAllCategories = async () => {
+      try {
+        const res = await fetchWithAuth(
+          `${API}/api/products/categories-for-search`
+        );
+        if (res.ok) {
+          const data = await res.json();
+          setAllCategories(data);
+        }
+      } catch (err) {
+        console.error("All categories fetch error:", err);
+      }
+    };
+    fetchAllCategories();
+  }, []);
+
+  // Fetch popular searches
+  useEffect(() => {
+    const fetchPopularSearches = async () => {
+      try {
+        const res = await fetchWithAuth(`${API}/api/products/popular-searches`);
+        if (res.ok) {
+          const data = await res.json();
+          setPopularSearches(data || []);
+        }
+      } catch (err) {
+        console.error("Popular searches error:", err);
+      }
+    };
+    fetchPopularSearches();
+  }, []);
+
+  // Load recent searches
+  useEffect(() => {
+    const savedSearches = localStorage.getItem("recent_searches");
+    if (savedSearches) {
+      try {
+        setRecentSearches(JSON.parse(savedSearches));
+      } catch (e) {
+        console.error("Error parsing recent searches:", e);
+      }
+    }
+  }, []);
+
+  // Save recent searches
+  const saveRecentSearches = (searches) => {
+    setRecentSearches(searches);
+    localStorage.setItem("recent_searches", JSON.stringify(searches));
+  };
 
   // Scroll effect
   useEffect(() => {
@@ -67,57 +5276,280 @@ const Navigation = () => {
     }
   }, [cart?.items]);
 
-  // Fetch initial unread count
+  // Fetch initial unread count IMMEDIATELY on mount - FIXED
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setUnreadCount(0);
+      localStorage.setItem("notification_unread_count", "0");
+      return;
+    }
+
+    // Fetch count from server on mount
     fetchUnreadCount();
-  }, [user]);
 
-  // Notifications socket - EXACT SAME LOGIC AS YOUR NOTIFICATIONS PAGE
-  useEffect(() => {
-    if (!user) return;
+    // Setup socket connection
+    setupSocketConnection();
 
-    const s = initSocket(user._id);
-
-    const onNotif = (notif) => {
-      playSound();
-      setUnreadCount((prev) => prev + 1);
-    };
-
-    s.on("notification", onNotif);
-
-    // Poll for new notifications every 10 seconds
-    const poll = setInterval(fetchUnreadCount, 10000);
+    // Set up polling interval for count updates
+    const pollingInterval = setInterval(() => {
+      if (mountedRef.current && user) {
+        fetchUnreadCount();
+      }
+    }, 60000); // Check every minute
 
     return () => {
-      s.off("notification", onNotif);
-      clearInterval(poll);
+      clearInterval(pollingInterval);
     };
   }, [user]);
 
-  const fetchUnreadCount = async () => {
-    if (!user) return;
+  // Setup socket connection for notifications
+  const setupSocketConnection = () => {
+    if (!user || !mountedRef.current) return;
+
+    console.log("🔌 Setting up socket connection for user:", user._id);
+
+    // Setup socket connection
     try {
-      const res = await fetchWithAuth(`${API}/api/notifications`);
-      if (!res.ok) return;
-      const data = await res.json();
-      // Count unread notifications
-      const unread = data.filter((n) => !n.read).length;
-      setUnreadCount(unread);
-    } catch (err) {
-      console.error(err);
+      const socket = initSocket();
+      socketRef.current = socket;
+
+      // Socket connection events
+      socket.on("connect", () => {
+        console.log("✅ Navigation socket connected:", socket.id);
+        setSocketConnected(true);
+
+        // Join user room immediately after connection
+        if (user._id) {
+          socket.emit("join", user._id);
+          console.log(`👤 User ${user._id} joined socket room`);
+        }
+      });
+
+      socket.on("connect_error", (error) => {
+        console.error("❌ Navigation socket connect error:", error);
+        setSocketConnected(false);
+      });
+
+      socket.on("disconnect", (reason) => {
+        console.log("🔌 Navigation socket disconnected:", reason);
+        setSocketConnected(false);
+      });
+
+      // Listen for new notifications
+      socket.on("notification", (newNotification) => {
+        console.log("🔔 Navigation received notification:", newNotification);
+
+        if (!mountedRef.current) return;
+
+        // Update unread count
+        setUnreadCount((prev) => {
+          const newCount = prev + 1;
+          localStorage.setItem(
+            "notification_unread_count",
+            newCount.toString()
+          );
+          return newCount;
+        });
+
+        // Trigger badge animation
+        setBadgeAnimation(true);
+        playNotificationSound();
+        setTimeout(() => setBadgeAnimation(false), 500);
+
+        // Show browser notification if permission granted
+        if ("Notification" in window && Notification.permission === "granted") {
+          try {
+            new Notification(newNotification.title || "New Notification", {
+              body: newNotification.message,
+              icon: "/logo.png",
+              badge: "/logo.png",
+              tag: newNotification._id || Date.now().toString(),
+              requireInteraction: false,
+            });
+          } catch (notificationError) {
+            console.log("Browser notification error:", notificationError);
+          }
+        }
+      });
+
+      // Listen for notification count updates
+      socket.on("notification-count", (data) => {
+        console.log("📊 Navigation received notification count:", data);
+
+        if (!mountedRef.current) return;
+
+        const newCount = data.count || 0;
+        setUnreadCount(newCount);
+        localStorage.setItem("notification_unread_count", newCount.toString());
+        setBadgeAnimation(true);
+        setTimeout(() => setBadgeAnimation(false), 300);
+      });
+
+      // Listen for notification count response
+      socket.on("notification-count-response", (data) => {
+        console.log(
+          "📊 Navigation received notification count response:",
+          data
+        );
+
+        if (!mountedRef.current) return;
+
+        const newCount = data.count || 0;
+        setUnreadCount(newCount);
+        localStorage.setItem("notification_unread_count", newCount.toString());
+        setBadgeAnimation(true);
+        setTimeout(() => setBadgeAnimation(false), 300);
+      });
+
+      // Listen for app-notification events (from socket.js)
+      const handleAppNotification = (event) => {
+        const newNotification = event.detail;
+        console.log(
+          "📢 Navigation received app-notification:",
+          newNotification
+        );
+
+        if (!mountedRef.current) return;
+
+        setUnreadCount((prev) => {
+          const newCount = prev + 1;
+          localStorage.setItem(
+            "notification_unread_count",
+            newCount.toString()
+          );
+          return newCount;
+        });
+
+        setBadgeAnimation(true);
+        playNotificationSound();
+        setTimeout(() => setBadgeAnimation(false), 500);
+      };
+
+      const handleUpdateNotificationCount = (event) => {
+        const { increment, decrement, count } = event.detail;
+        console.log(
+          "🔢 Navigation received update-notification-count:",
+          event.detail
+        );
+
+        setUnreadCount((prev) => {
+          let newCount = prev;
+
+          if (count !== undefined) {
+            newCount = count; // Set absolute count
+          } else if (increment !== undefined) {
+            newCount = prev + (increment || 1); // Increment by value
+          } else if (decrement !== undefined) {
+            newCount = Math.max(0, prev - (decrement || 1)); // Decrement by value, not below 0
+          }
+
+          console.log(`🔄 Updating badge count: ${prev} -> ${newCount}`);
+          localStorage.setItem(
+            "notification_unread_count",
+            newCount.toString()
+          );
+          return newCount;
+        });
+
+        setBadgeAnimation(true);
+        setTimeout(() => setBadgeAnimation(false), 300);
+      };
+
+      // Listen for notification action events
+      const handleNotificationAction = (event) => {
+        const { action, count } = event.detail;
+        console.log("📢 Navigation received notification action:", action);
+
+        if (count !== undefined) {
+          setUnreadCount(count);
+          localStorage.setItem("notification_unread_count", count.toString());
+        } else if (action === "mark-all-read" || action === "delete-all") {
+          setUnreadCount(0);
+          localStorage.setItem("notification_unread_count", "0");
+        }
+        setBadgeAnimation(true);
+        setTimeout(() => setBadgeAnimation(false), 300);
+      };
+
+      window.addEventListener("app-notification", handleAppNotification);
+      window.addEventListener(
+        "update-notification-count",
+        handleUpdateNotificationCount
+      );
+      window.addEventListener(
+        "notification-action-completed",
+        handleNotificationAction
+      );
+
+      return () => {
+        if (socketRef.current) {
+          socketRef.current.disconnect();
+          socketRef.current = null;
+        }
+        window.removeEventListener("app-notification", handleAppNotification);
+        window.removeEventListener(
+          "update-notification-count",
+          handleUpdateNotificationCount
+        );
+        window.removeEventListener(
+          "notification-action-completed",
+          handleNotificationAction
+        );
+        setSocketConnected(false);
+      };
+    } catch (error) {
+      console.error("❌ Socket setup error:", error);
     }
   };
 
-  const playSound = () => {
+  // Fetch unread count function - IMPROVED with retry logic
+  const fetchUnreadCount = async (retryCount = 0) => {
+    if (!user) {
+      setUnreadCount(0);
+      localStorage.setItem("notification_unread_count", "0");
+      return;
+    }
+
     try {
-      const audio = new Audio(
-        "https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg"
-      );
-      audio.volume = 0.3;
-      audio.play().catch(() => {});
-    } catch (e) {
-      console.error(e);
+      console.log("📊 Fetching unread count from server...");
+      const res = await fetchWithAuth(`${API}/api/notifications/unread-count`);
+
+      if (!res.ok) {
+        throw new Error(`Failed to fetch unread count: ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      if (data.success) {
+        const newCount = data.data?.count || 0;
+        console.log("✅ Unread count fetched from server:", newCount);
+
+        // Update state and localStorage
+        setUnreadCount(newCount);
+        localStorage.setItem("notification_unread_count", newCount.toString());
+
+        // Dispatch event for other components
+        window.dispatchEvent(
+          new CustomEvent("update-notification-count", {
+            detail: { count: newCount },
+          })
+        );
+      } else {
+        console.error("❌ API error:", data.message);
+        setUnreadCount(0);
+        localStorage.setItem("notification_unread_count", "0");
+      }
+    } catch (err) {
+      console.error("❌ Fetch unread count error:", err);
+
+      // Retry logic (max 2 retries)
+      if (retryCount < 2) {
+        console.log(`🔄 Retrying fetch unread count (${retryCount + 1}/2)...`);
+        setTimeout(() => fetchUnreadCount(retryCount + 1), 2000);
+      } else {
+        setUnreadCount(0);
+        localStorage.setItem("notification_unread_count", "0");
+      }
     }
   };
 
@@ -132,11 +5564,159 @@ const Navigation = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Focus search input when search opens
+  useEffect(() => {
+    if (searchOpen && searchInputRef.current) {
+      setTimeout(() => {
+        searchInputRef.current.focus();
+        setSearchHistoryOpen(true);
+      }, 100);
+    }
+  }, [searchOpen]);
+
+  // Close modals and dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Close user menu dropdown
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setUserMenuOpen(false);
+      }
+
+      // Close profile modal
+      if (
+        profileModalRef.current &&
+        !profileModalRef.current.contains(event.target)
+      ) {
+        setShowProfileModal(false);
+        setShowDeleteConfirm(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Initialize profile form when user data changes
+  useEffect(() => {
+    if (user) {
+      setProfileForm({
+        name: user.name || "",
+        email: user.email || "",
+        bio: user.bio || "",
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    }
+  }, [user]);
+
+  // 🔍 SEARCH FUNCTION - Updated
+  const searchProducts = async (query) => {
+    if (!query || query.trim() === "") {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const res = await fetchWithAuth(
+        `${API}/api/products/quick-search?q=${encodeURIComponent(query)}`
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        setSearchResults(data);
+
+        // Add to recent searches
+        if (data.length > 0 && !recentSearches.includes(query)) {
+          const updated = [query, ...recentSearches].slice(0, 8);
+          saveRecentSearches(updated);
+        }
+      } else {
+        console.error("Search failed with status:", res.status);
+        setSearchResults([]);
+      }
+    } catch (err) {
+      console.error("Search error:", err);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Debounced search
+  useEffect(() => {
+    if (!searchOpen) return;
+
+    const timer = setTimeout(() => {
+      if (searchQuery.trim()) {
+        searchProducts(searchQuery);
+      } else {
+        setSearchResults([]);
+        setSearchHistoryOpen(true);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, searchOpen]);
+
+  // Add to recent searches
+  const addToRecentSearches = (query) => {
+    const updated = [
+      query,
+      ...recentSearches.filter((s) => s.toLowerCase() !== query.toLowerCase()),
+    ].slice(0, 8);
+    saveRecentSearches(updated);
+  };
+
+  // Clear recent searches
+  const clearRecentSearches = () => {
+    saveRecentSearches([]);
+  };
+
+  // Handle search submission
+  const handleSearch = (e, query = null, category = null) => {
+    e?.preventDefault();
+    const searchTerm = query || searchQuery.trim();
+
+    if (searchTerm) {
+      addToRecentSearches(searchTerm);
+
+      if (category) {
+        navigate(`/search?category=${encodeURIComponent(category)}`);
+      } else {
+        navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+      }
+
+      setSearchOpen(false);
+      setSearchQuery("");
+      setSearchResults([]);
+    }
+  };
+
+  // Handle category click from search
+  const handleCategorySearch = (categoryName) => {
+    addToRecentSearches(categoryName);
+    navigate(`/search?category=${encodeURIComponent(categoryName)}`);
+    setSearchOpen(false);
+  };
+
+  // Format price
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
   const links = [
     { name: "Home", path: "/" },
     { name: "About-us", path: "/about" },
     { name: "Contact-us", path: "/contact" },
     { name: "Return-policy", path: "/policy" },
+    { name: "Blog", path: "/blog" },
   ];
 
   const toggleDropdown = (key) =>
@@ -148,12 +5728,168 @@ const Navigation = () => {
     setOpenDropdown(null);
   };
 
-  const handleSearch = (e) => {
+  const handleProfileChange = (e) => {
+    const { name, value } = e.target;
+    setProfileForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    setProfileError("");
+    setProfileSuccess("");
+  };
+
+  const validateProfileForm = () => {
+    if (profileForm.newPassword && profileForm.newPassword.length < 6) {
+      setProfileError("New password must be at least 6 characters");
+      return false;
+    }
+
+    if (
+      profileForm.newPassword &&
+      profileForm.newPassword !== profileForm.confirmPassword
+    ) {
+      setProfileError("New passwords do not match");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleProfileSubmit = async (e) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-      setSearchOpen(false);
-      setSearchQuery("");
+    setProfileError("");
+    setProfileSuccess("");
+
+    if (!validateProfileForm()) return;
+
+    setProfileLoading(true);
+
+    try {
+      const updateData = {
+        name: profileForm.name,
+        email: profileForm.email,
+        bio: profileForm.bio,
+      };
+
+      if (profileForm.currentPassword && profileForm.newPassword) {
+        updateData.currentPassword = profileForm.currentPassword;
+        updateData.newPassword = profileForm.newPassword;
+      }
+
+      console.log("Sending update to:", `${API}/api/users/profile`);
+      console.log("Update data:", updateData);
+
+      const res = await fetchWithAuth(`${API}/api/users/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      console.log("Response status:", res.status);
+
+      // Check if response is JSON
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Non-JSON response from server:", text.substring(0, 200));
+        throw new Error(
+          "Server returned non-JSON response. Please check if the API endpoint exists."
+        );
+      }
+
+      const data = await res.json();
+      console.log("Response data:", data);
+
+      if (!res.ok) {
+        throw new Error(
+          data.message || `Failed to update profile (${res.status})`
+        );
+      }
+
+      if (!data.success) {
+        throw new Error(data.message || "Profile update failed");
+      }
+
+      // Update user in context
+      if (data.user) {
+        updateUser(data.user);
+        setProfileSuccess("Profile updated successfully!");
+      } else {
+        throw new Error("No user data returned from server");
+      }
+
+      // Clear password fields
+      setProfileForm((prev) => ({
+        ...prev,
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      }));
+
+      setTimeout(() => setProfileSuccess(""), 3000);
+    } catch (err) {
+      console.error("Profile update error:", err);
+      setProfileError(
+        err.message || "Failed to update profile. Please try again."
+      );
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!deletePassword.trim()) {
+      setProfileError("Please enter your password to confirm account deletion");
+      return;
+    }
+
+    setProfileLoading(true);
+
+    try {
+      console.log(
+        "Sending delete request to:",
+        `${API}/api/users/delete-account`
+      );
+
+      const res = await fetchWithAuth(`${API}/api/users/delete-account`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password: deletePassword }),
+      });
+
+      console.log("Delete response status:", res.status);
+
+      // Check if response is JSON
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Non-JSON response from server:", text.substring(0, 200));
+        throw new Error(
+          "Server returned non-JSON response. Please check if the API endpoint exists."
+        );
+      }
+
+      const data = await res.json();
+      console.log("Delete response data:", data);
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to delete account");
+      }
+
+      // Logout and redirect
+      logout();
+      setShowProfileModal(false);
+      navigate("/login");
+    } catch (err) {
+      console.error("Delete account error:", err);
+      setProfileError(
+        err.message || "Failed to delete account. Please try again."
+      );
+      setProfileLoading(false);
     }
   };
 
@@ -249,7 +5985,7 @@ const Navigation = () => {
                 <AnimatePresence>
                   {openDropdown === "shop" && (
                     <motion.div
-                      className="absolute left-0 top-full mt-2 min-w-[220px] bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700 p-3"
+                      className="absolute left-0 top-full mt-2 min-w-[220px] bg-slate-900/95 dark:bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700 dark:border-gray-300 p-3"
                       initial={{ opacity: 0, y: -10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
@@ -267,7 +6003,7 @@ const Navigation = () => {
                                 `/category/${cat.name.toLowerCase()}`
                               )
                             }
-                            className="w-full text-left px-3 py-2.5 rounded-lg text-slate-300 hover:text-[#E1A95F] hover:bg-slate-800/50 transition-all duration-300 flex items-center gap-3 group"
+                            className="w-full text-left px-3 py-2.5 rounded-lg text-slate-300 dark:text-gray-700 hover:text-[#E1A95F] hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 flex items-center gap-3 group"
                           >
                             <div className="w-2 h-2 bg-[#E1A95F]/50 rounded-full group-hover:bg-[#E1A95F] transition-all duration-300"></div>
                             <span className="font-medium">{cat.name}</span>
@@ -286,15 +6022,18 @@ const Navigation = () => {
 
             {/* Right Icons */}
             <div className="flex items-center gap-3 md:gap-4">
-              {/* Search */}
-              <div ref={searchRef} className="relative">
+              {/* Enhanced Search */}
+              <div ref={searchRef} className="">
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  onClick={() => setSearchOpen(!searchOpen)}
-                  className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 group"
+                  onClick={() => {
+                    setSearchOpen(!searchOpen);
+                    setSearchHistoryOpen(true);
+                  }}
+                  className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 dark:bg-gray-800/50 dark:hover:bg-gray-800 transition-all duration-300 group"
                 >
-                  <FaSearch className="text-slate-300 group-hover:text-[#E1A95F] text-lg transition-colors duration-300" />
+                  <FaSearch className="text-slate-300 dark:text-gray-600 group-hover:text-[#E1A95F] text-lg transition-colors duration-300" />
                 </motion.button>
 
                 <AnimatePresence>
@@ -303,49 +6042,349 @@ const Navigation = () => {
                       initial={{ opacity: 0, scale: 0.9, y: 10 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                      className="absolute right-0 top-full mt-2 w-80 bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700 p-4"
+                      className="absolute max-sm:right-0 right-10 top-full mt-2 max-sm:w-full w-[50%] max-w-2xl backdrop-blur-sm rounded-xl shadow-2xl border border-slate-700 dark:border-gray-300 overflow-hidden z-50"
                     >
-                      <form onSubmit={handleSearch} className="space-y-3">
-                        <input
-                          type="text"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          placeholder="Search products, brands, categories..."
-                          className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
-                          autoFocus
-                        />
-                        <button
-                          type="submit"
-                          className="w-full py-2.5 bg-gradient-to-r from-[#E1A95F] to-[#d4a259] text-white rounded-xl font-medium hover:shadow-lg hover:shadow-[#E1A95F]/25 transition-all duration-300"
+                      {/* Search Input */}
+                      <div className="p-4 border-b border-slate-700 dark:border-gray-300 bg-slate-900/50 dark:bg-white">
+                        <form
+                          onSubmit={(e) => handleSearch(e)}
+                          className="relative"
                         >
-                          Search Products
-                        </button>
-                      </form>
+                          <div className="relative">
+                            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 dark:text-gray-500" />
+                            <input
+                              ref={searchInputRef}
+                              type="text"
+                              value={searchQuery}
+                              onChange={(e) => {
+                                setSearchQuery(e.target.value);
+                                setSearchHistoryOpen(e.target.value === "");
+                              }}
+                              placeholder="Search products, brands, categories..."
+                              className="w-full pl-10 pr-10 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+                            />
+                            {searchQuery && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSearchQuery("");
+                                  setSearchResults([]);
+                                  setSearchHistoryOpen(true);
+                                }}
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 dark:text-gray-500 hover:text-slate-300 dark:hover:text-gray-700 transition-colors"
+                              >
+                                <FaTimesCircle />
+                              </button>
+                            )}
+                          </div>
+                          {isSearching && (
+                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                              <FaSpinner className="animate-spin text-[#E1A95F]" />
+                            </div>
+                          )}
+                        </form>
+                      </div>
+
+                      {/* Search Content */}
+                      <div className="max-h-96 overflow-y-auto bg-slate-900/95 dark:bg-white/95">
+                        {/* Recent Searches */}
+                        {searchHistoryOpen &&
+                          recentSearches.length > 0 &&
+                          !searchQuery && (
+                            <div className="p-4 border-b border-slate-700 dark:border-gray-300">
+                              <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                  <FaHistory className="text-slate-500 dark:text-gray-500 text-sm" />
+                                  <h3 className="text-sm font-semibold text-slate-400 dark:text-gray-600">
+                                    Recent Searches
+                                  </h3>
+                                </div>
+                                <button
+                                  onClick={clearRecentSearches}
+                                  className="text-xs text-slate-500 dark:text-gray-500 hover:text-slate-300 dark:hover:text-gray-700 transition-colors"
+                                >
+                                  Clear All
+                                </button>
+                              </div>
+                              <div className="space-y-2">
+                                {recentSearches.map((search, index) => (
+                                  <button
+                                    key={index}
+                                    onClick={() => {
+                                      setSearchQuery(search);
+                                      handleSearch(null, search);
+                                    }}
+                                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 group"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <FaSearch className="text-slate-500 dark:text-gray-500 text-sm group-hover:text-[#E1A95F]" />
+                                      <span className="text-slate-300 dark:text-gray-700 group-hover:text-white dark:group-hover:text-gray-900">
+                                        {search}
+                                      </span>
+                                    </div>
+                                    <FaTimesCircle
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        const updated = recentSearches.filter(
+                                          (_, i) => i !== index
+                                        );
+                                        saveRecentSearches(updated);
+                                      }}
+                                      className="text-slate-600 dark:text-gray-400 hover:text-slate-400 dark:hover:text-gray-600 text-sm opacity-0 group-hover:opacity-100 transition-all"
+                                    />
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                        {/* Popular Searches */}
+                        {searchHistoryOpen &&
+                          popularSearches.length > 0 &&
+                          !searchQuery && (
+                            <div className="p-4 border-b border-slate-700 dark:border-gray-300">
+                              <div className="flex items-center gap-2 mb-3">
+                                <FaFire className="text-amber-500 text-sm" />
+                                <h3 className="text-sm font-semibold text-slate-400 dark:text-gray-600">
+                                  Popular Searches
+                                </h3>
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                {popularSearches
+                                  .slice(0, 6)
+                                  .map((search, index) => (
+                                    <button
+                                      key={index}
+                                      onClick={() => {
+                                        setSearchQuery(search);
+                                        handleSearch(null, search);
+                                      }}
+                                      className="px-3 py-1.5 bg-slate-800/50 dark:bg-gray-100 hover:bg-[#E1A95F]/20 text-slate-300 dark:text-gray-700 hover:text-[#E1A95F] rounded-lg text-sm transition-all duration-300 border border-slate-700 dark:border-gray-300 hover:border-[#E1A95F]/30"
+                                    >
+                                      {search}
+                                    </button>
+                                  ))}
+                              </div>
+                            </div>
+                          )}
+
+                        {/* Categories */}
+                        {searchHistoryOpen &&
+                          allCategories.length > 0 &&
+                          !searchQuery && (
+                            <div className="p-4">
+                              <div className="flex items-center gap-2 mb-3">
+                                <FaTag className="text-[#E1A95F] text-sm" />
+                                <h3 className="text-sm font-semibold text-slate-400 dark:text-gray-600">
+                                  Browse Categories
+                                </h3>
+                              </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                {allCategories
+                                  .slice(0, showAllCategories ? 20 : 6)
+                                  .map((category, index) => (
+                                    <button
+                                      key={index}
+                                      onClick={() =>
+                                        handleCategorySearch(category.name)
+                                      }
+                                      className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800/30 dark:bg-gray-100 hover:bg-slate-800/70 dark:hover:bg-gray-200 transition-all duration-300 group"
+                                    >
+                                      <FaBox className="text-slate-500 dark:text-gray-500 text-sm group-hover:text-[#E1A95F]" />
+                                      <span className="text-slate-300 dark:text-gray-700 text-sm truncate">
+                                        {category.name}
+                                      </span>
+                                    </button>
+                                  ))}
+                              </div>
+                              {allCategories.length > 6 && (
+                                <button
+                                  onClick={() =>
+                                    setShowAllCategories(!showAllCategories)
+                                  }
+                                  className="w-full mt-3 text-center text-xs text-slate-500 dark:text-gray-500 hover:text-[#E1A95F] transition-colors"
+                                >
+                                  {showAllCategories
+                                    ? "Show Less"
+                                    : `Show All ${allCategories.length} Categories`}
+                                </button>
+                              )}
+                            </div>
+                          )}
+
+                        {/* Search Results */}
+                        {searchQuery && (
+                          <div className="p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <h3 className="text-sm font-semibold text-slate-400 dark:text-gray-600">
+                                {searchResults.length > 0
+                                  ? `Found ${searchResults.length} results`
+                                  : isSearching
+                                    ? "Searching..."
+                                    : "No results found"}
+                              </h3>
+                              {searchResults.length > 0 && (
+                                <button
+                                  onClick={(e) => handleSearch(e)}
+                                  className="text-xs text-[#E1A95F] hover:text-[#d4a259] font-medium"
+                                >
+                                  See all →
+                                </button>
+                              )}
+                            </div>
+
+                            {searchResults.length > 0 ? (
+                              <div className="space-y-3">
+                                {searchResults.slice(0, 5).map((product) => (
+                                  <Link
+                                    key={product._id}
+                                    to={`/product/${product._id}`}
+                                    onClick={() => {
+                                      setSearchOpen(false);
+                                      setSearchQuery("");
+                                    }}
+                                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 group"
+                                  >
+                                    <div className="w-20 h-20 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                                      {product.image ? (
+                                        <img
+                                          src={
+                                            product.image.startsWith("http")
+                                              ? product.image
+                                              : `${API}${product.image}`
+                                          }
+                                          alt={product.name}
+                                          className="w-full h-full object-contain"
+                                          onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src =
+                                              "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop";
+                                          }}
+                                        />
+                                      ) : (
+                                        <FaBox className="text-slate-500 dark:text-gray-500" />
+                                      )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-start justify-between gap-2">
+                                        <h4 className="text-sm font-medium text-white dark:text-gray-900 truncate group-hover:text-[#E1A95F]">
+                                          {product.name}
+                                        </h4>
+                                        <span className="text-sm font-semibold text-[#E1A95F] flex-shrink-0">
+                                          {formatPrice(product.price)}
+                                        </span>
+                                      </div>
+                                      <p className="text-xs text-slate-400 dark:text-gray-600 truncate">
+                                        {product.category || "Uncategorized"}
+                                      </p>
+                                      <div className="flex items-center gap-2 mt-1">
+                                        {product.isSold ||
+                                        product.stock === 0 ? (
+                                          <span className="text-xs text-red-500">
+                                            Sold Out
+                                          </span>
+                                        ) : (
+                                          <span className="text-xs text-green-500">
+                                            {product.stock || 0} in stock
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </Link>
+                                ))}
+                              </div>
+                            ) : !isSearching ? (
+                              <div className="text-center py-6">
+                                <div className="w-12 h-12 mx-auto rounded-full bg-slate-800/50 dark:bg-gray-100 flex items-center justify-center mb-3">
+                                  <FaSearch className="text-slate-500 dark:text-gray-500" />
+                                </div>
+                                <p className="text-slate-400 dark:text-gray-600 text-sm">
+                                  No products found for "{searchQuery}"
+                                </p>
+                                <p className="text-slate-500 dark:text-gray-500 text-xs mt-2">
+                                  Try different keywords
+                                </p>
+                              </div>
+                            ) : null}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Search Footer */}
+                      {searchQuery && (
+                        <div className="p-4 border-t border-slate-700 dark:border-gray-300 bg-slate-900/50 dark:bg-gray-100">
+                          <button
+                            onClick={(e) => handleSearch(e)}
+                            className="w-full py-2.5 bg-gradient-to-r from-[#E1A95F] to-[#d4a259] text-white rounded-xl font-medium hover:shadow-lg hover:shadow-[#E1A95F]/25 transition-all duration-300 flex items-center justify-center gap-2"
+                          >
+                            <FaSearch />
+                            Search for "{searchQuery}"
+                          </button>
+                        </div>
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
 
-              {/* Notifications - USING YOUR EXACT LOGIC */}
-              <motion.div
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                className="relative cursor-pointer group"
-                onClick={() => navigate("/notifications")}
-              >
-                <div className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300">
-                  <FaBell className="text-slate-300 group-hover:text-[#E1A95F] text-lg transition-colors duration-300" />
-                </div>
-                {unreadCount > 0 && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -top-1.5 -right-1.5 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg min-w-[22px] text-center"
-                  >
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </motion.span>
-                )}
-              </motion.div>
+              {/* Notifications with YouTube-style badge - FIXED ANIMATION */}
+              <div className="relative">
+                <motion.div
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="relative cursor-pointer group"
+                  onClick={() => navigate("/notifications")}
+                >
+                  <div className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 dark:bg-gray-800/50 dark:hover:bg-gray-800 transition-all duration-300 relative">
+                    <FaBell className="text-slate-300 dark:text-gray-600 group-hover:text-[#E1A95F] text-lg transition-colors duration-300" />
+
+                    {/* Socket connection indicator (small dot) */}
+                    {socketConnected && (
+                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse border border-white"></div>
+                    )}
+
+                    {/* YouTube-style notification badge - FIXED */}
+                    {unreadCount > 0 && (
+                      <div className="absolute top-0 right-0">
+                        <motion.div
+                          key={`badge-${unreadCount}-${badgeAnimation}`}
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          whileHover={{ scale: 1.1 }}
+                          transition={{
+                            duration: 0.3,
+                            type: "spring",
+                            stiffness: 300,
+                          }}
+                          className="relative"
+                        >
+                          {/* Main badge */}
+                          <div className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-lg border-2 border-white/20">
+                            {unreadCount > 9 ? "9+" : unreadCount}
+                          </div>
+
+                          {/* Pulsing effect for new notifications */}
+                          {badgeAnimation && (
+                            <motion.div
+                              initial={{ scale: 1, opacity: 0.75 }}
+                              animate={{
+                                scale: 1.4,
+                                opacity: 0,
+                              }}
+                              transition={{
+                                duration: 0.8,
+                                repeat: 2,
+                                repeatType: "reverse",
+                              }}
+                              className="absolute -top-1 -right-1 w-[18px] h-[18px] bg-red-600 rounded-full"
+                            ></motion.div>
+                          )}
+                        </motion.div>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              </div>
 
               {/* Cart */}
               <motion.div
@@ -360,7 +6399,7 @@ const Navigation = () => {
                   className={`p-2.5 rounded-xl border transition-all duration-300 ${
                     cartPulse
                       ? "bg-[#E1A95F]/20 border-[#E1A95F]/30"
-                      : "bg-white/5 border-white/10 hover:bg-white/10"
+                      : "bg-white/5 border-white/10 dark:bg-gray-800/50 dark:border-gray-700 hover:bg-white/10 dark:hover:bg-gray-800"
                   }`}
                 >
                   <FaShoppingCart className="text-[#E1A95F] text-lg group-hover:scale-110 transition-transform duration-300" />
@@ -382,11 +6421,11 @@ const Navigation = () => {
 
               {/* User */}
               {user && (
-                <div className="relative">
+                <div className="relative" ref={userMenuRef}>
                   <motion.div
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="cursor-pointer p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 group"
+                    className="cursor-pointer p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 dark:bg-gray-800/50 dark:hover:bg-gray-800 transition-all duration-300 group"
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
                   >
                     <FaUser className="text-[#E1A95F] text-lg group-hover:scale-110 transition-transform duration-300" />
@@ -394,24 +6433,29 @@ const Navigation = () => {
                   <AnimatePresence>
                     {userMenuOpen && (
                       <motion.div
-                        className="absolute right-0 top-full mt-2 w-56 bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700 p-4"
+                        className="fixed md:absolute right-0 top-20 md:top-full mt-2 w-screen md:w-56 bg-slate-900/95 dark:bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700 dark:border-gray-300 p-4 md:max-w-[90vw] md:max-w-none"
                         initial={{ opacity: 0, y: -10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
                       >
                         <div className="space-y-3">
-                          <div className="pb-3 border-b border-slate-700">
+                          <div className="pb-3 border-b border-slate-700 dark:border-gray-300">
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#E1A95F] to-[#d4a259] flex items-center justify-center text-white font-bold text-lg">
-                                {user.name.charAt(0).toUpperCase()}
+                                {user.name?.charAt(0)?.toUpperCase() || "U"}
                               </div>
-                              <div>
-                                <div className="font-bold text-white">
-                                  Hi, {user.name}
+                              <div className="min-w-0 flex-1">
+                                <div className="font-bold text-white dark:text-gray-900 truncate">
+                                  Hi, {user.name || "User"}
                                 </div>
-                                <div className="text-xs text-slate-400">
+                                <div className="text-xs text-slate-400 dark:text-gray-600 truncate">
                                   {user.email}
+                                </div>
+                                <div className="text-xs text-[#E1A95F] font-semibold mt-1">
+                                  {user.role === "admin"
+                                    ? "Administrator"
+                                    : "User"}
                                 </div>
                               </div>
                             </div>
@@ -419,21 +6463,35 @@ const Navigation = () => {
 
                           <Link
                             to="/my-orders"
-                            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-[#E1A95F] hover:bg-slate-800/50 transition-all duration-300 group"
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 dark:text-gray-700 hover:text-[#E1A95F] hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 group"
                             onClick={() => setUserMenuOpen(false)}
                           >
-                            <div className="w-1.5 h-1.5 bg-[#E1A95F]/50 rounded-full group-hover:bg-[#E1A95F]"></div>
-                            <span>My Orders</span>
+                            <div className="w-1.5 h-1.5 bg-[#E1A95F]/50 rounded-full group-hover:bg-[#E1A95F] flex-shrink-0"></div>
+                            <span className="truncate">My Orders</span>
                           </Link>
+
+                          {/* My Profile Link - Only for non-admin users */}
+                          {user.role !== "admin" && (
+                            <button
+                              onClick={() => {
+                                setShowProfileModal(true);
+                                setUserMenuOpen(false);
+                              }}
+                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 dark:text-gray-700 hover:text-[#E1A95F] hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 group text-left"
+                            >
+                              <div className="w-1.5 h-1.5 bg-[#E1A95F]/50 rounded-full group-hover:bg-[#E1A95F] flex-shrink-0"></div>
+                              <span className="truncate">My Profile</span>
+                            </button>
+                          )}
 
                           {user.role === "admin" && (
                             <Link
                               to="/admin"
-                              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-green-400 hover:text-green-300 hover:bg-slate-800/50 transition-all duration-300 group"
+                              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-green-400 hover:text-green-300 hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 group"
                               onClick={() => setUserMenuOpen(false)}
                             >
-                              <div className="w-1.5 h-1.5 bg-green-500/50 rounded-full group-hover:bg-green-500"></div>
-                              <span>Admin Panel</span>
+                              <div className="w-1.5 h-1.5 bg-green-500/50 rounded-full group-hover:bg-green-500 flex-shrink-0"></div>
+                              <span className="truncate">Admin Panel</span>
                             </Link>
                           )}
 
@@ -441,10 +6499,16 @@ const Navigation = () => {
                             onClick={() => {
                               logout();
                               setUserMenuOpen(false);
+                              // Clear notification count on logout
+                              localStorage.removeItem(
+                                "notification_unread_count"
+                              );
+                              setUnreadCount(0);
                             }}
                             className="w-full mt-2 py-2.5 bg-gradient-to-r from-red-600/10 to-pink-600/10 hover:from-red-600/20 hover:to-pink-600/20 text-red-400 hover:text-red-300 rounded-xl font-medium transition-all duration-300 border border-red-500/20 flex items-center justify-center gap-2"
                           >
-                            <span>Sign Out</span>
+                            <FaSignOutAlt />
+                            <span className="truncate">Sign Out</span>
                           </button>
                         </div>
                       </motion.div>
@@ -458,12 +6522,12 @@ const Navigation = () => {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="lg:hidden p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300"
+                className="lg:hidden p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 dark:bg-gray-800/50 dark:hover:bg-gray-800 transition-all duration-300"
               >
                 {menuOpen ? (
                   <FaTimes className="text-[#E1A95F] text-xl" />
                 ) : (
-                  <FaBars className="text-slate-300 text-xl" />
+                  <FaBars className="text-slate-300 dark:text-gray-600 text-xl" />
                 )}
               </motion.button>
             </div>
@@ -492,19 +6556,21 @@ const Navigation = () => {
               transition={{ type: "spring", damping: 25 }}
               className="fixed top-0 right-0 h-full w-full max-w-sm z-50 lg:hidden"
             >
-              <div className="h-full bg-gradient-to-b from-slate-900 to-slate-800 shadow-2xl overflow-y-auto">
+              <div className="h-full bg-gradient-to-b from-slate-900 to-slate-800 dark:from-white dark:to-gray-100 shadow-2xl overflow-y-auto">
                 {/* Mobile Header */}
-                <div className="p-6 border-b border-slate-700">
+                <div className="p-6 border-b border-slate-700 dark:border-gray-300">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
-                      <img src={logo} alt="Logo" className="w-10 h-10" />
-                      <h2 className="text-2xl font-bold text-white">Menu</h2>
+                      {/* <img src={logo} alt="Logo" className="w-10 h-10" /> */}
+                      <h2 className="text-2xl font-bold text-white dark:text-gray-900">
+                        Menu
+                      </h2>
                     </div>
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => setMenuOpen(false)}
-                      className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-300"
+                      className="p-2 rounded-xl bg-white/5 hover:bg-white/10 dark:bg-gray-800/50 dark:hover:bg-gray-800 transition-all duration-300"
                     >
                       <FaTimes className="text-[#E1A95F] text-xl" />
                     </motion.button>
@@ -514,12 +6580,17 @@ const Navigation = () => {
                   {user && (
                     <div className="flex items-center gap-3 mb-6 p-4 rounded-xl bg-gradient-to-r from-[#E1A95F]/10 to-[#d4a259]/10 border border-[#E1A95F]/20">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#E1A95F] to-[#d4a259] flex items-center justify-center text-white font-bold text-lg">
-                        {user.name.charAt(0).toUpperCase()}
+                        {user.name?.charAt(0)?.toUpperCase() || "U"}
                       </div>
-                      <div>
-                        <div className="font-bold text-white">{user.name}</div>
-                        <div className="text-sm text-slate-400">
+                      <div className="min-w-0 flex-1">
+                        <div className="font-bold text-white dark:text-gray-900 truncate">
+                          {user.name || "User"}
+                        </div>
+                        <div className="text-sm text-slate-400 dark:text-gray-600 truncate">
                           {user.email}
+                        </div>
+                        <div className="text-xs text-[#E1A95F] font-semibold mt-1">
+                          {user.role === "admin" ? "Administrator" : "User"}
                         </div>
                       </div>
                     </div>
@@ -536,17 +6607,17 @@ const Navigation = () => {
                       className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 ${
                         location.pathname === link.path
                           ? "bg-gradient-to-r from-[#E1A95F]/20 to-[#d4a259]/20 text-[#E1A95F]"
-                          : "text-slate-300 hover:text-white hover:bg-slate-800"
+                          : "text-slate-300 dark:text-gray-700 hover:text-white dark:hover:text-gray-900 hover:bg-slate-800 dark:hover:bg-gray-200"
                       }`}
                     >
                       <div
                         className={`w-1.5 h-1.5 rounded-full ${
                           location.pathname === link.path
                             ? "bg-[#E1A95F]"
-                            : "bg-slate-600"
+                            : "bg-slate-600 dark:bg-gray-400"
                         }`}
                       ></div>
-                      <span className="font-medium">{link.name}</span>
+                      <span className="font-medium truncate">{link.name}</span>
                     </Link>
                   ))}
 
@@ -554,14 +6625,14 @@ const Navigation = () => {
                   <div className="space-y-2">
                     <button
                       onClick={() => toggleDropdown("shop-mobile")}
-                      className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition-all duration-300"
+                      className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl text-slate-300 dark:text-gray-700 hover:text-white dark:hover:text-gray-900 hover:bg-slate-800 dark:hover:bg-gray-200 transition-all duration-300"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
-                        <span className="font-medium">Shop</span>
+                        <div className="w-1.5 h-1.5 rounded-full bg-slate-600 dark:bg-gray-400 flex-shrink-0"></div>
+                        <span className="font-medium truncate">Shop</span>
                       </div>
                       <FaChevronDown
-                        className={`transition ${
+                        className={`transition flex-shrink-0 ${
                           openDropdown === "shop-mobile" ? "rotate-180" : ""
                         }`}
                       />
@@ -573,7 +6644,7 @@ const Navigation = () => {
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: "auto" }}
                           exit={{ opacity: 0, height: 0 }}
-                          className="ml-4 pl-4 border-l border-slate-700 space-y-2"
+                          className="ml-4 pl-4 border-l border-slate-700 dark:border-gray-300 space-y-2"
                         >
                           {categories.map((cat, i) => (
                             <button
@@ -582,10 +6653,10 @@ const Navigation = () => {
                                 navigate(`/category/${cat.name.toLowerCase()}`);
                                 setMenuOpen(false);
                               }}
-                              className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-slate-400 hover:text-[#E1A95F] hover:bg-slate-800/50 transition-all duration-300 text-left"
+                              className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-slate-400 dark:text-gray-600 hover:text-[#E1A95F] hover:bg-slate-800/50 dark:hover:bg-gray-200 transition-all duration-300 text-left"
                             >
-                              <div className="w-1 h-1 bg-slate-600 rounded-full"></div>
-                              <span>{cat.name}</span>
+                              <div className="w-1 h-1 bg-slate-600 dark:bg-gray-400 rounded-full flex-shrink-0"></div>
+                              <span className="truncate">{cat.name}</span>
                             </button>
                           ))}
                         </motion.div>
@@ -593,31 +6664,52 @@ const Navigation = () => {
                     </AnimatePresence>
                   </div>
 
+                  {/* My Profile in Mobile Menu - Only for non-admin users */}
+                  {user && user.role !== "admin" && (
+                    <button
+                      onClick={() => {
+                        setShowProfileModal(true);
+                        setMenuOpen(false);
+                      }}
+                      className="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl text-slate-300 dark:text-gray-700 hover:text-white dark:hover:text-gray-900 hover:bg-slate-800 dark:hover:bg-gray-200 transition-all duration-300"
+                    >
+                      <div className="w-1.5 h-1.5 rounded-full bg-slate-600 dark:bg-gray-400 flex-shrink-0"></div>
+                      <span className="font-medium truncate">My Profile</span>
+                    </button>
+                  )}
+
                   {/* Theme Toggle Mobile */}
-                  <div className="mt-6 pt-6 border-t border-slate-700">
+                  <div className="mt-6 pt-6 border-t border-slate-700 dark:border-gray-300">
                     <div className="flex items-center justify-between px-4">
-                      <span className="text-slate-300 font-medium">Theme</span>
+                      <span className="text-slate-300 dark:text-gray-700 font-medium truncate">
+                        Theme
+                      </span>
                       <ThemeToggle />
                     </div>
                   </div>
                 </div>
 
                 {/* Mobile Footer */}
-                <div className="p-6 border-t border-slate-700 mt-auto">
+                <div className="p-6 border-t border-slate-700 dark:border-gray-300 mt-auto">
                   <div className="space-y-3">
                     <button
                       onClick={() => {
                         navigate("/notifications");
                         setMenuOpen(false);
                       }}
-                      className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 text-slate-300 hover:text-white transition-all duration-300"
+                      className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl bg-slate-800/50 dark:bg-gray-200 hover:bg-slate-800 dark:hover:bg-gray-300 text-slate-300 dark:text-gray-700 hover:text-white dark:hover:text-gray-900 transition-all duration-300 relative"
                     >
                       <div className="flex items-center gap-3">
-                        <FaBell className="text-[#E1A95F]" />
-                        <span>Notifications</span>
+                        <div className="relative">
+                          <FaBell className="text-[#E1A95F]" />
+                          {unreadCount > 0 && (
+                            <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-600 rounded-full border border-white animate-pulse"></div>
+                          )}
+                        </div>
+                        <span className="truncate">Notifications</span>
                       </div>
                       {unreadCount > 0 && (
-                        <span className="bg-gradient-to-r from-red-500 to-pink-500 text-xs font-bold px-2 py-1 rounded-full text-white">
+                        <span className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1 border-2 border-white/20">
                           {unreadCount > 9 ? "9+" : unreadCount}
                         </span>
                       )}
@@ -631,14 +6723,383 @@ const Navigation = () => {
                         }}
                         className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl bg-gradient-to-r from-green-600/10 to-emerald-600/10 border border-green-500/20 text-green-400 hover:text-green-300 transition-all duration-300"
                       >
-                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                        <span>Admin Panel</span>
+                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0"></div>
+                        <span className="truncate">Admin Panel</span>
                       </button>
                     )}
                   </div>
                 </div>
               </div>
             </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Profile Modal */}
+      <AnimatePresence>
+        {showProfileModal && user && user.role !== "admin" && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100]"
+            />
+
+            {/* Modal */}
+            <div className="fixed inset-0 z-[101] flex items-center justify-center p-4">
+              <motion.div
+                ref={profileModalRef}
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                transition={{ type: "spring", damping: 25 }}
+                className="w-full max-w-2xl bg-gradient-to-b from-slate-900 to-slate-800 dark:from-white dark:to-gray-100 rounded-2xl shadow-2xl border border-slate-700 dark:border-gray-300 overflow-hidden max-h-[90vh] overflow-y-auto"
+              >
+                {/* Modal Header */}
+                <div className="p-6 border-b border-slate-700 dark:border-gray-300 bg-gradient-to-r from-[#E1A95F]/10 to-[#d4a259]/10">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <FaUserCircle className="text-3xl text-[#E1A95F]" />
+                      <div>
+                        <h2 className="text-2xl font-bold text-white dark:text-gray-900">
+                          My Profile
+                        </h2>
+                        <p className="text-slate-400 dark:text-gray-600">
+                          Manage your account settings
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowProfileModal(false)}
+                      className="p-2 hover:bg-slate-800 dark:hover:bg-gray-200 rounded-xl transition-colors"
+                    >
+                      <FaTimes className="text-slate-400 dark:text-gray-600 text-xl" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Modal Body */}
+                <div className="p-6">
+                  {/* Messages */}
+                  {profileSuccess && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mb-6 p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl"
+                    >
+                      <p className="text-green-400 text-center">
+                        {profileSuccess}
+                      </p>
+                    </motion.div>
+                  )}
+
+                  {profileError && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mb-6 p-4 bg-gradient-to-r from-red-500/10 to-pink-500/10 border border-red-500/20 rounded-xl"
+                    >
+                      <p className="text-red-400 text-center">{profileError}</p>
+                    </motion.div>
+                  )}
+
+                  <div className="grid md:grid-cols-3 gap-6">
+                    {/* Left Column - User Info */}
+                    <div className="md:col-span-1">
+                      <div className="bg-slate-800/50 dark:bg-gray-200 rounded-xl p-6 border border-slate-700 dark:border-gray-300">
+                        <div className="flex flex-col items-center">
+                          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#E1A95F] to-[#d4a259] flex items-center justify-center mb-4">
+                            <span className="text-white text-3xl font-bold">
+                              {user.name?.charAt(0)?.toUpperCase() || "U"}
+                            </span>
+                          </div>
+
+                          <h3 className="text-xl font-bold text-white dark:text-gray-900 mb-1 truncate w-full text-center">
+                            {user.name || "User"}
+                          </h3>
+                          <p className="text-slate-400 dark:text-gray-600 mb-4 truncate w-full text-center">
+                            {user.email}
+                          </p>
+
+                          <div className="w-full bg-slate-700/50 dark:bg-gray-300 rounded-lg p-3 mt-4">
+                            <h4 className="text-white dark:text-gray-900 font-semibold mb-2">
+                              Account Status
+                            </h4>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-slate-400 dark:text-gray-700">
+                                Verified
+                              </span>
+                              <div className="flex items-center gap-2">
+                                {user.isVerified ? (
+                                  <>
+                                    <FaCheckCircle className="text-green-400 text-sm flex-shrink-0" />
+                                    <span className="text-xs font-semibold text-green-400 truncate">
+                                      Verified
+                                    </span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <FaTimesCircle className="text-yellow-400 text-sm flex-shrink-0" />
+                                    <span className="text-xs font-semibold text-yellow-400 truncate">
+                                      Not Verified
+                                    </span>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-slate-400 dark:text-gray-700">
+                                Active
+                              </span>
+                              <div className="flex items-center gap-2">
+                                {!user.isBlocked ? (
+                                  <>
+                                    <FaCheckCircle className="text-green-400 text-sm flex-shrink-0" />
+                                    <span className="text-xs font-semibold text-green-400 truncate">
+                                      Active
+                                    </span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <FaTimesCircle className="text-red-400 text-sm flex-shrink-0" />
+                                    <span className="text-xs font-semibold text-red-400 truncate">
+                                      Blocked
+                                    </span>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <p className="text-xs text-slate-500 dark:text-gray-500 mt-4 text-center">
+                            Member since{" "}
+                            {new Date(user.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right Column - Form */}
+                    <div className="md:col-span-2">
+                      <form
+                        onSubmit={handleProfileSubmit}
+                        className="space-y-6"
+                      >
+                        {/* Basic Info */}
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-white dark:text-gray-900 flex items-center gap-2">
+                            <FaUser className="text-[#E1A95F]" />
+                            Basic Information
+                          </h3>
+
+                          <div>
+                            <label className="block text-slate-300 dark:text-gray-700 mb-2">
+                              Full Name
+                            </label>
+                            <input
+                              type="text"
+                              name="name"
+                              value={profileForm.name}
+                              onChange={handleProfileChange}
+                              className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+                              required
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-slate-300 dark:text-gray-700 mb-2">
+                              Email Address
+                            </label>
+                            <input
+                              type="email"
+                              name="email"
+                              value={profileForm.email}
+                              onChange={handleProfileChange}
+                              className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+                              required
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-slate-300 dark:text-gray-700 mb-2">
+                              Bio
+                            </label>
+                            <textarea
+                              name="bio"
+                              value={profileForm.bio}
+                              onChange={handleProfileChange}
+                              rows="2"
+                              className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+                              placeholder="Tell us about yourself..."
+                            />
+                          </div>
+                        </div>
+
+                        {/* Password Change */}
+                        <div className="space-y-4 pt-6 border-t border-slate-700 dark:border-gray-300">
+                          <h3 className="text-lg font-semibold text-white dark:text-gray-900 flex items-center gap-2">
+                            <FaKey className="text-[#E1A95F]" />
+                            Change Password
+                          </h3>
+
+                          <div>
+                            <label className="block text-slate-300 dark:text-gray-700 mb-2">
+                              Current Password
+                            </label>
+                            <input
+                              type="password"
+                              name="currentPassword"
+                              value={profileForm.currentPassword}
+                              onChange={handleProfileChange}
+                              className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+                              placeholder="Required to change password"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-slate-300 dark:text-gray-700 mb-2">
+                                New Password
+                              </label>
+                              <input
+                                type="password"
+                                name="newPassword"
+                                value={profileForm.newPassword}
+                                onChange={handleProfileChange}
+                                className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+                                placeholder="At least 6 characters"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-slate-300 dark:text-gray-700 mb-2">
+                                Confirm Password
+                              </label>
+                              <input
+                                type="password"
+                                name="confirmPassword"
+                                value={profileForm.confirmPassword}
+                                onChange={handleProfileChange}
+                                className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
+                                placeholder="Confirm new password"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="text-xs text-slate-400 dark:text-gray-600 mt-2">
+                            <FaTimesCircle className="inline mr-1" />
+                            Leave password fields empty if you don't want to
+                            change password
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-slate-700 dark:border-gray-300">
+                          <button
+                            type="submit"
+                            disabled={profileLoading}
+                            className="flex-1 py-3 bg-gradient-to-r from-[#E1A95F] to-[#d4a259] text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-[#E1A95F]/25 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50"
+                          >
+                            {profileLoading ? (
+                              <>
+                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin flex-shrink-0"></div>
+                                <span className="truncate">Saving...</span>
+                              </>
+                            ) : (
+                              <>
+                                <FaSave className="flex-shrink-0" />
+                                <span className="truncate">Save Changes</span>
+                              </>
+                            )}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setShowDeleteConfirm(true)}
+                            className="py-3 px-6 bg-gradient-to-r from-red-600/10 to-pink-600/10 border border-red-500/20 text-red-400 hover:text-red-300 hover:from-red-600/20 hover:to-pink-600/20 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2"
+                          >
+                            <FaTrash className="flex-shrink-0" />
+                            <span className="truncate">Delete Account</span>
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[102]"
+            />
+
+            {/* Modal */}
+            <div className="fixed inset-0 z-[103] flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                transition={{ type: "spring", damping: 25 }}
+                className="w-full max-w-md bg-gradient-to-b from-slate-900 to-slate-800 dark:from-white dark:to-gray-100 rounded-2xl shadow-2xl border border-slate-700 dark:border-gray-300 p-6"
+              >
+                <div className="text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-600/20 to-pink-600/20 flex items-center justify-center">
+                    <FaTrash className="text-red-500 text-2xl" />
+                  </div>
+
+                  <h3 className="text-2xl font-bold text-white dark:text-gray-900 mb-2 truncate">
+                    Delete Account
+                  </h3>
+                  <p className="text-slate-400 dark:text-gray-600 mb-6">
+                    This action cannot be undone. All your data will be
+                    permanently removed from our database.
+                  </p>
+
+                  <div className="mb-6">
+                    <label className="block text-slate-300 dark:text-gray-700 mb-2 text-left">
+                      Enter your password to confirm:
+                    </label>
+                    <input
+                      type="password"
+                      value={deletePassword}
+                      onChange={(e) => setDeletePassword(e.target.value)}
+                      className="w-full px-4 py-3 bg-slate-800/50 dark:bg-gray-100 border border-slate-700 dark:border-gray-300 rounded-xl text-white dark:text-gray-900 placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 transition-all duration-300"
+                      placeholder="Your password"
+                    />
+                  </div>
+
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => setShowDeleteConfirm(false)}
+                      className="flex-1 py-3 bg-slate-700 dark:bg-gray-300 text-white dark:text-gray-900 rounded-xl font-semibold hover:bg-slate-600 dark:hover:bg-gray-400 transition-all duration-300 truncate"
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                      onClick={handleDeleteAccount}
+                      disabled={profileLoading}
+                      className="flex-1 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-red-500/25 transition-all duration-300 disabled:opacity-50 truncate"
+                    >
+                      {profileLoading ? "Deleting..." : "Delete Account"}
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
           </>
         )}
       </AnimatePresence>
@@ -654,3151 +7115,3 @@ const Navigation = () => {
 };
 
 export default Navigation;
-
-// import React, { useState, useContext, useEffect, useRef } from "react";
-// import { Link, useNavigate, useLocation } from "react-router-dom";
-// import {
-//   FaBars,
-//   FaTimes,
-//   FaShoppingCart,
-//   FaChevronDown,
-//   FaUser,
-//   FaBell,
-//   FaSearch,
-//   FaSpinner,
-//   FaTimesCircle,
-//   FaBox,
-// } from "react-icons/fa";
-// import { motion, AnimatePresence } from "framer-motion";
-// import ThemeToggle from "../Components/ThemeToggle";
-// import { authContext } from "../Context/authContext";
-// import { cartContext } from "../Context/cartContext";
-// import { initSocket } from "../utils/socket";
-// import { fetchWithAuth } from "../utils/auth";
-// import logo from "/src/assets/Logo.png";
-
-// const API = "http://localhost:3000";
-
-// const Navigation = () => {
-//   const [menuOpen, setMenuOpen] = useState(false);
-//   const [openDropdown, setOpenDropdown] = useState(null);
-//   const [userMenuOpen, setUserMenuOpen] = useState(false);
-//   const [categories, setCategories] = useState([]);
-//   const [unreadCount, setUnreadCount] = useState(0);
-//   const [scrolled, setScrolled] = useState(false);
-//   const [searchOpen, setSearchOpen] = useState(false);
-//   const [searchQuery, setSearchQuery] = useState("");
-//   const [searchResults, setSearchResults] = useState([]);
-//   const [isSearching, setIsSearching] = useState(false);
-//   const [recentSearches, setRecentSearches] = useState([]);
-//   const [popularSearches, setPopularSearches] = useState([]);
-//   const [searchHistoryOpen, setSearchHistoryOpen] = useState(false);
-//   const searchRef = useRef(null);
-//   const searchInputRef = useRef(null);
-//   const navigate = useNavigate();
-//   const location = useLocation();
-//   const { user, logout } = useContext(authContext);
-//   const { cart } = useContext(cartContext);
-
-//   // Fetch categories dynamically from backend
-//   useEffect(() => {
-//     const fetchCategories = async () => {
-//       try {
-//         const res = await fetchWithAuth(`${API}/api/categories`);
-//         const data = await res.json();
-//         setCategories(data || []);
-//       } catch (err) {
-//         console.error(err);
-//       }
-//     };
-//     fetchCategories();
-//   }, []);
-
-//   // Fetch popular searches
-//   useEffect(() => {
-//     const fetchPopularSearches = async () => {
-//       try {
-//         const res = await fetchWithAuth(`${API}/api/products/popular-searches`);
-//         if (res.ok) {
-//           const data = await res.json();
-//           setPopularSearches(data || []);
-//         }
-//       } catch (err) {
-//         console.error("Failed to fetch popular searches:", err);
-//       }
-//     };
-//     fetchPopularSearches();
-//   }, []);
-
-//   // Load recent searches from localStorage
-//   useEffect(() => {
-//     const savedSearches = localStorage.getItem("recentSearches");
-//     if (savedSearches) {
-//       setRecentSearches(JSON.parse(savedSearches));
-//     }
-//   }, []);
-
-//   // Scroll effect
-//   useEffect(() => {
-//     const handleScroll = () => {
-//       setScrolled(window.scrollY > 20);
-//     };
-//     window.addEventListener("scroll", handleScroll);
-//     return () => window.removeEventListener("scroll", handleScroll);
-//   }, []);
-
-//   // Cart pulse animation
-//   useEffect(() => {
-//     if (cart?.items?.length > 0) {
-//       const timer = setTimeout(() => {}, 1000);
-//       return () => clearTimeout(timer);
-//     }
-//   }, [cart?.items]);
-
-//   // Fetch initial unread count
-//   useEffect(() => {
-//     if (!user) return;
-//     fetchUnreadCount();
-//   }, [user]);
-
-//   // Notifications socket
-//   useEffect(() => {
-//     if (!user) return;
-
-//     const s = initSocket(user._id);
-
-//     const onNotif = (notif) => {
-//       playSound();
-//       setUnreadCount((prev) => prev + 1);
-//     };
-
-//     s.on("notification", onNotif);
-
-//     const poll = setInterval(fetchUnreadCount, 10000);
-
-//     return () => {
-//       s.off("notification", onNotif);
-//       clearInterval(poll);
-//     };
-//   }, [user]);
-
-//   const fetchUnreadCount = async () => {
-//     if (!user) return;
-//     try {
-//       const res = await fetchWithAuth(`${API}/api/notifications`);
-//       if (!res.ok) return;
-//       const data = await res.json();
-//       const unread = data.filter((n) => !n.read).length;
-//       setUnreadCount(unread);
-//     } catch (err) {
-//       console.error(err);
-//     }
-//   };
-
-//   const playSound = () => {
-//     try {
-//       const audio = new Audio(
-//         "https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg"
-//       );
-//       audio.volume = 0.3;
-//       audio.play().catch(() => {});
-//     } catch (e) {
-//       console.error(e);
-//     }
-//   };
-
-//   // Search products function
-//   const searchProducts = async (query) => {
-//     if (!query.trim()) {
-//       setSearchResults([]);
-//       return;
-//     }
-
-//     setIsSearching(true);
-//     try {
-//       const res = await fetchWithAuth(
-//         `${API}/api/products/search?q=${encodeURIComponent(query)}`
-//       );
-//       if (res.ok) {
-//         const data = await res.json();
-//         setSearchResults(data);
-
-//         // Add to recent searches if not already present
-//         if (data.length > 0) {
-//           addToRecentSearches(query);
-//         }
-//       } else {
-//         setSearchResults([]);
-//       }
-//     } catch (err) {
-//       console.error("Search error:", err);
-//       setSearchResults([]);
-//     } finally {
-//       setIsSearching(false);
-//     }
-//   };
-
-//   // Debounced search
-//   useEffect(() => {
-//     const timer = setTimeout(() => {
-//       if (searchQuery.trim()) {
-//         searchProducts(searchQuery);
-//       } else {
-//         setSearchResults([]);
-//       }
-//     }, 300); // 300ms debounce
-
-//     return () => clearTimeout(timer);
-//   }, [searchQuery]);
-
-//   // Add to recent searches
-//   const addToRecentSearches = (query) => {
-//     const updatedSearches = [
-//       query,
-//       ...recentSearches.filter((s) => s !== query),
-//     ].slice(0, 5); // Keep only 5 most recent
-
-//     setRecentSearches(updatedSearches);
-//     localStorage.setItem("recentSearches", JSON.stringify(updatedSearches));
-//   };
-
-//   // Clear recent searches
-//   const clearRecentSearches = () => {
-//     setRecentSearches([]);
-//     localStorage.removeItem("recentSearches");
-//   };
-
-//   // Handle search submission
-//   const handleSearch = (e, query = null) => {
-//     e?.preventDefault();
-//     const searchTerm = query || searchQuery.trim();
-
-//     if (searchTerm) {
-//       addToRecentSearches(searchTerm);
-//       navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
-//       setSearchOpen(false);
-//       setSearchQuery("");
-//       setSearchResults([]);
-//     }
-//   };
-
-//   // Handle quick category search
-//   const handleCategorySearch = (categoryName) => {
-//     navigate(`/search?category=${encodeURIComponent(categoryName)}`);
-//     setSearchOpen(false);
-//   };
-
-//   // Close search when clicking outside
-//   useEffect(() => {
-//     const handleClickOutside = (event) => {
-//       if (searchRef.current && !searchRef.current.contains(event.target)) {
-//         setSearchOpen(false);
-//         setSearchHistoryOpen(false);
-//       }
-//     };
-//     document.addEventListener("mousedown", handleClickOutside);
-//     return () => document.removeEventListener("mousedown", handleClickOutside);
-//   }, []);
-
-//   // Focus search input when search opens
-//   useEffect(() => {
-//     if (searchOpen && searchInputRef.current) {
-//       setTimeout(() => {
-//         searchInputRef.current.focus();
-//       }, 100);
-//     }
-//   }, [searchOpen]);
-
-//   const links = [
-//     { name: "Home", path: "/" },
-//     { name: "About-us", path: "/about" },
-//     { name: "Contact-us", path: "/contact" },
-//     { name: "Return-policy", path: "/policy" },
-//   ];
-
-//   const toggleDropdown = (key) =>
-//     setOpenDropdown(openDropdown === key ? null : key);
-
-//   const handleCategoryClick = (path) => {
-//     navigate(path);
-//     setMenuOpen(false);
-//     setOpenDropdown(null);
-//   };
-
-//   const cartItemCount =
-//     cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
-
-//   return (
-//     <>
-//       {/* Navigation Container */}
-//       <motion.nav
-//         initial={{ y: -100 }}
-//         animate={{ y: 0 }}
-//         transition={{ duration: 0.5, type: "spring" }}
-//         className="fixed top-0 w-full z-50 transition-all duration-300"
-//       >
-//         {/* Top Announcement Bar */}
-//         <div className="bg-gradient-to-r from-[#E1A95F]/20 via-[#d4a259]/20 to-[#c5954d]/20 py-2 px-4 text-center">
-//           <p className="text-xs text-white/90 font-medium">
-//             🚚{" "}
-//             <span className="text-[#E1A95F] font-semibold">Free Shipping</span>{" "}
-//             on orders over $100 •
-//             <span className="text-green-300 font-semibold ml-2">
-//               🎁 30% OFF
-//             </span>{" "}
-//             for new customers
-//           </p>
-//         </div>
-
-//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-//           <div className="flex justify-between items-center h-16">
-//             {/* Logo */}
-//             <motion.div
-//               whileHover={{ scale: 1.05 }}
-//               whileTap={{ scale: 0.95 }}
-//               className="flex items-center"
-//             >
-//               <Link to="/" className="flex items-center">
-//                 <img
-//                   src={logo}
-//                   alt="Logo"
-//                   className="w-28 md:w-32 h-auto drop-shadow-lg"
-//                 />
-//               </Link>
-//             </motion.div>
-
-//             {/* Desktop Navigation */}
-//             <ul className="hidden lg:flex items-center gap-1">
-//               {links.map((link, index) => (
-//                 <motion.li
-//                   key={index}
-//                   initial={{ opacity: 0, y: -10 }}
-//                   animate={{ opacity: 1, y: 0 }}
-//                   transition={{ delay: index * 0.1 }}
-//                   className="relative"
-//                 >
-//                   <Link
-//                     to={link.path}
-//                     className={`relative px-4 py-2.5 mx-1 rounded-xl transition-all duration-300 font-medium ${
-//                       location.pathname === link.path
-//                         ? "text-[#E1A95F] bg-[#E1A95F]/10"
-//                         : "text-slate-200 hover:text-[#E1A95F] hover:bg-white/5"
-//                     }`}
-//                   >
-//                     {link.name}
-//                     {location.pathname === link.path && (
-//                       <motion.div
-//                         layoutId="underline"
-//                         className="absolute left-4 right-4 h-0.5 bottom-1.5 bg-[#E1A95F] rounded-full"
-//                       />
-//                     )}
-//                   </Link>
-//                 </motion.li>
-//               ))}
-
-//               {/* Dynamic Shop Dropdown */}
-//               <motion.li className="relative">
-//                 <button
-//                   onClick={() => toggleDropdown("shop")}
-//                   className={`flex items-center gap-2 px-4 py-2.5 mx-1 rounded-xl transition-all duration-300 font-medium ${
-//                     openDropdown === "shop"
-//                       ? "text-[#E1A95F] bg-[#E1A95F]/10"
-//                       : "text-slate-200 hover:text-[#E1A95F] hover:bg-white/5"
-//                   }`}
-//                 >
-//                   Shop
-//                   <motion.span
-//                     animate={{ rotate: openDropdown === "shop" ? 180 : 0 }}
-//                     transition={{ duration: 0.3 }}
-//                   >
-//                     <FaChevronDown className="text-sm" />
-//                   </motion.span>
-//                 </button>
-//                 <AnimatePresence>
-//                   {openDropdown === "shop" && (
-//                     <motion.div
-//                       className="absolute left-0 top-full mt-2 min-w-[220px] bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700 p-3"
-//                       initial={{ opacity: 0, y: -10, scale: 0.95 }}
-//                       animate={{ opacity: 1, y: 0, scale: 1 }}
-//                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
-//                       transition={{ duration: 0.2 }}
-//                     >
-//                       <div className="space-y-2">
-//                         {categories.map((cat, i) => (
-//                           <motion.button
-//                             key={i}
-//                             initial={{ opacity: 0, x: -10 }}
-//                             animate={{ opacity: 1, x: 0 }}
-//                             transition={{ duration: 0.2, delay: i * 0.05 }}
-//                             onClick={() =>
-//                               handleCategoryClick(
-//                                 `/category/${cat.name.toLowerCase()}`
-//                               )
-//                             }
-//                             className="w-full text-left px-3 py-2.5 rounded-lg text-slate-300 hover:text-[#E1A95F] hover:bg-slate-800/50 transition-all duration-300 flex items-center gap-3 group"
-//                           >
-//                             <div className="w-2 h-2 bg-[#E1A95F]/50 rounded-full group-hover:bg-[#E1A95F] transition-all duration-300"></div>
-//                             <span className="font-medium">{cat.name}</span>
-//                           </motion.button>
-//                         ))}
-//                       </div>
-//                     </motion.div>
-//                   )}
-//                 </AnimatePresence>
-//               </motion.li>
-
-//               <li className="ml-2">
-//                 <ThemeToggle />
-//               </li>
-//             </ul>
-
-//             {/* Right Icons */}
-//             <div className="flex items-center gap-3 md:gap-4">
-//               {/* Enhanced Search */}
-//               <div ref={searchRef} className="relative">
-//                 <motion.button
-//                   whileHover={{ scale: 1.1 }}
-//                   whileTap={{ scale: 0.9 }}
-//                   onClick={() => {
-//                     setSearchOpen(!searchOpen);
-//                     setSearchHistoryOpen(true);
-//                   }}
-//                   className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 group"
-//                 >
-//                   <FaSearch className="text-slate-300 group-hover:text-[#E1A95F] text-lg transition-colors duration-300" />
-//                 </motion.button>
-
-//                 <AnimatePresence>
-//                   {searchOpen && (
-//                     <motion.div
-//                       initial={{ opacity: 0, scale: 0.9, y: 10 }}
-//                       animate={{ opacity: 1, scale: 1, y: 0 }}
-//                       exit={{ opacity: 0, scale: 0.9, y: 10 }}
-//                       className="absolute right-0 top-full mt-2 w-96 bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700 overflow-hidden z-50"
-//                     >
-//                       {/* Search Input */}
-//                       <div className="p-4 border-b border-slate-700">
-//                         <form onSubmit={handleSearch} className="relative">
-//                           <div className="relative">
-//                             <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500" />
-//                             <input
-//                               ref={searchInputRef}
-//                               type="text"
-//                               value={searchQuery}
-//                               onChange={(e) => setSearchQuery(e.target.value)}
-//                               onFocus={() => setSearchHistoryOpen(true)}
-//                               placeholder="Search products, brands, categories..."
-//                               className="w-full pl-10 pr-10 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
-//                             />
-//                             {searchQuery && (
-//                               <button
-//                                 type="button"
-//                                 onClick={() => {
-//                                   setSearchQuery("");
-//                                   setSearchResults([]);
-//                                 }}
-//                                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
-//                               >
-//                                 <FaTimesCircle />
-//                               </button>
-//                             )}
-//                           </div>
-//                           {isSearching && (
-//                             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-//                               <FaSpinner className="animate-spin text-[#E1A95F]" />
-//                             </div>
-//                           )}
-//                         </form>
-//                       </div>
-
-//                       {/* Search Content */}
-//                       <div className="max-h-96 overflow-y-auto">
-//                         {/* Recent Searches */}
-//                         {searchHistoryOpen &&
-//                           recentSearches.length > 0 &&
-//                           !searchQuery && (
-//                             <div className="p-4 border-b border-slate-700">
-//                               <div className="flex items-center justify-between mb-3">
-//                                 <h3 className="text-sm font-semibold text-slate-400">
-//                                   Recent Searches
-//                                 </h3>
-//                                 <button
-//                                   onClick={clearRecentSearches}
-//                                   className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
-//                                 >
-//                                   Clear All
-//                                 </button>
-//                               </div>
-//                               <div className="space-y-2">
-//                                 {recentSearches.map((search, index) => (
-//                                   <button
-//                                     key={index}
-//                                     onClick={() => {
-//                                       setSearchQuery(search);
-//                                       handleSearch(null, search);
-//                                     }}
-//                                     className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-slate-800/50 transition-all duration-300 group"
-//                                   >
-//                                     <div className="flex items-center gap-3">
-//                                       <FaSearch className="text-slate-500 text-sm group-hover:text-[#E1A95F]" />
-//                                       <span className="text-slate-300 group-hover:text-white">
-//                                         {search}
-//                                       </span>
-//                                     </div>
-//                                     <FaTimesCircle
-//                                       onClick={(e) => {
-//                                         e.stopPropagation();
-//                                         const updated = recentSearches.filter(
-//                                           (_, i) => i !== index
-//                                         );
-//                                         setRecentSearches(updated);
-//                                         localStorage.setItem(
-//                                           "recentSearches",
-//                                           JSON.stringify(updated)
-//                                         );
-//                                       }}
-//                                       className="text-slate-600 hover:text-slate-400 text-sm opacity-0 group-hover:opacity-100 transition-all"
-//                                     />
-//                                   </button>
-//                                 ))}
-//                               </div>
-//                             </div>
-//                           )}
-
-//                         {/* Popular Searches */}
-//                         {searchHistoryOpen &&
-//                           popularSearches.length > 0 &&
-//                           !searchQuery && (
-//                             <div className="p-4 border-b border-slate-700">
-//                               <h3 className="text-sm font-semibold text-slate-400 mb-3">
-//                                 Popular Searches
-//                               </h3>
-//                               <div className="flex flex-wrap gap-2">
-//                                 {popularSearches.map((search, index) => (
-//                                   <button
-//                                     key={index}
-//                                     onClick={() => {
-//                                       setSearchQuery(search);
-//                                       handleSearch(null, search);
-//                                     }}
-//                                     className="px-3 py-1.5 bg-slate-800/50 hover:bg-[#E1A95F]/20 text-slate-300 hover:text-[#E1A95F] rounded-lg text-sm transition-all duration-300 border border-slate-700 hover:border-[#E1A95F]/30"
-//                                   >
-//                                     {search}
-//                                   </button>
-//                                 ))}
-//                               </div>
-//                             </div>
-//                           )}
-
-//                         {/* Quick Categories */}
-//                         {searchHistoryOpen &&
-//                           categories.length > 0 &&
-//                           !searchQuery && (
-//                             <div className="p-4">
-//                               <h3 className="text-sm font-semibold text-slate-400 mb-3">
-//                                 Browse Categories
-//                               </h3>
-//                               <div className="grid grid-cols-2 gap-2">
-//                                 {categories
-//                                   .slice(0, 6)
-//                                   .map((category, index) => (
-//                                     <button
-//                                       key={index}
-//                                       onClick={() =>
-//                                         handleCategorySearch(category.name)
-//                                       }
-//                                       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800/30 hover:bg-slate-800/70 transition-all duration-300 group"
-//                                     >
-//                                       <FaBox className="text-slate-500 text-sm group-hover:text-[#E1A95F]" />
-//                                       <span className="text-slate-300 text-sm truncate">
-//                                         {category.name}
-//                                       </span>
-//                                     </button>
-//                                   ))}
-//                               </div>
-//                             </div>
-//                           )}
-
-//                         {/* Search Results */}
-//                         {searchQuery && (
-//                           <div className="p-4">
-//                             <div className="flex items-center justify-between mb-3">
-//                               <h3 className="text-sm font-semibold text-slate-400">
-//                                 {searchResults.length > 0
-//                                   ? `Found ${searchResults.length} results`
-//                                   : "No results found"}
-//                               </h3>
-//                               {searchResults.length > 0 && (
-//                                 <button
-//                                   onClick={(e) => handleSearch(e)}
-//                                   className="text-xs text-[#E1A95F] hover:text-[#d4a259] font-medium"
-//                                 >
-//                                   See all results →
-//                                 </button>
-//                               )}
-//                             </div>
-
-//                             {searchResults.length > 0 ? (
-//                               <div className="space-y-3">
-//                                 {searchResults.slice(0, 5).map((product) => (
-//                                   <Link
-//                                     key={product._id}
-//                                     to={`/product/${product._id}`}
-//                                     onClick={() => {
-//                                       setSearchOpen(false);
-//                                       setSearchQuery("");
-//                                     }}
-//                                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800/50 transition-all duration-300 group"
-//                                   >
-//                                     <div className="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center overflow-hidden">
-//                                       {product.images?.[0] ? (
-//                                         <img
-//                                           src={product.images[0]}
-//                                           alt={product.name}
-//                                           className="w-full h-full object-cover"
-//                                         />
-//                                       ) : (
-//                                         <FaBox className="text-slate-500" />
-//                                       )}
-//                                     </div>
-//                                     <div className="flex-1 min-w-0">
-//                                       <h4 className="text-sm font-medium text-white truncate group-hover:text-[#E1A95F]">
-//                                         {product.name}
-//                                       </h4>
-//                                       <p className="text-xs text-slate-400 truncate">
-//                                         {product.category?.name ||
-//                                           "Uncategorized"}
-//                                       </p>
-//                                       <p className="text-sm font-semibold text-[#E1A95F] mt-1">
-//                                         ${product.price}
-//                                       </p>
-//                                     </div>
-//                                   </Link>
-//                                 ))}
-//                               </div>
-//                             ) : !isSearching ? (
-//                               <div className="text-center py-6">
-//                                 <div className="w-12 h-12 mx-auto rounded-full bg-slate-800/50 flex items-center justify-center mb-3">
-//                                   <FaSearch className="text-slate-500" />
-//                                 </div>
-//                                 <p className="text-slate-400 text-sm">
-//                                   No products found for "{searchQuery}"
-//                                 </p>
-//                                 <p className="text-slate-500 text-xs mt-2">
-//                                   Try different keywords or check spelling
-//                                 </p>
-//                               </div>
-//                             ) : null}
-//                           </div>
-//                         )}
-//                       </div>
-
-//                       {/* Search Footer */}
-//                       {searchQuery && (
-//                         <div className="p-4 border-t border-slate-700 bg-slate-900/50">
-//                           <button
-//                             onClick={(e) => handleSearch(e)}
-//                             className="w-full py-2.5 bg-gradient-to-r from-[#E1A95F] to-[#d4a259] text-white rounded-xl font-medium hover:shadow-lg hover:shadow-[#E1A95F]/25 transition-all duration-300 flex items-center justify-center gap-2"
-//                           >
-//                             <FaSearch />
-//                             Search for "{searchQuery}"
-//                           </button>
-//                         </div>
-//                       )}
-//                     </motion.div>
-//                   )}
-//                 </AnimatePresence>
-//               </div>
-
-//               {/* Notifications */}
-//               <motion.div
-//                 whileHover={{ scale: 1.1 }}
-//                 whileTap={{ scale: 0.9 }}
-//                 className="relative cursor-pointer group"
-//                 onClick={() => navigate("/notifications")}
-//               >
-//                 <div className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300">
-//                   <FaBell className="text-slate-300 group-hover:text-[#E1A95F] text-lg transition-colors duration-300" />
-//                 </div>
-//                 {unreadCount > 0 && (
-//                   <motion.span
-//                     initial={{ scale: 0 }}
-//                     animate={{ scale: 1 }}
-//                     className="absolute -top-1.5 -right-1.5 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg min-w-[22px] text-center"
-//                   >
-//                     {unreadCount > 9 ? "9+" : unreadCount}
-//                   </motion.span>
-//                 )}
-//               </motion.div>
-
-//               {/* Cart */}
-//               <motion.div
-//                 whileHover={{ scale: 1.1 }}
-//                 whileTap={{ scale: 0.9 }}
-//                 className="relative cursor-pointer group"
-//                 onClick={() => navigate("/cart")}
-//               >
-//                 <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300">
-//                   <FaShoppingCart className="text-[#E1A95F] text-lg group-hover:scale-110 transition-transform duration-300" />
-//                 </div>
-//                 {cartItemCount > 0 && (
-//                   <motion.span
-//                     initial={{ scale: 0 }}
-//                     animate={{ scale: 1 }}
-//                     className={`absolute -top-1.5 -right-1.5 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg ${
-//                       cartItemCount > 9
-//                         ? "bg-gradient-to-r from-red-500 to-pink-500"
-//                         : "bg-gradient-to-r from-green-500 to-emerald-500"
-//                     }`}
-//                   >
-//                     {cartItemCount > 9 ? "9+" : cartItemCount}
-//                   </motion.span>
-//                 )}
-//               </motion.div>
-
-//               {/* User */}
-//               {user && (
-//                 <div className="relative">
-//                   <motion.div
-//                     whileHover={{ scale: 1.1 }}
-//                     whileTap={{ scale: 0.9 }}
-//                     className="cursor-pointer p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 group"
-//                     onClick={() => setUserMenuOpen(!userMenuOpen)}
-//                   >
-//                     <FaUser className="text-[#E1A95F] text-lg group-hover:scale-110 transition-transform duration-300" />
-//                   </motion.div>
-//                   <AnimatePresence>
-//                     {userMenuOpen && (
-//                       <motion.div
-//                         className="absolute right-0 top-full mt-2 w-56 bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700 p-4"
-//                         initial={{ opacity: 0, y: -10, scale: 0.95 }}
-//                         animate={{ opacity: 1, y: 0, scale: 1 }}
-//                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
-//                         transition={{ duration: 0.2 }}
-//                       >
-//                         <div className="space-y-3">
-//                           <div className="pb-3 border-b border-slate-700">
-//                             <div className="flex items-center gap-3">
-//                               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#E1A95F] to-[#d4a259] flex items-center justify-center text-white font-bold text-lg">
-//                                 {user.name.charAt(0).toUpperCase()}
-//                               </div>
-//                               <div>
-//                                 <div className="font-bold text-white">
-//                                   Hi, {user.name}
-//                                 </div>
-//                                 <div className="text-xs text-slate-400">
-//                                   {user.email}
-//                                 </div>
-//                               </div>
-//                             </div>
-//                           </div>
-
-//                           <Link
-//                             to="/my-orders"
-//                             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-[#E1A95F] hover:bg-slate-800/50 transition-all duration-300 group"
-//                             onClick={() => setUserMenuOpen(false)}
-//                           >
-//                             <div className="w-1.5 h-1.5 bg-[#E1A95F]/50 rounded-full group-hover:bg-[#E1A95F]"></div>
-//                             <span>My Orders</span>
-//                           </Link>
-
-//                           {user.role === "admin" && (
-//                             <Link
-//                               to="/admin"
-//                               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-green-400 hover:text-green-300 hover:bg-slate-800/50 transition-all duration-300 group"
-//                               onClick={() => setUserMenuOpen(false)}
-//                             >
-//                               <div className="w-1.5 h-1.5 bg-green-500/50 rounded-full group-hover:bg-green-500"></div>
-//                               <span>Admin Panel</span>
-//                             </Link>
-//                           )}
-
-//                           <button
-//                             onClick={() => {
-//                               logout();
-//                               setUserMenuOpen(false);
-//                             }}
-//                             className="w-full mt-2 py-2.5 bg-gradient-to-r from-red-600/10 to-pink-600/10 hover:from-red-600/20 hover:to-pink-600/20 text-red-400 hover:text-red-300 rounded-xl font-medium transition-all duration-300 border border-red-500/20 flex items-center justify-center gap-2"
-//                           >
-//                             <span>Sign Out</span>
-//                           </button>
-//                         </div>
-//                       </motion.div>
-//                     )}
-//                   </AnimatePresence>
-//                 </div>
-//               )}
-
-//               {/* Mobile Menu Button */}
-//               <motion.button
-//                 whileHover={{ scale: 1.1 }}
-//                 whileTap={{ scale: 0.9 }}
-//                 onClick={() => setMenuOpen(!menuOpen)}
-//                 className="lg:hidden p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300"
-//               >
-//                 {menuOpen ? (
-//                   <FaTimes className="text-[#E1A95F] text-xl" />
-//                 ) : (
-//                   <FaBars className="text-slate-300 text-xl" />
-//                 )}
-//               </motion.button>
-//             </div>
-//           </div>
-//         </div>
-//       </motion.nav>
-
-//       {/* Mobile Menu Overlay */}
-//       <AnimatePresence>
-//         {menuOpen && (
-//           <>
-//             {/* Backdrop */}
-//             <motion.div
-//               initial={{ opacity: 0 }}
-//               animate={{ opacity: 1 }}
-//               exit={{ opacity: 0 }}
-//               onClick={() => setMenuOpen(false)}
-//               className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
-//             />
-
-//             {/* Mobile Menu Panel */}
-//             <motion.div
-//               initial={{ x: "100%" }}
-//               animate={{ x: 0 }}
-//               exit={{ x: "100%" }}
-//               transition={{ type: "spring", damping: 25 }}
-//               className="fixed top-0 right-0 h-full w-full max-w-sm z-50 lg:hidden"
-//             >
-//               <div className="h-full bg-gradient-to-b from-slate-900 to-slate-800 shadow-2xl overflow-y-auto">
-//                 {/* Mobile Header */}
-//                 <div className="p-6 border-b border-slate-700">
-//                   <div className="flex items-center justify-between mb-6">
-//                     <div className="flex items-center gap-3">
-//                       <img src={logo} alt="Logo" className="w-10 h-10" />
-//                       <h2 className="text-2xl font-bold text-white">Menu</h2>
-//                     </div>
-//                     <motion.button
-//                       whileHover={{ scale: 1.1 }}
-//                       whileTap={{ scale: 0.9 }}
-//                       onClick={() => setMenuOpen(false)}
-//                       className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-300"
-//                     >
-//                       <FaTimes className="text-[#E1A95F] text-xl" />
-//                     </motion.button>
-//                   </div>
-
-//                   {/* User Info Mobile */}
-//                   {user && (
-//                     <div className="flex items-center gap-3 mb-6 p-4 rounded-xl bg-gradient-to-r from-[#E1A95F]/10 to-[#d4a259]/10 border border-[#E1A95F]/20">
-//                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#E1A95F] to-[#d4a259] flex items-center justify-center text-white font-bold text-lg">
-//                         {user.name.charAt(0).toUpperCase()}
-//                       </div>
-//                       <div>
-//                         <div className="font-bold text-white">{user.name}</div>
-//                         <div className="text-sm text-slate-400">
-//                           {user.email}
-//                         </div>
-//                       </div>
-//                     </div>
-//                   )}
-//                 </div>
-
-//                 {/* Mobile Links */}
-//                 <div className="p-6 space-y-2">
-//                   {links.map((link, index) => (
-//                     <Link
-//                       key={index}
-//                       to={link.path}
-//                       onClick={() => setMenuOpen(false)}
-//                       className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 ${
-//                         location.pathname === link.path
-//                           ? "bg-gradient-to-r from-[#E1A95F]/20 to-[#d4a259]/20 text-[#E1A95F]"
-//                           : "text-slate-300 hover:text-white hover:bg-slate-800"
-//                       }`}
-//                     >
-//                       <div
-//                         className={`w-1.5 h-1.5 rounded-full ${
-//                           location.pathname === link.path
-//                             ? "bg-[#E1A95F]"
-//                             : "bg-slate-600"
-//                         }`}
-//                       ></div>
-//                       <span className="font-medium">{link.name}</span>
-//                     </Link>
-//                   ))}
-
-//                   {/* Shop Section Mobile */}
-//                   <div className="space-y-2">
-//                     <button
-//                       onClick={() => toggleDropdown("shop-mobile")}
-//                       className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition-all duration-300"
-//                     >
-//                       <div className="flex items-center gap-3">
-//                         <div className="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
-//                         <span className="font-medium">Shop</span>
-//                       </div>
-//                       <FaChevronDown
-//                         className={`transition ${
-//                           openDropdown === "shop-mobile" ? "rotate-180" : ""
-//                         }`}
-//                       />
-//                     </button>
-
-//                     <AnimatePresence>
-//                       {openDropdown === "shop-mobile" && (
-//                         <motion.div
-//                           initial={{ opacity: 0, height: 0 }}
-//                           animate={{ opacity: 1, height: "auto" }}
-//                           exit={{ opacity: 0, height: 0 }}
-//                           className="ml-4 pl-4 border-l border-slate-700 space-y-2"
-//                         >
-//                           {categories.map((cat, i) => (
-//                             <button
-//                               key={i}
-//                               onClick={() => {
-//                                 navigate(`/category/${cat.name.toLowerCase()}`);
-//                                 setMenuOpen(false);
-//                               }}
-//                               className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-slate-400 hover:text-[#E1A95F] hover:bg-slate-800/50 transition-all duration-300 text-left"
-//                             >
-//                               <div className="w-1 h-1 bg-slate-600 rounded-full"></div>
-//                               <span>{cat.name}</span>
-//                             </button>
-//                           ))}
-//                         </motion.div>
-//                       )}
-//                     </AnimatePresence>
-//                   </div>
-
-//                   {/* Theme Toggle Mobile */}
-//                   <div className="mt-6 pt-6 border-t border-slate-700">
-//                     <div className="flex items-center justify-between px-4">
-//                       <span className="text-slate-300 font-medium">Theme</span>
-//                       <ThemeToggle />
-//                     </div>
-//                   </div>
-//                 </div>
-
-//                 {/* Mobile Footer */}
-//                 <div className="p-6 border-t border-slate-700 mt-auto">
-//                   <div className="space-y-3">
-//                     <button
-//                       onClick={() => {
-//                         navigate("/notifications");
-//                         setMenuOpen(false);
-//                       }}
-//                       className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 text-slate-300 hover:text-white transition-all duration-300"
-//                     >
-//                       <div className="flex items-center gap-3">
-//                         <FaBell className="text-[#E1A95F]" />
-//                         <span>Notifications</span>
-//                       </div>
-//                       {unreadCount > 0 && (
-//                         <span className="bg-gradient-to-r from-red-500 to-pink-500 text-xs font-bold px-2 py-1 rounded-full text-white">
-//                           {unreadCount > 9 ? "9+" : unreadCount}
-//                         </span>
-//                       )}
-//                     </button>
-
-//                     {user && user.role === "admin" && (
-//                       <button
-//                         onClick={() => {
-//                           navigate("/admin");
-//                           setMenuOpen(false);
-//                         }}
-//                         className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl bg-gradient-to-r from-green-600/10 to-emerald-600/10 border border-green-500/20 text-green-400 hover:text-green-300 transition-all duration-300"
-//                       >
-//                         <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-//                         <span>Admin Panel</span>
-//                       </button>
-//                     )}
-//                   </div>
-//                 </div>
-//               </div>
-//             </motion.div>
-//           </>
-//         )}
-//       </AnimatePresence>
-
-//       {/* Scroll Progress Bar */}
-//       <motion.div
-//         className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#E1A95F] via-[#d4a259] to-[#E1A95F] z-50"
-//         style={{ scaleX: scrolled ? 1 : 0 }}
-//         transition={{ duration: 0.3 }}
-//       />
-//     </>
-//   );
-// };
-
-// export default Navigation;
-
-// import React, { useState, useContext, useEffect, useRef } from "react";
-// import { Link, useNavigate, useLocation } from "react-router-dom";
-// import {
-//   FaBars,
-//   FaTimes,
-//   FaShoppingCart,
-//   FaChevronDown,
-//   FaUser,
-//   FaBell,
-//   FaSearch,
-//   FaSpinner,
-//   FaTimesCircle,
-//   FaBox,
-//   FaTag,
-//   FaFire,
-//   FaHistory,
-// } from "react-icons/fa";
-// import { motion, AnimatePresence } from "framer-motion";
-// import ThemeToggle from "../Components/ThemeToggle";
-// import { authContext } from "../Context/authContext";
-// import { cartContext } from "../Context/cartContext";
-// import { initSocket } from "../utils/socket";
-// import { fetchWithAuth } from "../utils/auth";
-// import logo from "/src/assets/Logo.png";
-
-// const API = "http://localhost:3000";
-
-// const Navigation = () => {
-//   const [menuOpen, setMenuOpen] = useState(false);
-//   const [openDropdown, setOpenDropdown] = useState(null);
-//   const [userMenuOpen, setUserMenuOpen] = useState(false);
-//   const [categories, setCategories] = useState([]);
-//   const [allCategories, setAllCategories] = useState([]);
-//   const [unreadCount, setUnreadCount] = useState(0);
-//   const [scrolled, setScrolled] = useState(false);
-//   const [searchOpen, setSearchOpen] = useState(false);
-//   const [searchQuery, setSearchQuery] = useState("");
-//   const [searchResults, setSearchResults] = useState([]);
-//   const [isSearching, setIsSearching] = useState(false);
-//   const [recentSearches, setRecentSearches] = useState([]);
-//   const [popularSearches, setPopularSearches] = useState([]);
-//   const [searchHistoryOpen, setSearchHistoryOpen] = useState(true);
-//   const [showAllCategories, setShowAllCategories] = useState(false);
-//   const searchRef = useRef(null);
-//   const searchInputRef = useRef(null);
-//   const navigate = useNavigate();
-//   const location = useLocation();
-//   const { user, logout } = useContext(authContext);
-//   const { cart } = useContext(cartContext);
-
-//   // Fetch categories for dropdown
-//   useEffect(() => {
-//     const fetchCategories = async () => {
-//       try {
-//         const res = await fetchWithAuth(`${API}/api/categories`);
-//         const data = await res.json();
-//         setCategories(data || []);
-//       } catch (err) {
-//         console.error("Categories fetch error:", err);
-//       }
-//     };
-//     fetchCategories();
-//   }, []);
-
-//   // Fetch all categories for search
-//   useEffect(() => {
-//     const fetchAllCategories = async () => {
-//       try {
-//         const res = await fetchWithAuth(
-//           `${API}/api/products/categories-for-search`
-//         );
-//         if (res.ok) {
-//           const data = await res.json();
-//           setAllCategories(data);
-//         }
-//       } catch (err) {
-//         console.error("All categories fetch error:", err);
-//       }
-//     };
-//     fetchAllCategories();
-//   }, []);
-
-//   // Fetch popular searches
-//   useEffect(() => {
-//     const fetchPopularSearches = async () => {
-//       try {
-//         const res = await fetchWithAuth(`${API}/api/products/popular-searches`);
-//         if (res.ok) {
-//           const data = await res.json();
-//           setPopularSearches(data || []);
-//         }
-//       } catch (err) {
-//         console.error("Popular searches error:", err);
-//       }
-//     };
-//     fetchPopularSearches();
-//   }, []);
-
-//   // Load recent searches
-//   useEffect(() => {
-//     const savedSearches = localStorage.getItem("Adescart_recent_searches");
-//     if (savedSearches) {
-//       try {
-//         setRecentSearches(JSON.parse(savedSearches));
-//       } catch (e) {
-//         console.error("Error parsing recent searches:", e);
-//       }
-//     }
-//   }, []);
-
-//   // Save recent searches
-//   const saveRecentSearches = (searches) => {
-//     setRecentSearches(searches);
-//     localStorage.setItem("Adescart_recent_searches", JSON.stringify(searches));
-//   };
-
-//   // Scroll effect
-//   useEffect(() => {
-//     const handleScroll = () => {
-//       setScrolled(window.scrollY > 20);
-//     };
-//     window.addEventListener("scroll", handleScroll);
-//     return () => window.removeEventListener("scroll", handleScroll);
-//   }, []);
-
-//   // Cart pulse animation
-//   useEffect(() => {
-//     if (cart?.items?.length > 0) {
-//       const timer = setTimeout(() => {}, 1000);
-//       return () => clearTimeout(timer);
-//     }
-//   }, [cart?.items]);
-
-//   // Fetch initial unread count
-//   useEffect(() => {
-//     if (!user) return;
-//     fetchUnreadCount();
-//   }, [user]);
-
-//   // Notifications socket
-//   useEffect(() => {
-//     if (!user) return;
-
-//     const s = initSocket(user._id);
-
-//     const onNotif = (notif) => {
-//       playSound();
-//       setUnreadCount((prev) => prev + 1);
-//     };
-
-//     s.on("notification", onNotif);
-
-//     const poll = setInterval(fetchUnreadCount, 10000);
-
-//     return () => {
-//       s.off("notification", onNotif);
-//       clearInterval(poll);
-//     };
-//   }, [user]);
-
-//   const fetchUnreadCount = async () => {
-//     if (!user) return;
-//     try {
-//       const res = await fetchWithAuth(`${API}/api/notifications`);
-//       if (!res.ok) return;
-//       const data = await res.json();
-//       const unread = data.filter((n) => !n.read).length;
-//       setUnreadCount(unread);
-//     } catch (err) {
-//       console.error(err);
-//     }
-//   };
-
-//   const playSound = () => {
-//     try {
-//       const audio = new Audio(
-//         "https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg"
-//       );
-//       audio.volume = 0.3;
-//       audio.play().catch(() => {});
-//     } catch (e) {
-//       console.error(e);
-//     }
-//   };
-
-//   // Close search when clicking outside
-//   useEffect(() => {
-//     const handleClickOutside = (event) => {
-//       if (searchRef.current && !searchRef.current.contains(event.target)) {
-//         setSearchOpen(false);
-//       }
-//     };
-//     document.addEventListener("mousedown", handleClickOutside);
-//     return () => document.removeEventListener("mousedown", handleClickOutside);
-//   }, []);
-
-//   // Focus search input when search opens
-//   useEffect(() => {
-//     if (searchOpen && searchInputRef.current) {
-//       setTimeout(() => {
-//         searchInputRef.current.focus();
-//         setSearchHistoryOpen(true);
-//       }, 100);
-//     }
-//   }, [searchOpen]);
-
-//   // 🔍 SEARCH FUNCTION - UPDATED FOR YOUR DATABASE
-//   const searchProducts = async (query) => {
-//     if (!query || query.trim() === "") {
-//       setSearchResults([]);
-//       setIsSearching(false);
-//       return;
-//     }
-
-//     setIsSearching(true);
-//     try {
-//       console.log("Searching for:", query);
-
-//       // Use quick search endpoint for faster results
-//       const res = await fetchWithAuth(
-//         `${API}/api/products/quick-search?q=${encodeURIComponent(query)}`
-//       );
-
-//       if (res.ok) {
-//         const data = await res.json();
-//         console.log("Search results:", data);
-//         setSearchResults(data);
-
-//         // Add to recent searches
-//         if (data.length > 0 && !recentSearches.includes(query)) {
-//           const updated = [query, ...recentSearches].slice(0, 8);
-//           saveRecentSearches(updated);
-//         }
-//       } else {
-//         console.error("Search failed with status:", res.status);
-//         setSearchResults([]);
-//       }
-//     } catch (err) {
-//       console.error("Search error:", err);
-//       setSearchResults([]);
-//     } finally {
-//       setIsSearching(false);
-//     }
-//   };
-
-//   // Debounced search
-//   useEffect(() => {
-//     if (!searchOpen) return;
-
-//     const timer = setTimeout(() => {
-//       if (searchQuery.trim()) {
-//         searchProducts(searchQuery);
-//       } else {
-//         setSearchResults([]);
-//         setSearchHistoryOpen(true);
-//       }
-//     }, 350);
-
-//     return () => clearTimeout(timer);
-//   }, [searchQuery, searchOpen]);
-
-//   // Add to recent searches
-//   const addToRecentSearches = (query) => {
-//     const updated = [
-//       query,
-//       ...recentSearches.filter((s) => s.toLowerCase() !== query.toLowerCase()),
-//     ].slice(0, 8);
-//     saveRecentSearches(updated);
-//   };
-
-//   // Clear recent searches
-//   const clearRecentSearches = () => {
-//     saveRecentSearches([]);
-//   };
-
-//   // Handle search submission
-//   const handleSearch = (e, query = null, category = null) => {
-//     e?.preventDefault();
-//     const searchTerm = query || searchQuery.trim();
-
-//     if (searchTerm) {
-//       addToRecentSearches(searchTerm);
-
-//       if (category) {
-//         navigate(`/search?category=${encodeURIComponent(category)}`);
-//       } else {
-//         navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
-//       }
-
-//       setSearchOpen(false);
-//       setSearchQuery("");
-//       setSearchResults([]);
-//     }
-//   };
-
-//   // Handle category click from search
-//   const handleCategorySearch = (categoryName) => {
-//     addToRecentSearches(categoryName);
-//     navigate(`/search?category=${encodeURIComponent(categoryName)}`);
-//     setSearchOpen(false);
-//   };
-
-//   // Format price
-//   const formatPrice = (price) => {
-//     return new Intl.NumberFormat("en-US", {
-//       style: "currency",
-//       currency: "USD",
-//       minimumFractionDigits: 0,
-//     }).format(price);
-//   };
-
-//   const links = [
-//     { name: "Home", path: "/" },
-//     { name: "About-us", path: "/about" },
-//     { name: "Contact-us", path: "/contact" },
-//     { name: "Return-policy", path: "/policy" },
-//   ];
-
-//   const toggleDropdown = (key) =>
-//     setOpenDropdown(openDropdown === key ? null : key);
-
-//   const handleCategoryClick = (path) => {
-//     navigate(path);
-//     setMenuOpen(false);
-//     setOpenDropdown(null);
-//   };
-
-//   const cartItemCount =
-//     cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
-
-//   return (
-//     <>
-//       {/* Navigation Container */}
-//       <motion.nav
-//         initial={{ y: -100 }}
-//         animate={{ y: 0 }}
-//         transition={{ duration: 0.5, type: "spring" }}
-//         className="fixed top-0 w-full z-50 transition-all duration-300"
-//       >
-//         {/* Top Announcement Bar */}
-//         <div className="bg-gradient-to-r from-[#E1A95F]/20 via-[#d4a259]/20 to-[#c5954d]/20 py-2 px-4 text-center">
-//           <p className="text-xs text-white/90 font-medium">
-//             🚚{" "}
-//             <span className="text-[#E1A95F] font-semibold">Free Shipping</span>{" "}
-//             on orders over $100 •
-//             <span className="text-green-300 font-semibold ml-2">
-//               🎁 30% OFF
-//             </span>{" "}
-//             for new customers
-//           </p>
-//         </div>
-
-//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-//           <div className="flex justify-between items-center h-16">
-//             {/* Logo */}
-//             <motion.div
-//               whileHover={{ scale: 1.05 }}
-//               whileTap={{ scale: 0.95 }}
-//               className="flex items-center"
-//             >
-//               <Link to="/" className="flex items-center">
-//                 <img
-//                   src={logo}
-//                   alt="Logo"
-//                   className="w-28 md:w-32 h-auto drop-shadow-lg"
-//                 />
-//               </Link>
-//             </motion.div>
-
-//             {/* Desktop Navigation */}
-//             <ul className="hidden lg:flex items-center gap-1">
-//               {links.map((link, index) => (
-//                 <motion.li
-//                   key={index}
-//                   initial={{ opacity: 0, y: -10 }}
-//                   animate={{ opacity: 1, y: 0 }}
-//                   transition={{ delay: index * 0.1 }}
-//                   className="relative"
-//                 >
-//                   <Link
-//                     to={link.path}
-//                     className={`relative px-4 py-2.5 mx-1 rounded-xl transition-all duration-300 font-medium ${
-//                       location.pathname === link.path
-//                         ? "text-[#E1A95F] bg-[#E1A95F]/10"
-//                         : "text-slate-200 hover:text-[#E1A95F] hover:bg-white/5"
-//                     }`}
-//                   >
-//                     {link.name}
-//                     {location.pathname === link.path && (
-//                       <motion.div
-//                         layoutId="underline"
-//                         className="absolute left-4 right-4 h-0.5 bottom-1.5 bg-[#E1A95F] rounded-full"
-//                       />
-//                     )}
-//                   </Link>
-//                 </motion.li>
-//               ))}
-
-//               {/* Dynamic Shop Dropdown */}
-//               <motion.li className="relative">
-//                 <button
-//                   onClick={() => toggleDropdown("shop")}
-//                   className={`flex items-center gap-2 px-4 py-2.5 mx-1 rounded-xl transition-all duration-300 font-medium ${
-//                     openDropdown === "shop"
-//                       ? "text-[#E1A95F] bg-[#E1A95F]/10"
-//                       : "text-slate-200 hover:text-[#E1A95F] hover:bg-white/5"
-//                   }`}
-//                 >
-//                   Shop
-//                   <motion.span
-//                     animate={{ rotate: openDropdown === "shop" ? 180 : 0 }}
-//                     transition={{ duration: 0.3 }}
-//                   >
-//                     <FaChevronDown className="text-sm" />
-//                   </motion.span>
-//                 </button>
-//                 <AnimatePresence>
-//                   {openDropdown === "shop" && (
-//                     <motion.div
-//                       className="absolute left-0 top-full mt-2 min-w-[220px] bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700 p-3"
-//                       initial={{ opacity: 0, y: -10, scale: 0.95 }}
-//                       animate={{ opacity: 1, y: 0, scale: 1 }}
-//                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
-//                       transition={{ duration: 0.2 }}
-//                     >
-//                       <div className="space-y-2">
-//                         {categories.map((cat, i) => (
-//                           <motion.button
-//                             key={i}
-//                             initial={{ opacity: 0, x: -10 }}
-//                             animate={{ opacity: 1, x: 0 }}
-//                             transition={{ duration: 0.2, delay: i * 0.05 }}
-//                             onClick={() =>
-//                               handleCategoryClick(
-//                                 `/category/${cat.name.toLowerCase()}`
-//                               )
-//                             }
-//                             className="w-full text-left px-3 py-2.5 rounded-lg text-slate-300 hover:text-[#E1A95F] hover:bg-slate-800/50 transition-all duration-300 flex items-center gap-3 group"
-//                           >
-//                             <div className="w-2 h-2 bg-[#E1A95F]/50 rounded-full group-hover:bg-[#E1A95F] transition-all duration-300"></div>
-//                             <span className="font-medium">{cat.name}</span>
-//                           </motion.button>
-//                         ))}
-//                       </div>
-//                     </motion.div>
-//                   )}
-//                 </AnimatePresence>
-//               </motion.li>
-
-//               <li className="ml-2">
-//                 <ThemeToggle />
-//               </li>
-//             </ul>
-
-//             {/* Right Icons */}
-//             <div className="flex items-center gap-3 md:gap-4">
-//               {/* Enhanced Search */}
-//               <div ref={searchRef} className="">
-//                 <motion.button
-//                   whileHover={{ scale: 1.1 }}
-//                   whileTap={{ scale: 0.9 }}
-//                   onClick={() => {
-//                     setSearchOpen(!searchOpen);
-//                     setSearchHistoryOpen(true);
-//                   }}
-//                   className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 group"
-//                 >
-//                   <FaSearch className="text-slate-300 group-hover:text-[#E1A95F] text-lg transition-colors duration-300" />
-//                 </motion.button>
-
-//                 <AnimatePresence>
-//                   {searchOpen && (
-//                     <motion.div
-//                       initial={{ opacity: 0, scale: 0.9, y: 10 }}
-//                       animate={{ opacity: 1, scale: 1, y: 0 }}
-//                       exit={{ opacity: 0, scale: 0.9, y: 10 }}
-//                       className="absolute max-sm:right-0 right-10 top-full mt-2 max-sm:w-full w-[50%] backdrop-blur-sm rounded-xl shadow-2xl border border-slate-700 overflow-hidden z-50"
-//                     >
-//                       {/* Search Input */}
-//                       <div className="p-4 border-b border-slate-700 ">
-//                         <form
-//                           onSubmit={(e) => handleSearch(e)}
-//                           className="relative"
-//                         >
-//                           <div className="relative">
-//                             <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500" />
-//                             <input
-//                               ref={searchInputRef}
-//                               type="text"
-//                               value={searchQuery}
-//                               onChange={(e) => {
-//                                 setSearchQuery(e.target.value);
-//                                 setSearchHistoryOpen(e.target.value === "");
-//                               }}
-//                               placeholder="Search products, brands, categories..."
-//                               className="w-full pl-10 pr-10 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
-//                             />
-//                             {searchQuery && (
-//                               <button
-//                                 type="button"
-//                                 onClick={() => {
-//                                   setSearchQuery("");
-//                                   setSearchResults([]);
-//                                   setSearchHistoryOpen(true);
-//                                 }}
-//                                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
-//                               >
-//                                 <FaTimesCircle />
-//                               </button>
-//                             )}
-//                           </div>
-//                           {isSearching && (
-//                             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-//                               <FaSpinner className="animate-spin text-[#E1A95F]" />
-//                             </div>
-//                           )}
-//                         </form>
-//                       </div>
-
-//                       {/* Search Content */}
-//                       <div className="max-h-96 overflow-y-auto">
-//                         {/* Recent Searches */}
-//                         {searchHistoryOpen &&
-//                           recentSearches.length > 0 &&
-//                           !searchQuery && (
-//                             <div className="p-4 border-b border-slate-700">
-//                               <div className="flex items-center justify-between mb-3">
-//                                 <div className="flex items-center gap-2">
-//                                   <FaHistory className="text-slate-500 text-sm" />
-//                                   <h3 className="text-sm font-semibold text-slate-400">
-//                                     Recent Searches
-//                                   </h3>
-//                                 </div>
-//                                 <button
-//                                   onClick={clearRecentSearches}
-//                                   className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
-//                                 >
-//                                   Clear All
-//                                 </button>
-//                               </div>
-//                               <div className="space-y-2">
-//                                 {recentSearches.map((search, index) => (
-//                                   <button
-//                                     key={index}
-//                                     onClick={() => {
-//                                       setSearchQuery(search);
-//                                       handleSearch(null, search);
-//                                     }}
-//                                     className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-slate-800/50 transition-all duration-300 group"
-//                                   >
-//                                     <div className="flex items-center gap-3">
-//                                       <FaSearch className="text-slate-500 text-sm group-hover:text-[#E1A95F]" />
-//                                       <span className="text-slate-300 group-hover:text-white">
-//                                         {search}
-//                                       </span>
-//                                     </div>
-//                                     <FaTimesCircle
-//                                       onClick={(e) => {
-//                                         e.stopPropagation();
-//                                         const updated = recentSearches.filter(
-//                                           (_, i) => i !== index
-//                                         );
-//                                         saveRecentSearches(updated);
-//                                       }}
-//                                       className="text-slate-600 hover:text-slate-400 text-sm opacity-0 group-hover:opacity-100 transition-all"
-//                                     />
-//                                   </button>
-//                                 ))}
-//                               </div>
-//                             </div>
-//                           )}
-
-//                         {/* Popular Searches */}
-//                         {searchHistoryOpen &&
-//                           popularSearches.length > 0 &&
-//                           !searchQuery && (
-//                             <div className="p-4 border-b border-slate-700">
-//                               <div className="flex items-center gap-2 mb-3">
-//                                 <FaFire className="text-amber-500 text-sm" />
-//                                 <h3 className="text-sm font-semibold text-slate-400">
-//                                   Popular Searches
-//                                 </h3>
-//                               </div>
-//                               <div className="flex flex-wrap gap-2">
-//                                 {popularSearches
-//                                   .slice(0, 6)
-//                                   .map((search, index) => (
-//                                     <button
-//                                       key={index}
-//                                       onClick={() => {
-//                                         setSearchQuery(search);
-//                                         handleSearch(null, search);
-//                                       }}
-//                                       className="px-3 py-1.5 bg-slate-800/50 hover:bg-[#E1A95F]/20 text-slate-300 hover:text-[#E1A95F] rounded-lg text-sm transition-all duration-300 border border-slate-700 hover:border-[#E1A95F]/30"
-//                                     >
-//                                       {search}
-//                                     </button>
-//                                   ))}
-//                               </div>
-//                             </div>
-//                           )}
-
-//                         {/* Categories */}
-//                         {searchHistoryOpen &&
-//                           allCategories.length > 0 &&
-//                           !searchQuery && (
-//                             <div className="p-4">
-//                               <div className="flex items-center gap-2 mb-3">
-//                                 <FaTag className="text-[#E1A95F] text-sm" />
-//                                 <h3 className="text-sm font-semibold text-slate-400">
-//                                   Browse Categories
-//                                 </h3>
-//                               </div>
-//                               <div className="grid grid-cols-2 gap-2">
-//                                 {allCategories
-//                                   .slice(0, showAllCategories ? 20 : 6)
-//                                   .map((category, index) => (
-//                                     <button
-//                                       key={index}
-//                                       onClick={() =>
-//                                         handleCategorySearch(category.name)
-//                                       }
-//                                       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800/30 hover:bg-slate-800/70 transition-all duration-300 group"
-//                                     >
-//                                       <FaBox className="text-slate-500 text-sm group-hover:text-[#E1A95F]" />
-//                                       <span className="text-slate-300 text-sm truncate">
-//                                         {category.name}
-//                                       </span>
-//                                     </button>
-//                                   ))}
-//                               </div>
-//                               {allCategories.length > 6 && (
-//                                 <button
-//                                   onClick={() =>
-//                                     setShowAllCategories(!showAllCategories)
-//                                   }
-//                                   className="w-full mt-3 text-center text-xs text-slate-500 hover:text-[#E1A95F] transition-colors"
-//                                 >
-//                                   {showAllCategories
-//                                     ? "Show Less"
-//                                     : `Show All ${allCategories.length} Categories`}
-//                                 </button>
-//                               )}
-//                             </div>
-//                           )}
-
-//                         {/* Search Results */}
-//                         {searchQuery && (
-//                           <div className="p-4">
-//                             <div className="flex items-center justify-between mb-3">
-//                               <h3 className="text-sm font-semibold text-slate-400">
-//                                 {searchResults.length > 0
-//                                   ? `Found ${searchResults.length} results`
-//                                   : isSearching
-//                                     ? "Searching..."
-//                                     : "No results found"}
-//                               </h3>
-//                               {searchResults.length > 0 && (
-//                                 <button
-//                                   onClick={(e) => handleSearch(e)}
-//                                   className="text-xs text-[#E1A95F] hover:text-[#d4a259] font-medium"
-//                                 >
-//                                   See all →
-//                                 </button>
-//                               )}
-//                             </div>
-
-//                             {searchResults.length > 0 ? (
-//                               <div className="space-y-3">
-//                                 {searchResults.slice(0, 5).map((product) => (
-//                                   <Link
-//                                     key={product._id}
-//                                     to={`/product/${product._id}`}
-//                                     onClick={() => {
-//                                       setSearchOpen(false);
-//                                       setSearchQuery("");
-//                                     }}
-//                                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800/50 transition-all duration-300 group"
-//                                   >
-//                                     <div className="w-20 h-20 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-//                                       {product.image ? (
-//                                         <img
-//                                           src={
-//                                             product.image.startsWith("http")
-//                                               ? product.image
-//                                               : `${API}${product.image}`
-//                                           }
-//                                           alt={product.name}
-//                                           className="w-full h-full object-contain"
-//                                           onError={(e) => {
-//                                             e.target.onerror = null;
-//                                             e.target.src =
-//                                               "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop";
-//                                           }}
-//                                         />
-//                                       ) : (
-//                                         <FaBox className="text-slate-500" />
-//                                       )}
-//                                     </div>
-//                                     <div className="flex-1 min-w-0">
-//                                       <div className="flex items-start justify-between gap-2">
-//                                         <h4 className="text-sm font-medium text-white truncate group-hover:text-[#E1A95F]">
-//                                           {product.name}
-//                                         </h4>
-//                                         <span className="text-sm font-semibold text-[#E1A95F] flex-shrink-0">
-//                                           {formatPrice(product.price)}
-//                                         </span>
-//                                       </div>
-//                                       <p className="text-xs text-slate-400 truncate">
-//                                         {product.category || "Uncategorized"}
-//                                       </p>
-//                                       <div className="flex items-center gap-2 mt-1">
-//                                         {product.isSold ||
-//                                         product.stock === 0 ? (
-//                                           <span className="text-xs text-red-500">
-//                                             Sold Out
-//                                           </span>
-//                                         ) : (
-//                                           <span className="text-xs text-green-500">
-//                                             {product.stock || 0} in stock
-//                                           </span>
-//                                         )}
-//                                       </div>
-//                                     </div>
-//                                   </Link>
-//                                 ))}
-//                               </div>
-//                             ) : !isSearching ? (
-//                               <div className="text-center py-6 bg-white ">
-//                                 <div className="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3">
-//                                   <FaSearch className="text-slate-500" />
-//                                 </div>
-//                                 <p className="text-slate-400 text-sm">
-//                                   No products found for "{searchQuery}"
-//                                 </p>
-//                                 <p className="text-slate-500 text-xs mt-2">
-//                                   Try different keywords
-//                                 </p>
-//                               </div>
-//                             ) : null}
-//                           </div>
-//                         )}
-//                       </div>
-
-//                       {/* Search Footer */}
-//                       {searchQuery && (
-//                         <div className="p-4 border-t border-slate-700 bg-slate-900/50">
-//                           <button
-//                             onClick={(e) => handleSearch(e)}
-//                             className="w-full py-2.5 bg-gradient-to-r from-[#E1A95F] to-[#d4a259] text-white rounded-xl font-medium hover:shadow-lg hover:shadow-[#E1A95F]/25 transition-all duration-300 flex items-center justify-center gap-2"
-//                           >
-//                             <FaSearch />
-//                             Search for "{searchQuery}"
-//                           </button>
-//                         </div>
-//                       )}
-//                     </motion.div>
-//                   )}
-//                 </AnimatePresence>
-//               </div>
-
-//               {/* Notifications */}
-//               <motion.div
-//                 whileHover={{ scale: 1.1 }}
-//                 whileTap={{ scale: 0.9 }}
-//                 className="relative cursor-pointer group"
-//                 onClick={() => navigate("/notifications")}
-//               >
-//                 <div className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300">
-//                   <FaBell className="text-slate-300 group-hover:text-[#E1A95F] text-lg transition-colors duration-300" />
-//                 </div>
-//                 {unreadCount > 0 && (
-//                   <motion.span
-//                     initial={{ scale: 0 }}
-//                     animate={{ scale: 1 }}
-//                     className="absolute -top-1.5 -right-1.5 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg min-w-[22px] text-center"
-//                   >
-//                     {unreadCount > 9 ? "9+" : unreadCount}
-//                   </motion.span>
-//                 )}
-//               </motion.div>
-
-//               {/* Cart */}
-//               <motion.div
-//                 whileHover={{ scale: 1.1 }}
-//                 whileTap={{ scale: 0.9 }}
-//                 className="relative cursor-pointer group"
-//                 onClick={() => navigate("/cart")}
-//               >
-//                 <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300">
-//                   <FaShoppingCart className="text-[#E1A95F] text-lg group-hover:scale-110 transition-transform duration-300" />
-//                 </div>
-//                 {cartItemCount > 0 && (
-//                   <motion.span
-//                     initial={{ scale: 0 }}
-//                     animate={{ scale: 1 }}
-//                     className={`absolute -top-1.5 -right-1.5 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg ${
-//                       cartItemCount > 9
-//                         ? "bg-gradient-to-r from-red-500 to-pink-500"
-//                         : "bg-gradient-to-r from-green-500 to-emerald-500"
-//                     }`}
-//                   >
-//                     {cartItemCount > 9 ? "9+" : cartItemCount}
-//                   </motion.span>
-//                 )}
-//               </motion.div>
-
-//               {/* User */}
-//               {user && (
-//                 <div className="relative">
-//                   <motion.div
-//                     whileHover={{ scale: 1.1 }}
-//                     whileTap={{ scale: 0.9 }}
-//                     className="cursor-pointer p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 group"
-//                     onClick={() => setUserMenuOpen(!userMenuOpen)}
-//                   >
-//                     <FaUser className="text-[#E1A95F] text-lg group-hover:scale-110 transition-transform duration-300" />
-//                   </motion.div>
-//                   <AnimatePresence>
-//                     {userMenuOpen && (
-//                       <motion.div
-//                         className="absolute right-0 top-full mt-2 w-80 bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700 p-4"
-//                         initial={{ opacity: 0, y: -10, scale: 0.95 }}
-//                         animate={{ opacity: 1, y: 0, scale: 1 }}
-//                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
-//                         transition={{ duration: 0.2 }}
-//                       >
-//                         <div className="space-y-3">
-//                           <div className="pb-3 border-b border-slate-700">
-//                             <div className="flex items-center gap-3">
-//                               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#E1A95F] to-[#d4a259] flex items-center justify-center text-white font-bold text-lg">
-//                                 {user.name.charAt(0).toUpperCase()}
-//                               </div>
-//                               <div>
-//                                 <div className="font-bold text-white">
-//                                   Hi, {user.name}
-//                                 </div>
-//                                 <div className="text-xs text-slate-400">
-//                                   {user.email}
-//                                 </div>
-//                               </div>
-//                             </div>
-//                           </div>
-
-//                           <Link
-//                             to="/my-orders"
-//                             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-[#E1A95F] hover:bg-slate-800/50 transition-all duration-300 group"
-//                             onClick={() => setUserMenuOpen(false)}
-//                           >
-//                             <div className="w-1.5 h-1.5 bg-[#E1A95F]/50 rounded-full group-hover:bg-[#E1A95F]"></div>
-//                             <span>My Orders</span>
-//                           </Link>
-
-//                           {/* {user.role === "admin" && (
-//                             <Link
-//                               to="/admin"
-//                               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-green-400 hover:text-green-300 hover:bg-slate-800/50 transition-all duration-300 group"
-//                               onClick={() => setUserMenuOpen(false)}
-//                             >
-//                               <div className="w-1.5 h-1.5 bg-green-500/50 rounded-full group-hover:bg-green-500"></div>
-//                               <span>Admin Panel</span>
-//                             </Link>
-//                           )} */}
-
-//                           <button
-//                             onClick={() => {
-//                               logout();
-//                               setUserMenuOpen(false);
-//                             }}
-//                             className="w-full mt-2 py-2.5 bg-gradient-to-r from-red-600/10 to-pink-600/10 hover:from-red-600/20 hover:to-pink-600/20 text-red-400 hover:text-red-300 rounded-xl font-medium transition-all duration-300 border border-red-500/20 flex items-center justify-center gap-2"
-//                           >
-//                             <span>Sign Out</span>
-//                           </button>
-//                         </div>
-//                       </motion.div>
-//                     )}
-//                   </AnimatePresence>
-//                 </div>
-//               )}
-
-//               {/* Mobile Menu Button */}
-//               <motion.button
-//                 whileHover={{ scale: 1.1 }}
-//                 whileTap={{ scale: 0.9 }}
-//                 onClick={() => setMenuOpen(!menuOpen)}
-//                 className="lg:hidden p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300"
-//               >
-//                 {menuOpen ? (
-//                   <FaTimes className="text-[#E1A95F] text-xl" />
-//                 ) : (
-//                   <FaBars className="text-slate-300 text-xl" />
-//                 )}
-//               </motion.button>
-//             </div>
-//           </div>
-//         </div>
-//       </motion.nav>
-
-//       {/* Mobile Menu Overlay */}
-//       <AnimatePresence>
-//         {menuOpen && (
-//           <>
-//             {/* Backdrop */}
-//             <motion.div
-//               initial={{ opacity: 0 }}
-//               animate={{ opacity: 1 }}
-//               exit={{ opacity: 0 }}
-//               onClick={() => setMenuOpen(false)}
-//               className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
-//             />
-
-//             {/* Mobile Menu Panel */}
-//             <motion.div
-//               initial={{ x: "100%" }}
-//               animate={{ x: 0 }}
-//               exit={{ x: "100%" }}
-//               transition={{ type: "spring", damping: 25 }}
-//               className="fixed top-0 right-0 h-full w-full max-w-sm z-50 lg:hidden"
-//             >
-//               <div className="h-full bg-gradient-to-b from-slate-900 to-slate-800 shadow-2xl overflow-y-auto">
-//                 {/* Mobile Header */}
-//                 <div className="p-6 border-b border-slate-700">
-//                   <div className="flex items-center justify-between mb-6">
-//                     <div className="flex items-center gap-3">
-//                       <img src={logo} alt="Logo" className="w-10 h-10" />
-//                       <h2 className="text-2xl font-bold text-white">Menu</h2>
-//                     </div>
-//                     <motion.button
-//                       whileHover={{ scale: 1.1 }}
-//                       whileTap={{ scale: 0.9 }}
-//                       onClick={() => setMenuOpen(false)}
-//                       className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-300"
-//                     >
-//                       <FaTimes className="text-[#E1A95F] text-xl" />
-//                     </motion.button>
-//                   </div>
-
-//                   {/* User Info Mobile */}
-//                   {user && (
-//                     <div className="flex items-center gap-3 mb-6 p-4 rounded-xl bg-gradient-to-r from-[#E1A95F]/10 to-[#d4a259]/10 border border-[#E1A95F]/20">
-//                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#E1A95F] to-[#d4a259] flex items-center justify-center text-white font-bold text-lg">
-//                         {user.name.charAt(0).toUpperCase()}
-//                       </div>
-//                       <div>
-//                         <div className="font-bold text-white">{user.name}</div>
-//                         <div className="text-sm text-slate-400">
-//                           {user.email}
-//                         </div>
-//                       </div>
-//                     </div>
-//                   )}
-//                 </div>
-
-//                 {/* Mobile Links */}
-//                 <div className="p-6 space-y-2">
-//                   {links.map((link, index) => (
-//                     <Link
-//                       key={index}
-//                       to={link.path}
-//                       onClick={() => setMenuOpen(false)}
-//                       className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 ${
-//                         location.pathname === link.path
-//                           ? "bg-gradient-to-r from-[#E1A95F]/20 to-[#d4a259]/20 text-[#E1A95F]"
-//                           : "text-slate-300 hover:text-white hover:bg-slate-800"
-//                       }`}
-//                     >
-//                       <div
-//                         className={`w-1.5 h-1.5 rounded-full ${
-//                           location.pathname === link.path
-//                             ? "bg-[#E1A95F]"
-//                             : "bg-slate-600"
-//                         }`}
-//                       ></div>
-//                       <span className="font-medium">{link.name}</span>
-//                     </Link>
-//                   ))}
-
-//                   {/* Shop Section Mobile */}
-//                   <div className="space-y-2">
-//                     <button
-//                       onClick={() => toggleDropdown("shop-mobile")}
-//                       className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition-all duration-300"
-//                     >
-//                       <div className="flex items-center gap-3">
-//                         <div className="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
-//                         <span className="font-medium">Shop</span>
-//                       </div>
-//                       <FaChevronDown
-//                         className={`transition ${
-//                           openDropdown === "shop-mobile" ? "rotate-180" : ""
-//                         }`}
-//                       />
-//                     </button>
-
-//                     <AnimatePresence>
-//                       {openDropdown === "shop-mobile" && (
-//                         <motion.div
-//                           initial={{ opacity: 0, height: 0 }}
-//                           animate={{ opacity: 1, height: "auto" }}
-//                           exit={{ opacity: 0, height: 0 }}
-//                           className="ml-4 pl-4 border-l border-slate-700 space-y-2"
-//                         >
-//                           {categories.map((cat, i) => (
-//                             <button
-//                               key={i}
-//                               onClick={() => {
-//                                 navigate(`/category/${cat.name.toLowerCase()}`);
-//                                 setMenuOpen(false);
-//                               }}
-//                               className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-slate-400 hover:text-[#E1A95F] hover:bg-slate-800/50 transition-all duration-300 text-left"
-//                             >
-//                               <div className="w-1 h-1 bg-slate-600 rounded-full"></div>
-//                               <span>{cat.name}</span>
-//                             </button>
-//                           ))}
-//                         </motion.div>
-//                       )}
-//                     </AnimatePresence>
-//                   </div>
-
-//                   {/* Theme Toggle Mobile */}
-//                   <div className="mt-6 pt-6 border-t border-slate-700">
-//                     <div className="flex items-center justify-between px-4">
-//                       <span className="text-slate-300 font-medium">Theme</span>
-//                       <ThemeToggle />
-//                     </div>
-//                   </div>
-//                 </div>
-
-//                 {/* Mobile Footer */}
-//                 <div className="p-6 border-t border-slate-700 mt-auto">
-//                   <div className="space-y-3">
-//                     <button
-//                       onClick={() => {
-//                         navigate("/notifications");
-//                         setMenuOpen(false);
-//                       }}
-//                       className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 text-slate-300 hover:text-white transition-all duration-300"
-//                     >
-//                       <div className="flex items-center gap-3">
-//                         <FaBell className="text-[#E1A95F]" />
-//                         <span>Notifications</span>
-//                       </div>
-//                       {unreadCount > 0 && (
-//                         <span className="bg-gradient-to-r from-red-500 to-pink-500 text-xs font-bold px-2 py-1 rounded-full text-white">
-//                           {unreadCount > 9 ? "9+" : unreadCount}
-//                         </span>
-//                       )}
-//                     </button>
-
-//                     {user && user.role === "admin" && (
-//                       <button
-//                         onClick={() => {
-//                           navigate("/admin");
-//                           setMenuOpen(false);
-//                         }}
-//                         className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl bg-gradient-to-r from-green-600/10 to-emerald-600/10 border border-green-500/20 text-green-400 hover:text-green-300 transition-all duration-300"
-//                       >
-//                         <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-//                         <span>Admin Panel</span>
-//                       </button>
-//                     )}
-//                   </div>
-//                 </div>
-//               </div>
-//             </motion.div>
-//           </>
-//         )}
-//       </AnimatePresence>
-
-//       {/* Scroll Progress Bar */}
-//       <motion.div
-//         className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#E1A95F] via-[#d4a259] to-[#E1A95F] z-50"
-//         style={{ scaleX: scrolled ? 1 : 0 }}
-//         transition={{ duration: 0.3 }}
-//       />
-//     </>
-//   );
-// };
-
-// export default Navigation;
-// import React, { useState, useContext, useEffect, useRef } from "react";
-// import { Link, useNavigate, useLocation } from "react-router-dom";
-// import {
-//   FaBars,
-//   FaTimes,
-//   FaShoppingCart,
-//   FaChevronDown,
-//   FaUser,
-//   FaBell,
-//   FaSearch,
-//   FaSpinner,
-//   FaTimesCircle,
-//   FaBox,
-//   FaTag,
-//   FaFire,
-//   FaHistory,
-// } from "react-icons/fa";
-// import { motion, AnimatePresence } from "framer-motion";
-// import ThemeToggle from "../Components/ThemeToggle";
-// import { authContext } from "../Context/authContext";
-// import { cartContext } from "../Context/cartContext";
-// import { initSocket } from "../utils/socket";
-// import { fetchWithAuth } from "../utils/auth";
-// import logo from "/src/assets/Logo.png";
-
-// const API = "http://localhost:3000";
-
-// const Navigation = () => {
-//   const [menuOpen, setMenuOpen] = useState(false);
-//   const [openDropdown, setOpenDropdown] = useState(null);
-//   const [userMenuOpen, setUserMenuOpen] = useState(false);
-//   const [categories, setCategories] = useState([]);
-//   const [allCategories, setAllCategories] = useState([]);
-//   const [unreadCount, setUnreadCount] = useState(0);
-//   const [scrolled, setScrolled] = useState(false);
-//   const [searchOpen, setSearchOpen] = useState(false);
-//   const [searchQuery, setSearchQuery] = useState("");
-//   const [searchResults, setSearchResults] = useState([]);
-//   const [isSearching, setIsSearching] = useState(false);
-//   const [recentSearches, setRecentSearches] = useState([]);
-//   const [popularSearches, setPopularSearches] = useState([]);
-//   const [searchHistoryOpen, setSearchHistoryOpen] = useState(true);
-//   const [showAllCategories, setShowAllCategories] = useState(false);
-//   const searchRef = useRef(null);
-//   const searchInputRef = useRef(null);
-//   const navigate = useNavigate();
-//   const location = useLocation();
-//   const { user, logout } = useContext(authContext);
-//   const { cart } = useContext(cartContext);
-
-//   // Fetch categories for dropdown
-//   useEffect(() => {
-//     const fetchCategories = async () => {
-//       try {
-//         const res = await fetchWithAuth(`${API}/api/categories`);
-//         const data = await res.json();
-//         setCategories(data || []);
-//       } catch (err) {
-//         console.error("Categories fetch error:", err);
-//       }
-//     };
-//     fetchCategories();
-//   }, []);
-
-//   // Fetch all categories for search
-//   useEffect(() => {
-//     const fetchAllCategories = async () => {
-//       try {
-//         const res = await fetchWithAuth(
-//           `${API}/api/products/categories-for-search`
-//         );
-//         if (res.ok) {
-//           const data = await res.json();
-//           setAllCategories(data);
-//         }
-//       } catch (err) {
-//         console.error("All categories fetch error:", err);
-//       }
-//     };
-//     fetchAllCategories();
-//   }, []);
-
-//   // Fetch popular searches
-//   useEffect(() => {
-//     const fetchPopularSearches = async () => {
-//       try {
-//         const res = await fetchWithAuth(`${API}/api/products/popular-searches`);
-//         if (res.ok) {
-//           const data = await res.json();
-//           setPopularSearches(data || []);
-//         }
-//       } catch (err) {
-//         console.error("Popular searches error:", err);
-//       }
-//     };
-//     fetchPopularSearches();
-//   }, []);
-
-//   // Load recent searches
-//   useEffect(() => {
-//     const savedSearches = localStorage.getItem("Adescart_recent_searches");
-//     if (savedSearches) {
-//       try {
-//         setRecentSearches(JSON.parse(savedSearches));
-//       } catch (e) {
-//         console.error("Error parsing recent searches:", e);
-//       }
-//     }
-//   }, []);
-
-//   // Save recent searches
-//   const saveRecentSearches = (searches) => {
-//     setRecentSearches(searches);
-//     localStorage.setItem("Adescart_recent_searches", JSON.stringify(searches));
-//   };
-
-//   // Scroll effect
-//   useEffect(() => {
-//     const handleScroll = () => {
-//       setScrolled(window.scrollY > 20);
-//     };
-//     window.addEventListener("scroll", handleScroll);
-//     return () => window.removeEventListener("scroll", handleScroll);
-//   }, []);
-
-//   // Cart pulse animation
-//   useEffect(() => {
-//     if (cart?.items?.length > 0) {
-//       const timer = setTimeout(() => {}, 1000);
-//       return () => clearTimeout(timer);
-//     }
-//   }, [cart?.items]);
-
-//   // Fetch initial unread count - FIXED
-//   useEffect(() => {
-//     if (!user) return;
-//     fetchUnreadCount();
-//   }, [user]);
-
-//   // Notifications socket
-//   useEffect(() => {
-//     if (!user) return;
-
-//     const s = initSocket(user._id);
-
-//     const onNotif = (notif) => {
-//       playSound();
-//       setUnreadCount((prev) => prev + 1);
-//     };
-
-//     s.on("notification", onNotif);
-
-//     const poll = setInterval(fetchUnreadCount, 10000);
-
-//     return () => {
-//       s.off("notification", onNotif);
-//       clearInterval(poll);
-//     };
-//   }, [user]);
-
-//   // FIXED: fetchUnreadCount function
-//   const fetchUnreadCount = async () => {
-//     if (!user) return;
-//     try {
-//       const res = await fetchWithAuth(`${API}/api/notifications/unread-count`);
-//       if (!res.ok) return;
-//       const response = await res.json();
-
-//       // The response now has a success property and data structure
-//       if (response.success) {
-//         // The count is in response.data.count
-//         setUnreadCount(response.data?.count || 0);
-//       } else {
-//         console.error("API error:", response.message);
-//         setUnreadCount(0);
-//       }
-//     } catch (err) {
-//       console.error("Failed to fetch unread count:", err);
-//       setUnreadCount(0);
-//     }
-//   };
-
-//   const playSound = () => {
-//     try {
-//       const audio = new Audio(
-//         "https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg"
-//       );
-//       audio.volume = 0.3;
-//       audio.play().catch(() => {});
-//     } catch (e) {
-//       console.error(e);
-//     }
-//   };
-
-//   // Close search when clicking outside
-//   useEffect(() => {
-//     const handleClickOutside = (event) => {
-//       if (searchRef.current && !searchRef.current.contains(event.target)) {
-//         setSearchOpen(false);
-//       }
-//     };
-//     document.addEventListener("mousedown", handleClickOutside);
-//     return () => document.removeEventListener("mousedown", handleClickOutside);
-//   }, []);
-
-//   // Focus search input when search opens
-//   useEffect(() => {
-//     if (searchOpen && searchInputRef.current) {
-//       setTimeout(() => {
-//         searchInputRef.current.focus();
-//         setSearchHistoryOpen(true);
-//       }, 100);
-//     }
-//   }, [searchOpen]);
-
-//   // 🔍 SEARCH FUNCTION - UPDATED FOR YOUR DATABASE
-//   const searchProducts = async (query) => {
-//     if (!query || query.trim() === "") {
-//       setSearchResults([]);
-//       setIsSearching(false);
-//       return;
-//     }
-
-//     setIsSearching(true);
-//     try {
-//       console.log("Searching for:", query);
-
-//       // Use quick search endpoint for faster results
-//       const res = await fetchWithAuth(
-//         `${API}/api/products/quick-search?q=${encodeURIComponent(query)}`
-//       );
-
-//       if (res.ok) {
-//         const data = await res.json();
-//         console.log("Search results:", data);
-//         setSearchResults(data);
-
-//         // Add to recent searches
-//         if (data.length > 0 && !recentSearches.includes(query)) {
-//           const updated = [query, ...recentSearches].slice(0, 8);
-//           saveRecentSearches(updated);
-//         }
-//       } else {
-//         console.error("Search failed with status:", res.status);
-//         setSearchResults([]);
-//       }
-//     } catch (err) {
-//       console.error("Search error:", err);
-//       setSearchResults([]);
-//     } finally {
-//       setIsSearching(false);
-//     }
-//   };
-
-//   // Debounced search
-//   useEffect(() => {
-//     if (!searchOpen) return;
-
-//     const timer = setTimeout(() => {
-//       if (searchQuery.trim()) {
-//         searchProducts(searchQuery);
-//       } else {
-//         setSearchResults([]);
-//         setSearchHistoryOpen(true);
-//       }
-//     }, 350);
-
-//     return () => clearTimeout(timer);
-//   }, [searchQuery, searchOpen]);
-
-//   // Add to recent searches
-//   const addToRecentSearches = (query) => {
-//     const updated = [
-//       query,
-//       ...recentSearches.filter((s) => s.toLowerCase() !== query.toLowerCase()),
-//     ].slice(0, 8);
-//     saveRecentSearches(updated);
-//   };
-
-//   // Clear recent searches
-//   const clearRecentSearches = () => {
-//     saveRecentSearches([]);
-//   };
-
-//   // Handle search submission
-//   const handleSearch = (e, query = null, category = null) => {
-//     e?.preventDefault();
-//     const searchTerm = query || searchQuery.trim();
-
-//     if (searchTerm) {
-//       addToRecentSearches(searchTerm);
-
-//       if (category) {
-//         navigate(`/search?category=${encodeURIComponent(category)}`);
-//       } else {
-//         navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
-//       }
-
-//       setSearchOpen(false);
-//       setSearchQuery("");
-//       setSearchResults([]);
-//     }
-//   };
-
-//   // Handle category click from search
-//   const handleCategorySearch = (categoryName) => {
-//     addToRecentSearches(categoryName);
-//     navigate(`/search?category=${encodeURIComponent(categoryName)}`);
-//     setSearchOpen(false);
-//   };
-
-//   // Format price
-//   const formatPrice = (price) => {
-//     return new Intl.NumberFormat("en-US", {
-//       style: "currency",
-//       currency: "USD",
-//       minimumFractionDigits: 0,
-//     }).format(price);
-//   };
-
-//   const links = [
-//     { name: "Home", path: "/" },
-//     { name: "About-us", path: "/about" },
-//     { name: "Contact-us", path: "/contact" },
-//     { name: "Return-policy", path: "/policy" },
-//   ];
-
-//   const toggleDropdown = (key) =>
-//     setOpenDropdown(openDropdown === key ? null : key);
-
-//   const handleCategoryClick = (path) => {
-//     navigate(path);
-//     setMenuOpen(false);
-//     setOpenDropdown(null);
-//   };
-
-//   const cartItemCount =
-//     cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
-
-//   return (
-//     <>
-//       {/* Navigation Container */}
-//       <motion.nav
-//         initial={{ y: -100 }}
-//         animate={{ y: 0 }}
-//         transition={{ duration: 0.5, type: "spring" }}
-//         className="fixed top-0 w-full z-50 transition-all duration-300"
-//       >
-//         {/* Top Announcement Bar */}
-//         <div className="bg-gradient-to-r from-[#E1A95F]/20 via-[#d4a259]/20 to-[#c5954d]/20 py-2 px-4 text-center">
-//           <p className="text-xs text-white/90 font-medium">
-//             🚚{" "}
-//             <span className="text-[#E1A95F] font-semibold">Free Shipping</span>{" "}
-//             on orders over $100 •
-//             <span className="text-green-300 font-semibold ml-2">
-//               🎁 30% OFF
-//             </span>{" "}
-//             for new customers
-//           </p>
-//         </div>
-
-//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-//           <div className="flex justify-between items-center h-16">
-//             {/* Logo */}
-//             <motion.div
-//               whileHover={{ scale: 1.05 }}
-//               whileTap={{ scale: 0.95 }}
-//               className="flex items-center"
-//             >
-//               <Link to="/" className="flex items-center">
-//                 <img
-//                   src={logo}
-//                   alt="Logo"
-//                   className="w-28 md:w-32 h-auto drop-shadow-lg"
-//                 />
-//               </Link>
-//             </motion.div>
-
-//             {/* Desktop Navigation */}
-//             <ul className="hidden lg:flex items-center gap-1">
-//               {links.map((link, index) => (
-//                 <motion.li
-//                   key={index}
-//                   initial={{ opacity: 0, y: -10 }}
-//                   animate={{ opacity: 1, y: 0 }}
-//                   transition={{ delay: index * 0.1 }}
-//                   className="relative"
-//                 >
-//                   <Link
-//                     to={link.path}
-//                     className={`relative px-4 py-2.5 mx-1 rounded-xl transition-all duration-300 font-medium ${
-//                       location.pathname === link.path
-//                         ? "text-[#E1A95F] bg-[#E1A95F]/10"
-//                         : "text-slate-200 hover:text-[#E1A95F] hover:bg-white/5"
-//                     }`}
-//                   >
-//                     {link.name}
-//                     {location.pathname === link.path && (
-//                       <motion.div
-//                         layoutId="underline"
-//                         className="absolute left-4 right-4 h-0.5 bottom-1.5 bg-[#E1A95F] rounded-full"
-//                       />
-//                     )}
-//                   </Link>
-//                 </motion.li>
-//               ))}
-
-//               {/* Dynamic Shop Dropdown */}
-//               <motion.li className="relative">
-//                 <button
-//                   onClick={() => toggleDropdown("shop")}
-//                   className={`flex items-center gap-2 px-4 py-2.5 mx-1 rounded-xl transition-all duration-300 font-medium ${
-//                     openDropdown === "shop"
-//                       ? "text-[#E1A95F] bg-[#E1A95F]/10"
-//                       : "text-slate-200 hover:text-[#E1A95F] hover:bg-white/5"
-//                   }`}
-//                 >
-//                   Shop
-//                   <motion.span
-//                     animate={{ rotate: openDropdown === "shop" ? 180 : 0 }}
-//                     transition={{ duration: 0.3 }}
-//                   >
-//                     <FaChevronDown className="text-sm" />
-//                   </motion.span>
-//                 </button>
-//                 <AnimatePresence>
-//                   {openDropdown === "shop" && (
-//                     <motion.div
-//                       className="absolute left-0 top-full mt-2 min-w-[220px] bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700 p-3"
-//                       initial={{ opacity: 0, y: -10, scale: 0.95 }}
-//                       animate={{ opacity: 1, y: 0, scale: 1 }}
-//                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
-//                       transition={{ duration: 0.2 }}
-//                     >
-//                       <div className="space-y-2">
-//                         {categories.map((cat, i) => (
-//                           <motion.button
-//                             key={i}
-//                             initial={{ opacity: 0, x: -10 }}
-//                             animate={{ opacity: 1, x: 0 }}
-//                             transition={{ duration: 0.2, delay: i * 0.05 }}
-//                             onClick={() =>
-//                               handleCategoryClick(
-//                                 `/category/${cat.name.toLowerCase()}`
-//                               )
-//                             }
-//                             className="w-full text-left px-3 py-2.5 rounded-lg text-slate-300 hover:text-[#E1A95F] hover:bg-slate-800/50 transition-all duration-300 flex items-center gap-3 group"
-//                           >
-//                             <div className="w-2 h-2 bg-[#E1A95F]/50 rounded-full group-hover:bg-[#E1A95F] transition-all duration-300"></div>
-//                             <span className="font-medium">{cat.name}</span>
-//                           </motion.button>
-//                         ))}
-//                       </div>
-//                     </motion.div>
-//                   )}
-//                 </AnimatePresence>
-//               </motion.li>
-
-//               <li className="ml-2">
-//                 <ThemeToggle />
-//               </li>
-//             </ul>
-
-//             {/* Right Icons */}
-//             <div className="flex items-center gap-3 md:gap-4">
-//               {/* Enhanced Search */}
-//               <div ref={searchRef} className="">
-//                 <motion.button
-//                   whileHover={{ scale: 1.1 }}
-//                   whileTap={{ scale: 0.9 }}
-//                   onClick={() => {
-//                     setSearchOpen(!searchOpen);
-//                     setSearchHistoryOpen(true);
-//                   }}
-//                   className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 group"
-//                 >
-//                   <FaSearch className="text-slate-300 group-hover:text-[#E1A95F] text-lg transition-colors duration-300" />
-//                 </motion.button>
-
-//                 <AnimatePresence>
-//                   {searchOpen && (
-//                     <motion.div
-//                       initial={{ opacity: 0, scale: 0.9, y: 10 }}
-//                       animate={{ opacity: 1, scale: 1, y: 0 }}
-//                       exit={{ opacity: 0, scale: 0.9, y: 10 }}
-//                       className="absolute max-sm:right-0 right-10 top-full mt-2 max-sm:w-full w-[50%] backdrop-blur-sm rounded-xl shadow-2xl border border-slate-700 overflow-hidden z-50"
-//                     >
-//                       {/* Search Input */}
-//                       <div className="p-4 border-b border-slate-700 ">
-//                         <form
-//                           onSubmit={(e) => handleSearch(e)}
-//                           className="relative"
-//                         >
-//                           <div className="relative">
-//                             <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500" />
-//                             <input
-//                               ref={searchInputRef}
-//                               type="text"
-//                               value={searchQuery}
-//                               onChange={(e) => {
-//                                 setSearchQuery(e.target.value);
-//                                 setSearchHistoryOpen(e.target.value === "");
-//                               }}
-//                               placeholder="Search products, brands, categories..."
-//                               className="w-full pl-10 pr-10 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#E1A95F]/50 focus:border-[#E1A95F]/50 transition-all duration-300"
-//                             />
-//                             {searchQuery && (
-//                               <button
-//                                 type="button"
-//                                 onClick={() => {
-//                                   setSearchQuery("");
-//                                   setSearchResults([]);
-//                                   setSearchHistoryOpen(true);
-//                                 }}
-//                                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
-//                               >
-//                                 <FaTimesCircle />
-//                               </button>
-//                             )}
-//                           </div>
-//                           {isSearching && (
-//                             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-//                               <FaSpinner className="animate-spin text-[#E1A95F]" />
-//                             </div>
-//                           )}
-//                         </form>
-//                       </div>
-
-//                       {/* Search Content */}
-//                       <div className="max-h-96 overflow-y-auto">
-//                         {/* Recent Searches */}
-//                         {searchHistoryOpen &&
-//                           recentSearches.length > 0 &&
-//                           !searchQuery && (
-//                             <div className="p-4 border-b border-slate-700">
-//                               <div className="flex items-center justify-between mb-3">
-//                                 <div className="flex items-center gap-2">
-//                                   <FaHistory className="text-slate-500 text-sm" />
-//                                   <h3 className="text-sm font-semibold text-slate-400">
-//                                     Recent Searches
-//                                   </h3>
-//                                 </div>
-//                                 <button
-//                                   onClick={clearRecentSearches}
-//                                   className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
-//                                 >
-//                                   Clear All
-//                                 </button>
-//                               </div>
-//                               <div className="space-y-2">
-//                                 {recentSearches.map((search, index) => (
-//                                   <button
-//                                     key={index}
-//                                     onClick={() => {
-//                                       setSearchQuery(search);
-//                                       handleSearch(null, search);
-//                                     }}
-//                                     className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-slate-800/50 transition-all duration-300 group"
-//                                   >
-//                                     <div className="flex items-center gap-3">
-//                                       <FaSearch className="text-slate-500 text-sm group-hover:text-[#E1A95F]" />
-//                                       <span className="text-slate-300 group-hover:text-white">
-//                                         {search}
-//                                       </span>
-//                                     </div>
-//                                     <FaTimesCircle
-//                                       onClick={(e) => {
-//                                         e.stopPropagation();
-//                                         const updated = recentSearches.filter(
-//                                           (_, i) => i !== index
-//                                         );
-//                                         saveRecentSearches(updated);
-//                                       }}
-//                                       className="text-slate-600 hover:text-slate-400 text-sm opacity-0 group-hover:opacity-100 transition-all"
-//                                     />
-//                                   </button>
-//                                 ))}
-//                               </div>
-//                             </div>
-//                           )}
-
-//                         {/* Popular Searches */}
-//                         {searchHistoryOpen &&
-//                           popularSearches.length > 0 &&
-//                           !searchQuery && (
-//                             <div className="p-4 border-b border-slate-700">
-//                               <div className="flex items-center gap-2 mb-3">
-//                                 <FaFire className="text-amber-500 text-sm" />
-//                                 <h3 className="text-sm font-semibold text-slate-400">
-//                                   Popular Searches
-//                                 </h3>
-//                               </div>
-//                               <div className="flex flex-wrap gap-2">
-//                                 {popularSearches
-//                                   .slice(0, 6)
-//                                   .map((search, index) => (
-//                                     <button
-//                                       key={index}
-//                                       onClick={() => {
-//                                         setSearchQuery(search);
-//                                         handleSearch(null, search);
-//                                       }}
-//                                       className="px-3 py-1.5 bg-slate-800/50 hover:bg-[#E1A95F]/20 text-slate-300 hover:text-[#E1A95F] rounded-lg text-sm transition-all duration-300 border border-slate-700 hover:border-[#E1A95F]/30"
-//                                     >
-//                                       {search}
-//                                     </button>
-//                                   ))}
-//                               </div>
-//                             </div>
-//                           )}
-
-//                         {/* Categories */}
-//                         {searchHistoryOpen &&
-//                           allCategories.length > 0 &&
-//                           !searchQuery && (
-//                             <div className="p-4">
-//                               <div className="flex items-center gap-2 mb-3">
-//                                 <FaTag className="text-[#E1A95F] text-sm" />
-//                                 <h3 className="text-sm font-semibold text-slate-400">
-//                                   Browse Categories
-//                                 </h3>
-//                               </div>
-//                               <div className="grid grid-cols-2 gap-2">
-//                                 {allCategories
-//                                   .slice(0, showAllCategories ? 20 : 6)
-//                                   .map((category, index) => (
-//                                     <button
-//                                       key={index}
-//                                       onClick={() =>
-//                                         handleCategorySearch(category.name)
-//                                       }
-//                                       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800/30 hover:bg-slate-800/70 transition-all duration-300 group"
-//                                     >
-//                                       <FaBox className="text-slate-500 text-sm group-hover:text-[#E1A95F]" />
-//                                       <span className="text-slate-300 text-sm truncate">
-//                                         {category.name}
-//                                       </span>
-//                                     </button>
-//                                   ))}
-//                               </div>
-//                               {allCategories.length > 6 && (
-//                                 <button
-//                                   onClick={() =>
-//                                     setShowAllCategories(!showAllCategories)
-//                                   }
-//                                   className="w-full mt-3 text-center text-xs text-slate-500 hover:text-[#E1A95F] transition-colors"
-//                                 >
-//                                   {showAllCategories
-//                                     ? "Show Less"
-//                                     : `Show All ${allCategories.length} Categories`}
-//                                 </button>
-//                               )}
-//                             </div>
-//                           )}
-
-//                         {/* Search Results */}
-//                         {searchQuery && (
-//                           <div className="p-4">
-//                             <div className="flex items-center justify-between mb-3">
-//                               <h3 className="text-sm font-semibold text-slate-400">
-//                                 {searchResults.length > 0
-//                                   ? `Found ${searchResults.length} results`
-//                                   : isSearching
-//                                     ? "Searching..."
-//                                     : "No results found"}
-//                               </h3>
-//                               {searchResults.length > 0 && (
-//                                 <button
-//                                   onClick={(e) => handleSearch(e)}
-//                                   className="text-xs text-[#E1A95F] hover:text-[#d4a259] font-medium"
-//                                 >
-//                                   See all →
-//                                 </button>
-//                               )}
-//                             </div>
-
-//                             {searchResults.length > 0 ? (
-//                               <div className="space-y-3">
-//                                 {searchResults.slice(0, 5).map((product) => (
-//                                   <Link
-//                                     key={product._id}
-//                                     to={`/product/${product._id}`}
-//                                     onClick={() => {
-//                                       setSearchOpen(false);
-//                                       setSearchQuery("");
-//                                     }}
-//                                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800/50 transition-all duration-300 group"
-//                                   >
-//                                     <div className="w-20 h-20 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-//                                       {product.image ? (
-//                                         <img
-//                                           src={
-//                                             product.image.startsWith("http")
-//                                               ? product.image
-//                                               : `${API}${product.image}`
-//                                           }
-//                                           alt={product.name}
-//                                           className="w-full h-full object-contain"
-//                                           onError={(e) => {
-//                                             e.target.onerror = null;
-//                                             e.target.src =
-//                                               "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop";
-//                                           }}
-//                                         />
-//                                       ) : (
-//                                         <FaBox className="text-slate-500" />
-//                                       )}
-//                                     </div>
-//                                     <div className="flex-1 min-w-0">
-//                                       <div className="flex items-start justify-between gap-2">
-//                                         <h4 className="text-sm font-medium text-white truncate group-hover:text-[#E1A95F]">
-//                                           {product.name}
-//                                         </h4>
-//                                         <span className="text-sm font-semibold text-[#E1A95F] flex-shrink-0">
-//                                           {formatPrice(product.price)}
-//                                         </span>
-//                                       </div>
-//                                       <p className="text-xs text-slate-400 truncate">
-//                                         {product.category || "Uncategorized"}
-//                                       </p>
-//                                       <div className="flex items-center gap-2 mt-1">
-//                                         {product.isSold ||
-//                                         product.stock === 0 ? (
-//                                           <span className="text-xs text-red-500">
-//                                             Sold Out
-//                                           </span>
-//                                         ) : (
-//                                           <span className="text-xs text-green-500">
-//                                             {product.stock || 0} in stock
-//                                           </span>
-//                                         )}
-//                                       </div>
-//                                     </div>
-//                                   </Link>
-//                                 ))}
-//                               </div>
-//                             ) : !isSearching ? (
-//                               <div className="text-center py-6 bg-white ">
-//                                 <div className="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3">
-//                                   <FaSearch className="text-slate-500" />
-//                                 </div>
-//                                 <p className="text-slate-400 text-sm">
-//                                   No products found for "{searchQuery}"
-//                                 </p>
-//                                 <p className="text-slate-500 text-xs mt-2">
-//                                   Try different keywords
-//                                 </p>
-//                               </div>
-//                             ) : null}
-//                           </div>
-//                         )}
-//                       </div>
-
-//                       {/* Search Footer */}
-//                       {searchQuery && (
-//                         <div className="p-4 border-t border-slate-700 bg-slate-900/50">
-//                           <button
-//                             onClick={(e) => handleSearch(e)}
-//                             className="w-full py-2.5 bg-gradient-to-r from-[#E1A95F] to-[#d4a259] text-white rounded-xl font-medium hover:shadow-lg hover:shadow-[#E1A95F]/25 transition-all duration-300 flex items-center justify-center gap-2"
-//                           >
-//                             <FaSearch />
-//                             Search for "{searchQuery}"
-//                           </button>
-//                         </div>
-//                       )}
-//                     </motion.div>
-//                   )}
-//                 </AnimatePresence>
-//               </div>
-
-//               {/* Notifications */}
-//               <motion.div
-//                 whileHover={{ scale: 1.1 }}
-//                 whileTap={{ scale: 0.9 }}
-//                 className="relative cursor-pointer group"
-//                 onClick={() => navigate("/notifications")}
-//               >
-//                 <div className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300">
-//                   <FaBell className="text-slate-300 group-hover:text-[#E1A95F] text-lg transition-colors duration-300" />
-//                 </div>
-//                 {unreadCount > 0 && (
-//                   <motion.span
-//                     initial={{ scale: 0 }}
-//                     animate={{ scale: 1 }}
-//                     className="absolute -top-1.5 -right-1.5 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg min-w-[22px] text-center"
-//                   >
-//                     {unreadCount > 9 ? "9+" : unreadCount}
-//                   </motion.span>
-//                 )}
-//               </motion.div>
-
-//               {/* Cart */}
-//               <motion.div
-//                 whileHover={{ scale: 1.1 }}
-//                 whileTap={{ scale: 0.9 }}
-//                 className="relative cursor-pointer group"
-//                 onClick={() => navigate("/cart")}
-//               >
-//                 <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300">
-//                   <FaShoppingCart className="text-[#E1A95F] text-lg group-hover:scale-110 transition-transform duration-300" />
-//                 </div>
-//                 {cartItemCount > 0 && (
-//                   <motion.span
-//                     initial={{ scale: 0 }}
-//                     animate={{ scale: 1 }}
-//                     className={`absolute -top-1.5 -right-1.5 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg ${
-//                       cartItemCount > 9
-//                         ? "bg-gradient-to-r from-red-500 to-pink-500"
-//                         : "bg-gradient-to-r from-green-500 to-emerald-500"
-//                     }`}
-//                   >
-//                     {cartItemCount > 9 ? "9+" : cartItemCount}
-//                   </motion.span>
-//                 )}
-//               </motion.div>
-
-//               {/* User */}
-//               {user && (
-//                 <div className="relative">
-//                   <motion.div
-//                     whileHover={{ scale: 1.1 }}
-//                     whileTap={{ scale: 0.9 }}
-//                     className="cursor-pointer p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 group"
-//                     onClick={() => setUserMenuOpen(!userMenuOpen)}
-//                   >
-//                     <FaUser className="text-[#E1A95F] text-lg group-hover:scale-110 transition-transform duration-300" />
-//                   </motion.div>
-//                   <AnimatePresence>
-//                     {userMenuOpen && (
-//                       <motion.div
-//                         className="absolute right-0 top-full mt-2 w-80 bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700 p-4"
-//                         initial={{ opacity: 0, y: -10, scale: 0.95 }}
-//                         animate={{ opacity: 1, y: 0, scale: 1 }}
-//                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
-//                         transition={{ duration: 0.2 }}
-//                       >
-//                         <div className="space-y-3">
-//                           <div className="pb-3 border-b border-slate-700">
-//                             <div className="flex items-center gap-3">
-//                               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#E1A95F] to-[#d4a259] flex items-center justify-center text-white font-bold text-lg">
-//                                 {user.name.charAt(0).toUpperCase()}
-//                               </div>
-//                               <div>
-//                                 <div className="font-bold text-white">
-//                                   Hi, {user.name}
-//                                 </div>
-//                                 <div className="text-xs text-slate-400">
-//                                   {user.email}
-//                                 </div>
-//                               </div>
-//                             </div>
-//                           </div>
-
-//                           <Link
-//                             to="/my-orders"
-//                             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-[#E1A95F] hover:bg-slate-800/50 transition-all duration-300 group"
-//                             onClick={() => setUserMenuOpen(false)}
-//                           >
-//                             <div className="w-1.5 h-1.5 bg-[#E1A95F]/50 rounded-full group-hover:bg-[#E1A95F]"></div>
-//                             <span>My Orders</span>
-//                           </Link>
-
-//                           {/* {user.role === "admin" && (
-//                             <Link
-//                               to="/admin"
-//                               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-green-400 hover:text-green-300 hover:bg-slate-800/50 transition-all duration-300 group"
-//                               onClick={() => setUserMenuOpen(false)}
-//                             >
-//                               <div className="w-1.5 h-1.5 bg-green-500/50 rounded-full group-hover:bg-green-500"></div>
-//                               <span>Admin Panel</span>
-//                             </Link>
-//                           )} */}
-
-//                           <button
-//                             onClick={() => {
-//                               logout();
-//                               setUserMenuOpen(false);
-//                             }}
-//                             className="w-full mt-2 py-2.5 bg-gradient-to-r from-red-600/10 to-pink-600/10 hover:from-red-600/20 hover:to-pink-600/20 text-red-400 hover:text-red-300 rounded-xl font-medium transition-all duration-300 border border-red-500/20 flex items-center justify-center gap-2"
-//                           >
-//                             <span>Sign Out</span>
-//                           </button>
-//                         </div>
-//                       </motion.div>
-//                     )}
-//                   </AnimatePresence>
-//                 </div>
-//               )}
-
-//               {/* Mobile Menu Button */}
-//               <motion.button
-//                 whileHover={{ scale: 1.1 }}
-//                 whileTap={{ scale: 0.9 }}
-//                 onClick={() => setMenuOpen(!menuOpen)}
-//                 className="lg:hidden p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300"
-//               >
-//                 {menuOpen ? (
-//                   <FaTimes className="text-[#E1A95F] text-xl" />
-//                 ) : (
-//                   <FaBars className="text-slate-300 text-xl" />
-//                 )}
-//               </motion.button>
-//             </div>
-//           </div>
-//         </div>
-//       </motion.nav>
-
-//       {/* Mobile Menu Overlay */}
-//       <AnimatePresence>
-//         {menuOpen && (
-//           <>
-//             {/* Backdrop */}
-//             <motion.div
-//               initial={{ opacity: 0 }}
-//               animate={{ opacity: 1 }}
-//               exit={{ opacity: 0 }}
-//               onClick={() => setMenuOpen(false)}
-//               className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
-//             />
-
-//             {/* Mobile Menu Panel */}
-//             <motion.div
-//               initial={{ x: "100%" }}
-//               animate={{ x: 0 }}
-//               exit={{ x: "100%" }}
-//               transition={{ type: "spring", damping: 25 }}
-//               className="fixed top-0 right-0 h-full w-full max-w-sm z-50 lg:hidden"
-//             >
-//               <div className="h-full bg-gradient-to-b from-slate-900 to-slate-800 shadow-2xl overflow-y-auto">
-//                 {/* Mobile Header */}
-//                 <div className="p-6 border-b border-slate-700">
-//                   <div className="flex items-center justify-between mb-6">
-//                     <div className="flex items-center gap-3">
-//                       <img src={logo} alt="Logo" className="w-10 h-10" />
-//                       <h2 className="text-2xl font-bold text-white">Menu</h2>
-//                     </div>
-//                     <motion.button
-//                       whileHover={{ scale: 1.1 }}
-//                       whileTap={{ scale: 0.9 }}
-//                       onClick={() => setMenuOpen(false)}
-//                       className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-300"
-//                     >
-//                       <FaTimes className="text-[#E1A95F] text-xl" />
-//                     </motion.button>
-//                   </div>
-
-//                   {/* User Info Mobile */}
-//                   {user && (
-//                     <div className="flex items-center gap-3 mb-6 p-4 rounded-xl bg-gradient-to-r from-[#E1A95F]/10 to-[#d4a259]/10 border border-[#E1A95F]/20">
-//                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#E1A95F] to-[#d4a259] flex items-center justify-center text-white font-bold text-lg">
-//                         {user.name.charAt(0).toUpperCase()}
-//                       </div>
-//                       <div>
-//                         <div className="font-bold text-white">{user.name}</div>
-//                         <div className="text-sm text-slate-400">
-//                           {user.email}
-//                         </div>
-//                       </div>
-//                     </div>
-//                   )}
-//                 </div>
-
-//                 {/* Mobile Links */}
-//                 <div className="p-6 space-y-2">
-//                   {links.map((link, index) => (
-//                     <Link
-//                       key={index}
-//                       to={link.path}
-//                       onClick={() => setMenuOpen(false)}
-//                       className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 ${
-//                         location.pathname === link.path
-//                           ? "bg-gradient-to-r from-[#E1A95F]/20 to-[#d4a259]/20 text-[#E1A95F]"
-//                           : "text-slate-300 hover:text-white hover:bg-slate-800"
-//                       }`}
-//                     >
-//                       <div
-//                         className={`w-1.5 h-1.5 rounded-full ${
-//                           location.pathname === link.path
-//                             ? "bg-[#E1A95F]"
-//                             : "bg-slate-600"
-//                         }`}
-//                       ></div>
-//                       <span className="font-medium">{link.name}</span>
-//                     </Link>
-//                   ))}
-
-//                   {/* Shop Section Mobile */}
-//                   <div className="space-y-2">
-//                     <button
-//                       onClick={() => toggleDropdown("shop-mobile")}
-//                       className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition-all duration-300"
-//                     >
-//                       <div className="flex items-center gap-3">
-//                         <div className="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
-//                         <span className="font-medium">Shop</span>
-//                       </div>
-//                       <FaChevronDown
-//                         className={`transition ${
-//                           openDropdown === "shop-mobile" ? "rotate-180" : ""
-//                         }`}
-//                       />
-//                     </button>
-
-//                     <AnimatePresence>
-//                       {openDropdown === "shop-mobile" && (
-//                         <motion.div
-//                           initial={{ opacity: 0, height: 0 }}
-//                           animate={{ opacity: 1, height: "auto" }}
-//                           exit={{ opacity: 0, height: 0 }}
-//                           className="ml-4 pl-4 border-l border-slate-700 space-y-2"
-//                         >
-//                           {categories.map((cat, i) => (
-//                             <button
-//                               key={i}
-//                               onClick={() => {
-//                                 navigate(`/category/${cat.name.toLowerCase()}`);
-//                                 setMenuOpen(false);
-//                               }}
-//                               className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-slate-400 hover:text-[#E1A95F] hover:bg-slate-800/50 transition-all duration-300 text-left"
-//                             >
-//                               <div className="w-1 h-1 bg-slate-600 rounded-full"></div>
-//                               <span>{cat.name}</span>
-//                             </button>
-//                           ))}
-//                         </motion.div>
-//                       )}
-//                     </AnimatePresence>
-//                   </div>
-
-//                   {/* Theme Toggle Mobile */}
-//                   <div className="mt-6 pt-6 border-t border-slate-700">
-//                     <div className="flex items-center justify-between px-4">
-//                       <span className="text-slate-300 font-medium">Theme</span>
-//                       <ThemeToggle />
-//                     </div>
-//                   </div>
-//                 </div>
-
-//                 {/* Mobile Footer */}
-//                 <div className="p-6 border-t border-slate-700 mt-auto">
-//                   <div className="space-y-3">
-//                     <button
-//                       onClick={() => {
-//                         navigate("/notifications");
-//                         setMenuOpen(false);
-//                       }}
-//                       className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 text-slate-300 hover:text-white transition-all duration-300"
-//                     >
-//                       <div className="flex items-center gap-3">
-//                         <FaBell className="text-[#E1A95F]" />
-//                         <span>Notifications</span>
-//                       </div>
-//                       {unreadCount > 0 && (
-//                         <span className="bg-gradient-to-r from-red-500 to-pink-500 text-xs font-bold px-2 py-1 rounded-full text-white">
-//                           {unreadCount > 9 ? "9+" : unreadCount}
-//                         </span>
-//                       )}
-//                     </button>
-
-//                     {user && user.role === "admin" && (
-//                       <button
-//                         onClick={() => {
-//                           navigate("/admin");
-//                           setMenuOpen(false);
-//                         }}
-//                         className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl bg-gradient-to-r from-green-600/10 to-emerald-600/10 border border-green-500/20 text-green-400 hover:text-green-300 transition-all duration-300"
-//                       >
-//                         <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-//                         <span>Admin Panel</span>
-//                       </button>
-//                     )}
-//                   </div>
-//                 </div>
-//               </div>
-//             </motion.div>
-//           </>
-//         )}
-//       </AnimatePresence>
-
-//       {/* Scroll Progress Bar */}
-//       <motion.div
-//         className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#E1A95F] via-[#d4a259] to-[#E1A95F] z-50"
-//         style={{ scaleX: scrolled ? 1 : 0 }}
-//         transition={{ duration: 0.3 }}
-//       />
-//     </>
-//   );
-// };
-
-// export default Navigation;

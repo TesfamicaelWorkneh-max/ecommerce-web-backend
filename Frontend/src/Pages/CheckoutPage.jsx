@@ -67,8 +67,7 @@
 //   );
 // };
 
-// export default CheckoutPage;
-import React, { useEffect, useState, useContext } from "react";
+// export default CheckoutPage;import React, { useEffect, useState, useContext } from "react";
 import { cartContext } from "../Context/cartContext";
 import { fetchWithAuth } from "../utils/auth";
 import { motion } from "framer-motion";
@@ -89,7 +88,10 @@ import { IoSparkles } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { getImageUrl } from "../utils/imageUtils";
+import { useState, useEffect } from "react";
+import { useContext } from "react";
 const BACKEND_URL = import.meta.env.VITE_API_URL;
+
 const CheckoutPage = () => {
   const [loading, setLoading] = useState(false);
   const [txRef, setTxRef] = useState(null);
@@ -107,6 +109,7 @@ const CheckoutPage = () => {
   const shipping = subtotal >= 100 ? 0 : 9.99;
   const tax = subtotal * 0.1;
   const total = subtotal + shipping + tax;
+
   const handleChapaPayment = async () => {
     if (!cart?.items?.length) {
       toast.error("Your cart is empty");
@@ -114,7 +117,7 @@ const CheckoutPage = () => {
       return;
     }
 
-    setLoading(true); // Show loading overlay/spinner
+    setLoading(true);
     try {
       const res = await fetchWithAuth(`${BACKEND_URL}/api/payment/chapa/init`, {
         method: "POST",
@@ -122,94 +125,56 @@ const CheckoutPage = () => {
       });
 
       const data = await res.json();
+
       if (!data.payment_url) {
-        toast.error("Payment initialization failed");
+        toast.error(data.message || "Payment initialization failed");
         setLoading(false);
         return;
       }
 
-      // Optional: show toast
+      // Store pending payment info (DO NOT clear cart here)
+      localStorage.setItem(
+        "pending_payment",
+        JSON.stringify({
+          tx_ref: data.tx_ref,
+          orderId: data.orderId,
+          timestamp: Date.now(),
+        })
+      );
+
+      setTxRef(data.tx_ref);
       toast.success("Redirecting to secure payment...");
 
-      // Redirect user to Chapa checkout after short delay
-      setTxRef(data.tx_ref);
-      setTimeout(() => {
-        window.location.href = data.payment_url;
-      }, 500);
-      // 0.5s delay so spinner appears
-      setCart({ items: [] });
-      localStorage.removeItem("cart");
+      // Redirect to payment URL
+      window.location.href = data.payment_url;
     } catch (err) {
       console.error("Payment error:", err);
-      toast.error("Payment request failed");
+      toast.error(err.message || "Payment request failed");
       setLoading(false);
     }
   };
 
-  // const handleChapaPayment = async () => {
-  //   if (!cart?.items?.length) {
-  //     toast.error("Your cart is empty");
-  //     navigate("/cart");
-  //     return;
-  //   }
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
 
-  //   setLoading(true);
-  //   try {
-  //     console.log("🚀 Starting payment init...");
-
-  //     const res = await fetchWithAuth(`${BACKEND_URL}/api/payment/chapa/init`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //     });
-
-  //     const data = await res.json();
-  //     console.log("💳 Chapa init response:", data);
-
-  //     if (!data.payment_url) {
-  //       toast.error("Payment initialization failed");
-  //       setLoading(false);
-  //       return;
-  //     }
-
-  //     setTxRef(data.tx_ref);
-  //     console.log("🔗 Redirecting to Chapa checkout:", data.payment_url);
-
-  //     // Clear cart on successful payment init
-  //     setCart({ items: [] });
-  //     localStorage.removeItem("cart");
-
-  //     window.location.href = data.payment_url;
-  //   } catch (err) {
-  //     console.error("❌ Payment error:", err);
-  //     toast.error("Payment request failed");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // const containerVariants = {
-  //   hidden: { opacity: 0 },
-  //   visible: {
-  //     opacity: 1,
-  //     transition: {
-  //       staggerChildren: 0.1,
-  //     },
-  //   },
-  // };
-
-  // const itemVariants = {
-  //   hidden: { opacity: 0, y: 20 },
-  //   visible: {
-  //     opacity: 1,
-  //     y: 0,
-  //     transition: {
-  //       type: "spring",
-  //       stiffness: 100,
-  //     },
-  //   },
-  // };
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+      },
+    },
+  };
 
   if (!cart?.items?.length) {
     return (

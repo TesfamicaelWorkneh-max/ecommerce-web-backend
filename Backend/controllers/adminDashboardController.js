@@ -148,9 +148,12 @@
 //     res.status(500).json({ message: "Revenue chart error", error });
 //   }
 // };
+// controllers/adminDashboard.controller.js
+// controllers/adminDashboard.controller.js
 import User from "../models/User.model.js";
 import Product from "../models/Products.model.js";
 import Order from "../models/Order.model.js";
+import Category from "../models/Category.model.js";
 
 const MONTHS = [
   "Jan",
@@ -167,7 +170,7 @@ const MONTHS = [
   "Dec",
 ];
 
-// Helper function for percentage calculation
+// Helper function to calculate percentage change
 const calculatePercentageChange = (current, previous) => {
   if (previous === 0) {
     return current > 0 ? 100 : 0;
@@ -175,20 +178,22 @@ const calculatePercentageChange = (current, previous) => {
   return ((current - previous) / previous) * 100;
 };
 
-// Get last month's date range
-const getLastMonthRange = () => {
+// Get current and last month date ranges
+const getDateRanges = () => {
   const now = new Date();
-  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
-  return { start: lastMonth, end: lastMonthEnd };
-};
 
-// Get current month's date range
-const getCurrentMonthRange = () => {
-  const now = new Date();
+  // Current month
   const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const currentMonthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  return { start: currentMonthStart, end: currentMonthEnd };
+
+  // Last month
+  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+
+  return {
+    currentMonth: { start: currentMonthStart, end: currentMonthEnd },
+    lastMonth: { start: lastMonthStart, end: lastMonthEnd },
+  };
 };
 
 // =====================================
@@ -196,21 +201,20 @@ const getCurrentMonthRange = () => {
 // =====================================
 export const getAdminStats = async (req, res) => {
   try {
-    // Users
+    console.log("🔄 Fetching admin stats...");
+
+    // Basic counts (existing)
     const totalUsers = await User.countDocuments();
+    const totalProducts = await Product.countDocuments();
+    const totalCategories = await Category.countDocuments();
+    const totalOrders = await Order.countDocuments();
+
+    // User stats
     const verifiedUsers = await User.countDocuments({ isVerified: true });
     const blockedUsers = await User.countDocuments({ isBlocked: true });
+    const adminUsers = await User.countDocuments({ role: "admin" });
 
-    // Products
-    const totalProducts = await Product.countDocuments();
-    const soldProducts = await Product.aggregate([
-      { $match: { isSold: true } },
-      { $group: { _id: null, total: { $sum: "$soldCount" } } },
-    ]);
-    const soldCount = soldProducts[0]?.total || 0;
-
-    // Orders
-    const totalOrders = await Order.countDocuments();
+    // Order status counts
     const pendingOrders = await Order.countDocuments({ status: "pending" });
     const processingOrders = await Order.countDocuments({
       status: "processing",
@@ -219,76 +223,59 @@ export const getAdminStats = async (req, res) => {
     const deliveredOrders = await Order.countDocuments({ status: "delivered" });
     const cancelledOrders = await Order.countDocuments({ status: "cancelled" });
 
-    // Revenue
-    const revenueAgg = await Order.aggregate([
-      { $match: { status: "delivered" } },
-      { $group: { _id: null, revenue: { $sum: "$total" } } },
-    ]);
-    const totalRevenue = revenueAgg[0]?.revenue || 0;
+    // Payment status
+    const paidOrders = await Order.countDocuments({ paymentStatus: "paid" });
+    const unpaidOrders = await Order.countDocuments({
+      paymentStatus: "unpaid",
+    });
+
+    // Revenue calculation
+    const deliveredOrdersList = await Order.find({ status: "delivered" });
+    let totalRevenue = 0;
+    deliveredOrdersList.forEach((order) => {
+      totalRevenue += order.total || 0;
+    });
+
+    // Get date ranges for comparison
+    const { currentMonth, lastMonth } = getDateRanges();
 
     // Current month stats
-    const currentMonth = getCurrentMonthRange();
-    const lastMonth = getLastMonthRange();
-
-    // Current month revenue
-    const currentMonthRevenueAgg = await Order.aggregate([
-      {
-        $match: {
-          status: "delivered",
-          createdAt: { $gte: currentMonth.start, $lte: currentMonth.end },
-        },
-      },
-      { $group: { _id: null, revenue: { $sum: "$total" } } },
-    ]);
-    const currentMonthRevenue = currentMonthRevenueAgg[0]?.revenue || 0;
-
-    // Last month revenue
-    const lastMonthRevenueAgg = await Order.aggregate([
-      {
-        $match: {
-          status: "delivered",
-          createdAt: { $gte: lastMonth.start, $lte: lastMonth.end },
-        },
-      },
-      { $group: { _id: null, revenue: { $sum: "$total" } } },
-    ]);
-    const lastMonthRevenue = lastMonthRevenueAgg[0]?.revenue || 0;
-
-    // Current month orders
     const currentMonthOrders = await Order.countDocuments({
       createdAt: { $gte: currentMonth.start, $lte: currentMonth.end },
     });
 
-    // Last month orders
-    const lastMonthOrders = await Order.countDocuments({
-      createdAt: { $gte: lastMonth.start, $lte: lastMonth.end },
-    });
-
-    // Current month users
     const currentMonthUsers = await User.countDocuments({
       createdAt: { $gte: currentMonth.start, $lte: currentMonth.end },
     });
 
-    // Last month users
+    const currentMonthRevenueOrders = await Order.find({
+      status: "delivered",
+      createdAt: { $gte: currentMonth.start, $lte: currentMonth.end },
+    });
+    let currentMonthRevenue = 0;
+    currentMonthRevenueOrders.forEach((order) => {
+      currentMonthRevenue += order.total || 0;
+    });
+
+    // Last month stats
+    const lastMonthOrders = await Order.countDocuments({
+      createdAt: { $gte: lastMonth.start, $lte: lastMonth.end },
+    });
+
     const lastMonthUsers = await User.countDocuments({
       createdAt: { $gte: lastMonth.start, $lte: lastMonth.end },
     });
 
-    // Current month products added
-    const currentMonthProducts = await Product.countDocuments({
-      createdAt: { $gte: currentMonth.start, $lte: currentMonth.end },
-    });
-
-    // Last month products added
-    const lastMonthProducts = await Product.countDocuments({
+    const lastMonthRevenueOrders = await Order.find({
+      status: "delivered",
       createdAt: { $gte: lastMonth.start, $lte: lastMonth.end },
     });
+    let lastMonthRevenue = 0;
+    lastMonthRevenueOrders.forEach((order) => {
+      lastMonthRevenue += order.total || 0;
+    });
 
-    // Calculate percentages
-    const revenueChange = calculatePercentageChange(
-      currentMonthRevenue,
-      lastMonthRevenue
-    );
+    // Calculate percentage changes
     const ordersChange = calculatePercentageChange(
       currentMonthOrders,
       lastMonthOrders
@@ -297,50 +284,92 @@ export const getAdminStats = async (req, res) => {
       currentMonthUsers,
       lastMonthUsers
     );
-    const productsChange = calculatePercentageChange(
-      currentMonthProducts,
-      lastMonthProducts
+    const revenueChange = calculatePercentageChange(
+      currentMonthRevenue,
+      lastMonthRevenue
     );
 
+    // Top categories
+    const topCategories = await Category.aggregate([
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "category",
+          as: "products",
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          productCount: { $size: "$products" },
+        },
+      },
+      { $sort: { productCount: -1 } },
+      { $limit: 5 },
+    ]);
+
     res.json({
-      users: {
-        total: totalUsers,
-        verified: verifiedUsers,
-        blocked: blockedUsers,
-        currentMonth: currentMonthUsers,
-        lastMonth: lastMonthUsers,
-        change: usersChange,
-      },
-      products: {
-        total: totalProducts,
-        sold: soldCount,
-        unsold: totalProducts - soldCount,
-        currentMonth: currentMonthProducts,
-        lastMonth: lastMonthProducts,
-        change: productsChange,
-      },
-      orders: {
-        total: totalOrders,
-        pending: pendingOrders,
-        processing: processingOrders,
-        shipped: shippedOrders,
-        delivered: deliveredOrders,
-        cancelled: cancelledOrders,
-        currentMonth: currentMonthOrders,
-        lastMonth: lastMonthOrders,
-        change: ordersChange,
-      },
-      revenue: {
-        total: totalRevenue,
-        currentMonth: currentMonthRevenue,
-        lastMonth: lastMonthRevenue,
-        change: revenueChange,
+      success: true,
+      data: {
+        users: {
+          total: totalUsers,
+          verified: verifiedUsers,
+          blocked: blockedUsers,
+          admins: adminUsers,
+          currentMonth: currentMonthUsers,
+          lastMonth: lastMonthUsers,
+          change: usersChange,
+        },
+        products: {
+          total: totalProducts,
+          outOfStock: await Product.countDocuments({ stock: 0 }),
+          lowStock: await Product.countDocuments({
+            stock: { $gt: 0, $lt: 10 },
+          }),
+        },
+        categories: {
+          total: totalCategories,
+          topCategories: topCategories,
+        },
+        orders: {
+          total: totalOrders,
+          pending: pendingOrders,
+          processing: processingOrders,
+          shipped: shippedOrders,
+          delivered: deliveredOrders,
+          cancelled: cancelledOrders,
+          paid: paidOrders,
+          unpaid: unpaidOrders,
+          currentMonth: currentMonthOrders,
+          lastMonth: lastMonthOrders,
+          change: ordersChange,
+        },
+        revenue: {
+          total: totalRevenue,
+          currentMonth: currentMonthRevenue,
+          lastMonth: lastMonthRevenue,
+          change: revenueChange,
+        },
+        dateRanges: {
+          currentMonth: {
+            start: currentMonth.start,
+            end: currentMonth.end,
+          },
+          lastMonth: {
+            start: lastMonth.start,
+            end: lastMonth.end,
+          },
+        },
       },
     });
+
+    console.log("✅ Admin stats fetched successfully");
   } catch (error) {
-    console.error("Admin stats error:", error);
+    console.error("❌ Admin stats error:", error);
     res.status(500).json({
-      message: "Admin stats error",
+      success: false,
+      message: "Failed to fetch admin statistics",
       error: error.message,
     });
   }
@@ -351,46 +380,47 @@ export const getAdminStats = async (req, res) => {
 // =====================================
 export const getOrdersChart = async (req, res) => {
   try {
+    console.log("📊 Fetching orders chart data...");
+
     const currentYear = new Date().getFullYear();
+    const chartData = [];
 
-    const orders = await Order.aggregate([
-      {
-        $match: {
-          createdAt: {
-            $gte: new Date(`${currentYear}-01-01`),
-            $lte: new Date(`${currentYear}-12-31`),
-          },
-        },
-      },
-      {
-        $group: {
-          _id: {
-            month: { $month: "$createdAt" },
-            year: { $year: "$createdAt" },
-          },
-          count: { $sum: 1 },
-          revenue: { $sum: "$total" },
-        },
-      },
-      { $sort: { "_id.month": 1 } },
-    ]);
+    // Get orders for each month of current year
+    for (let month = 0; month < 12; month++) {
+      const monthStart = new Date(currentYear, month, 1);
+      const monthEnd = new Date(currentYear, month + 1, 0);
 
-    // Create chart data for all months
-    const chart = [];
-    for (let i = 1; i <= 12; i++) {
-      const monthData = orders.find((o) => o._id.month === i);
-      chart.push({
-        month: MONTHS[i - 1],
-        orders: monthData?.count || 0,
-        revenue: monthData?.revenue || 0,
+      const orders = await Order.find({
+        createdAt: { $gte: monthStart, $lte: monthEnd },
+      });
+
+      // Calculate revenue for this month (only delivered orders)
+      const deliveredOrders = orders.filter(
+        (order) => order.status === "delivered"
+      );
+      let monthRevenue = 0;
+      deliveredOrders.forEach((order) => {
+        monthRevenue += order.total || 0;
+      });
+
+      chartData.push({
+        month: MONTHS[month],
+        orders: orders.length,
+        revenue: monthRevenue,
       });
     }
 
-    res.json(chart);
+    res.json({
+      success: true,
+      data: chartData,
+    });
+
+    console.log("✅ Orders chart data fetched successfully");
   } catch (error) {
-    console.error("Orders chart error:", error);
+    console.error("❌ Orders chart error:", error);
     res.status(500).json({
-      message: "Orders chart error",
+      success: false,
+      message: "Failed to fetch orders chart data",
       error: error.message,
     });
   }
@@ -401,44 +431,37 @@ export const getOrdersChart = async (req, res) => {
 // =====================================
 export const getUsersChart = async (req, res) => {
   try {
+    console.log("👥 Fetching users chart data...");
+
     const currentYear = new Date().getFullYear();
+    const chartData = [];
 
-    const users = await User.aggregate([
-      {
-        $match: {
-          createdAt: {
-            $gte: new Date(`${currentYear}-01-01`),
-            $lte: new Date(`${currentYear}-12-31`),
-          },
-        },
-      },
-      {
-        $group: {
-          _id: {
-            month: { $month: "$createdAt" },
-            year: { $year: "$createdAt" },
-          },
-          count: { $sum: 1 },
-        },
-      },
-      { $sort: { "_id.month": 1 } },
-    ]);
+    // Get users for each month of current year
+    for (let month = 0; month < 12; month++) {
+      const monthStart = new Date(currentYear, month, 1);
+      const monthEnd = new Date(currentYear, month + 1, 0);
 
-    // Create chart data for all months
-    const chart = [];
-    for (let i = 1; i <= 12; i++) {
-      const monthData = users.find((u) => u._id.month === i);
-      chart.push({
-        month: MONTHS[i - 1],
-        users: monthData?.count || 0,
+      const userCount = await User.countDocuments({
+        createdAt: { $gte: monthStart, $lte: monthEnd },
+      });
+
+      chartData.push({
+        month: MONTHS[month],
+        users: userCount,
       });
     }
 
-    res.json(chart);
+    res.json({
+      success: true,
+      data: chartData,
+    });
+
+    console.log("✅ Users chart data fetched successfully");
   } catch (error) {
-    console.error("Users chart error:", error);
+    console.error("❌ Users chart error:", error);
     res.status(500).json({
-      message: "Users chart error",
+      success: false,
+      message: "Failed to fetch users chart data",
       error: error.message,
     });
   }
@@ -449,142 +472,43 @@ export const getUsersChart = async (req, res) => {
 // =====================================
 export const getRevenueChart = async (req, res) => {
   try {
+    console.log("💰 Fetching revenue chart data...");
+
     const currentYear = new Date().getFullYear();
+    const chartData = [];
 
-    const revenue = await Order.aggregate([
-      {
-        $match: {
-          status: "delivered",
-          createdAt: {
-            $gte: new Date(`${currentYear}-01-01`),
-            $lte: new Date(`${currentYear}-12-31`),
-          },
-        },
-      },
-      {
-        $group: {
-          _id: {
-            month: { $month: "$createdAt" },
-            year: { $year: "$createdAt" },
-          },
-          revenue: { $sum: "$total" },
-        },
-      },
-      { $sort: { "_id.month": 1 } },
-    ]);
+    // Get revenue for each month of current year (only delivered orders)
+    for (let month = 0; month < 12; month++) {
+      const monthStart = new Date(currentYear, month, 1);
+      const monthEnd = new Date(currentYear, month + 1, 0);
 
-    // Create chart data for all months
-    const chart = [];
-    for (let i = 1; i <= 12; i++) {
-      const monthData = revenue.find((r) => r._id.month === i);
-      chart.push({
-        month: MONTHS[i - 1],
-        revenue: monthData?.revenue || 0,
+      const deliveredOrders = await Order.find({
+        status: "delivered",
+        createdAt: { $gte: monthStart, $lte: monthEnd },
+      });
+
+      let monthRevenue = 0;
+      deliveredOrders.forEach((order) => {
+        monthRevenue += order.total || 0;
+      });
+
+      chartData.push({
+        month: MONTHS[month],
+        revenue: monthRevenue,
       });
     }
 
-    res.json(chart);
-  } catch (error) {
-    console.error("Revenue chart error:", error);
-    res.status(500).json({
-      message: "Revenue chart error",
-      error: error.message,
+    res.json({
+      success: true,
+      data: chartData,
     });
-  }
-};
 
-// =====================================
-// 5️⃣ TOP PRODUCTS DATA
-// =====================================
-export const getTopProducts = async (req, res) => {
-  try {
-    const topProducts = await Product.aggregate([
-      {
-        $lookup: {
-          from: "orders",
-          localField: "_id",
-          foreignField: "items.product",
-          as: "orderItems",
-        },
-      },
-      {
-        $addFields: {
-          totalSold: {
-            $sum: "$orderItems.items.quantity",
-          },
-          totalRevenue: {
-            $multiply: ["$price", { $ifNull: ["$soldCount", 0] }],
-          },
-        },
-      },
-      { $sort: { totalRevenue: -1 } },
-      { $limit: 10 },
-      {
-        $project: {
-          name: 1,
-          price: 1,
-          image: 1,
-          stock: 1,
-          soldCount: 1,
-          likesCount: 1,
-          totalRevenue: 1,
-          category: 1,
-        },
-      },
-    ]);
-
-    res.json(topProducts);
+    console.log("✅ Revenue chart data fetched successfully");
   } catch (error) {
-    console.error("Top products error:", error);
+    console.error("❌ Revenue chart error:", error);
     res.status(500).json({
-      message: "Top products error",
-      error: error.message,
-    });
-  }
-};
-
-// =====================================
-// 6️⃣ RECENT ACTIVITIES
-// =====================================
-export const getRecentActivities = async (req, res) => {
-  try {
-    const recentOrders = await Order.find()
-      .sort({ createdAt: -1 })
-      .limit(10)
-      .populate("user", "name email")
-      .populate("items.product", "name price");
-
-    const recentUsers = await User.find()
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .select("name email createdAt");
-
-    const activities = [
-      ...recentOrders.map((order) => ({
-        type: "order",
-        user: order.user?.name || order.user?.email || "Customer",
-        action: `Placed order #${order.orderNumber}`,
-        amount: order.total,
-        time: order.createdAt,
-        details: `${order.items.length} items`,
-      })),
-      ...recentUsers.map((user) => ({
-        type: "user",
-        user: user.name || user.email,
-        action: "Registered new account",
-        amount: null,
-        time: user.createdAt,
-        details: "New user",
-      })),
-    ]
-      .sort((a, b) => new Date(b.time) - new Date(a.time))
-      .slice(0, 10);
-
-    res.json(activities);
-  } catch (error) {
-    console.error("Recent activities error:", error);
-    res.status(500).json({
-      message: "Recent activities error",
+      success: false,
+      message: "Failed to fetch revenue chart data",
       error: error.message,
     });
   }

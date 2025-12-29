@@ -18,7 +18,7 @@ const productSchema = new mongoose.Schema({
   popularity: { type: Number, default: 0 },
   image: { type: String, default: "" },
   images: { type: [String], default: [] },
-
+  soldCount: { type: Number, default: 0 },
   isSold: { type: Boolean, default: false },
   description: { type: descriptionSchema, default: () => ({}) },
   createdAt: { type: Date, default: Date.now },

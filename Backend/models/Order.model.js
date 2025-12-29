@@ -29,7 +29,15 @@ const orderSchema = new mongoose.Schema(
       enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
       default: "pending",
     },
-
+    orderNumber: {
+      type: String,
+      unique: true,
+      default: function () {
+        return (
+          "ORD-" + Date.now() + "-" + Math.random().toString(36).substr(2, 9)
+        );
+      },
+    },
     deliveredAt: { type: Date, default: null },
 
     // ================================

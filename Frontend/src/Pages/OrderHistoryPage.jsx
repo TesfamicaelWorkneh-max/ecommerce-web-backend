@@ -233,7 +233,7 @@ const OrderHistoryPage = () => {
         className="group relative"
       >
         <div
-          className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-300 cursor-pointer"
+          className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-300 cursor-pointer max-sm:py-24"
           onClick={() => toggleOrderDetails(order._id)}
         >
           {/* Order Header */}

@@ -1,5 +1,12 @@
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useSpring,
+  useInView,
+  AnimatePresence,
+} from "framer-motion";
 import {
   FaQuestionCircle,
   FaShoppingCart,
@@ -13,12 +20,82 @@ import {
   FaSearch,
   FaPlus,
   FaMinus,
+  FaSun,
+  FaMoon,
+  FaArrowDown,
+  FaArrowUp,
+  FaEnvelope,
+  FaHeadset,
 } from "react-icons/fa";
 import { IoSparkles } from "react-icons/io5";
 
 const FAQPage = () => {
+  const [theme, setTheme] = useState("light");
+  const [loading, setLoading] = useState(true);
+  const [activeSection, setActiveSection] = useState("header");
   const [openCategory, setOpenCategory] = useState("general");
   const [searchTerm, setSearchTerm] = useState("");
+  const [openItems, setOpenItems] = useState({});
+  const [parallaxValue, setParallaxValue] = useState(0);
+
+  // Refs for sections
+  const headerRef = useRef(null);
+  const popularRef = useRef(null);
+  const categoriesRef = useRef(null);
+  const faqRef = useRef(null);
+  const contactRef = useRef(null);
+  const containerRef = useRef(null);
+
+  // Scroll animations
+  const { scrollYProgress } = useScroll({
+    container: containerRef,
+  });
+
+  // Parallax effects
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
+  const rotate = useTransform(scrollYProgress, [0, 1], [0, 5]);
+
+  // Smooth scroll progress
+  const smoothScrollProgress = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001,
+  });
+
+  // Check section in view
+  const isHeaderInView = useInView(headerRef, { once: false, amount: 0.3 });
+  const isPopularInView = useInView(popularRef, { once: false, amount: 0.3 });
+  const isCategoriesInView = useInView(categoriesRef, {
+    once: false,
+    amount: 0.3,
+  });
+  const isFaqInView = useInView(faqRef, { once: false, amount: 0.3 });
+  const isContactInView = useInView(contactRef, { once: false, amount: 0.3 });
+
+  // Update active section based on scroll
+  useEffect(() => {
+    if (isHeaderInView) setActiveSection("header");
+    if (isPopularInView) setActiveSection("popular");
+    if (isCategoriesInView) setActiveSection("categories");
+    if (isFaqInView) setActiveSection("faq");
+    if (isContactInView) setActiveSection("contact");
+  }, [
+    isHeaderInView,
+    isPopularInView,
+    isCategoriesInView,
+    isFaqInView,
+    isContactInView,
+  ]);
+
+  // Parallax effect on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      setParallaxValue(window.scrollY * 0.5);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const faqCategories = [
     {
@@ -26,44 +103,50 @@ const FAQPage = () => {
       title: "General Questions",
       icon: <FaQuestionCircle />,
       color: "from-blue-500 to-cyan-500",
+      lightColor: "from-blue-400 to-cyan-400",
     },
     {
       id: "ordering",
       title: "Ordering & Payment",
       icon: <FaShoppingCart />,
       color: "from-purple-500 to-pink-500",
+      lightColor: "from-purple-400 to-pink-400",
     },
     {
       id: "shipping",
       title: "Shipping & Delivery",
       icon: <FaShippingFast />,
       color: "from-green-500 to-emerald-500",
+      lightColor: "from-green-400 to-emerald-400",
     },
     {
       id: "returns",
       title: "Returns & Refunds",
       icon: <FaUndo />,
       color: "from-amber-500 to-orange-500",
+      lightColor: "from-amber-400 to-orange-400",
     },
     {
       id: "account",
       title: "Account & Security",
       icon: <FaUser />,
       color: "from-rose-500 to-red-500",
+      lightColor: "from-rose-400 to-red-400",
     },
     {
       id: "products",
       title: "Products & Quality",
       icon: <FaBox />,
       color: "from-indigo-500 to-violet-500",
+      lightColor: "from-indigo-400 to-violet-400",
     },
   ];
 
   const faqs = {
     general: [
       {
-        q: "What is LuxeCart?",
-        a: "LuxeCart is a premium e-commerce platform offering high-quality products with exceptional customer service. We curate the best products from trusted suppliers worldwide.",
+        q: "What is AdesCart?",
+        a: "AdesCart is a premium e-commerce platform offering high-quality products with exceptional customer service. We curate the best products from trusted suppliers worldwide.",
         tags: ["about", "platform"],
       },
       {
@@ -78,12 +161,12 @@ const FAQPage = () => {
       },
       {
         q: "Do you offer wholesale pricing?",
-        a: "Yes, we offer special wholesale pricing for businesses and bulk orders. Contact our business team at wholesale@luxecart.com for custom quotes.",
+        a: "Yes, we offer special wholesale pricing for businesses and bulk orders. Contact our business team at wholesale@adescart.com for custom quotes.",
         tags: ["wholesale", "business"],
       },
       {
         q: "How can I contact customer service?",
-        a: "You can reach us 24/7 through live chat, email at support@luxecart.com, or call +1 (555) 123-4567 during business hours (9AM-6PM PST).",
+        a: "You can reach us 24/7 through live chat, email at support@adescart.com, or call +1 (555) 123-4567 during business hours (9AM-6PM PST).",
         tags: ["contact", "support"],
       },
     ],
@@ -208,7 +291,7 @@ const FAQPage = () => {
       },
       {
         q: "Can I request a specific product?",
-        a: "Yes! Email requests@luxecart.com with product details. We're always looking to expand our collection based on customer requests.",
+        a: "Yes! Email requests@adescart.com with product details. We're always looking to expand our collection based on customer requests.",
         tags: ["request", "suggestion"],
       },
       {
@@ -246,34 +329,99 @@ const FAQPage = () => {
         )
     : faqs[openCategory];
 
-  const FAQItem = ({ faq, index }) => {
-    const [isOpen, setIsOpen] = useState(false);
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("faq-theme") || "light";
+    setTheme(savedTheme);
+    document.documentElement.className = savedTheme;
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "dark" ? "light" : "dark";
+    setTheme(newTheme);
+    localStorage.setItem("faq-theme", newTheme);
+    document.documentElement.className = newTheme;
+  };
+
+  // Scroll to section
+  const scrollToSection = (sectionId) => {
+    const sections = {
+      header: headerRef,
+      popular: popularRef,
+      categories: categoriesRef,
+      faq: faqRef,
+      contact: contactRef,
+    };
+
+    if (sections[sectionId]?.current) {
+      sections[sectionId].current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
+  // FAQ Item component
+  const FAQItem = ({ faq, index, categoryId }) => {
+    const isOpen = openItems[`${categoryId}-${index}`] || false;
+
+    const toggleItem = () => {
+      setOpenItems((prev) => ({
+        ...prev,
+        [`${categoryId}-${index}`]: !isOpen,
+      }));
+    };
 
     return (
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: index * 0.1 }}
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, delay: index * 0.1 }}
         className="mb-4"
       >
         <motion.button
-          onClick={() => setIsOpen(!isOpen)}
-          className="w-full p-6 rounded-xl bg-gradient-to-br from-white/80 to-white/60 dark:from-slate-800/80 dark:to-slate-900/80 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300 text-left"
+          onClick={toggleItem}
+          className={`w-full p-6 rounded-2xl backdrop-blur-xl transition-all duration-300 text-left ${
+            theme === "dark"
+              ? "bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-slate-700/50 hover:shadow-xl hover:shadow-slate-900/50"
+              : "bg-gradient-to-br from-cream-50/80 to-cream-100/60 border border-cream-300/50 hover:shadow-xl hover:shadow-cream-200/50"
+          }`}
           whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
         >
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold text-slate-800 dark:text-white pr-8">
+            <h3
+              className={`text-lg font-bold pr-8 ${
+                theme === "dark" ? "text-white" : "text-cream-900"
+              }`}
+            >
               {faq.q}
             </h3>
             <motion.div
               animate={{ rotate: isOpen ? 180 : 0 }}
               transition={{ duration: 0.3 }}
-              className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-amber-500/10 to-rose-500/10 flex items-center justify-center"
+              className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                theme === "dark"
+                  ? "bg-gradient-to-r from-amber-500/10 to-rose-500/10"
+                  : "bg-gradient-to-r from-amber-400/10 to-rose-400/10"
+              }`}
             >
               {isOpen ? (
-                <FaMinus className="text-amber-600" />
+                <FaMinus
+                  className={
+                    theme === "dark" ? "text-amber-500" : "text-amber-600"
+                  }
+                />
               ) : (
-                <FaPlus className="text-amber-600" />
+                <FaPlus
+                  className={
+                    theme === "dark" ? "text-amber-500" : "text-amber-600"
+                  }
+                />
               )}
             </motion.div>
           </div>
@@ -286,18 +434,35 @@ const FAQPage = () => {
                 transition={{ duration: 0.3 }}
                 className="overflow-hidden"
               >
-                <div className="pt-6 border-t border-slate-200/20 dark:border-slate-700/30 mt-4">
-                  <p className="text-slate-600 dark:text-slate-400 mb-4">
+                <div
+                  className={`pt-6 border-t mt-4 ${
+                    theme === "dark"
+                      ? "border-slate-700/30"
+                      : "border-cream-300/50"
+                  }`}
+                >
+                  <p
+                    className={`mb-4 ${
+                      theme === "dark" ? "text-slate-400" : "text-cream-700"
+                    }`}
+                  >
                     {faq.a}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {faq.tags.map((tag, idx) => (
-                      <span
+                      <motion.span
                         key={idx}
-                        className="px-3 py-1 rounded-full text-xs bg-gradient-to-r from-amber-500/10 to-rose-500/10 text-amber-600 dark:text-amber-400"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: idx * 0.1 }}
+                        className={`px-3 py-1 rounded-full text-xs ${
+                          theme === "dark"
+                            ? "bg-gradient-to-r from-amber-500/10 to-rose-500/10 text-amber-400"
+                            : "bg-gradient-to-r from-amber-400/10 to-rose-400/10 text-amber-600"
+                        }`}
                       >
                         {tag}
-                      </span>
+                      </motion.span>
                     ))}
                   </div>
                 </div>
@@ -310,245 +475,704 @@ const FAQPage = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
-      className="min-h-screen bg-gradient-to-br from-amber-50/30 via-white to-rose-50/20 dark:from-slate-950/95 dark:via-slate-900 dark:to-slate-950/95 py-12"
-    >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-12">
+    <>
+      {/* Loading Animation */}
+      {loading && (
+        <motion.div
+          initial={{ opacity: 1 }}
+          animate={{ opacity: 0 }}
+          transition={{ duration: 0.5, delay: 1.5 }}
+          className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center"
+          style={{ backgroundColor: theme === "dark" ? "#0f172a" : "#FFFBF5" }}
+        >
           <motion.div
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-amber-500 to-rose-500 mb-6"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1, rotate: 360 }}
+            transition={{ duration: 0.8, type: "spring" }}
+            className="relative"
           >
-            <FaQuestionCircle className="text-3xl text-white" />
+            <div className="w-24 h-24 rounded-full border-4 border-transparent border-t-purple-500 border-r-pink-500 animate-spin"></div>
+            <motion.div
+              animate={{ scale: [1, 1.2, 1], rotate: [0, 360] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="absolute inset-0 border-2 border-dashed border-blue-400/30 rounded-full"
+            ></motion.div>
           </motion.div>
-          <h1 className="text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
-            Frequently Asked Questions
-          </h1>
-          <p className="text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-8">
-            Find quick answers to common questions about shopping with us
-          </p>
+        </motion.div>
+      )}
 
-          {/* Search Bar */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="max-w-2xl mx-auto relative"
-          >
-            <div className="relative">
-              <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search for answers..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 rounded-xl bg-gradient-to-r from-white/80 to-white/60 dark:from-slate-800/80 dark:to-slate-900/80 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 shadow-lg focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all duration-300"
+      {/* Scroll Progress Bar */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500 z-50"
+        style={{ scaleX: smoothScrollProgress }}
+        initial={{ scaleX: 0 }}
+      />
+
+      {/* Navigation Dots */}
+      <div className="fixed right-6 top-1/2 transform -translate-y-1/2 z-40 hidden lg:flex flex-col gap-3">
+        {["header", "popular", "categories", "faq", "contact"].map(
+          (section) => (
+            <button
+              key={section}
+              onClick={() => scrollToSection(section)}
+              className="relative group"
+            >
+              <motion.div
+                animate={{
+                  scale: activeSection === section ? 1.5 : 1,
+                  backgroundColor:
+                    activeSection === section
+                      ? theme === "dark"
+                        ? "#a855f7"
+                        : "#a855f7"
+                      : theme === "dark"
+                        ? "#475569"
+                        : "#E8D8BC",
+                }}
+                className="w-3 h-3 rounded-full transition-all duration-300"
               />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm("")}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-amber-500"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Popular Questions */}
-        {!searchTerm && (
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="mb-12"
-          >
-            <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-3">
-              <IoSparkles className="text-amber-500" />
-              Popular Questions
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {popularQuestions.map((question, index) => (
-                <motion.button
-                  key={index}
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setOpenCategory(question.category)}
-                  className="p-4 rounded-xl bg-gradient-to-br from-white/80 to-white/60 dark:from-slate-800/80 dark:to-slate-900/80 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300 text-left"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-r from-amber-500/10 to-rose-500/10 flex items-center justify-center">
-                      <FaStar className="text-amber-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-slate-800 dark:text-white">
-                        {question.q}
-                      </p>
-                      <span className="text-xs text-amber-600 dark:text-amber-400 mt-1 inline-block">
-                        {
-                          faqCategories.find((c) => c.id === question.category)
-                            ?.title
-                        }
-                      </span>
-                    </div>
-                  </div>
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
+              <div
+                className={`absolute right-6 top-1/2 transform -translate-y-1/2 px-2 py-1 rounded text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity ${
+                  theme === "dark"
+                    ? "bg-slate-800 text-white"
+                    : "bg-cream-100 text-cream-900"
+                }`}
+              >
+                {section.charAt(0).toUpperCase() + section.slice(1)}
+              </div>
+            </button>
+          )
         )}
+      </div>
 
-        {/* Category Tabs */}
-        {!searchTerm && (
+      <div
+        ref={containerRef}
+        className="relative z-10 min-h-screen overflow-y-auto scroll-smooth py-16 max-sm:py-24"
+        style={{
+          background:
+            theme === "dark"
+              ? "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)"
+              : "linear-gradient(135deg, #FFFBF5 0%, #F9F5F0 50%, #FFFBF5 100%)",
+        }}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          {/* Theme Toggle */}
           <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="mb-8"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="fixed top-6 right-20 z-50"
           >
-            <div className="flex flex-wrap gap-3 justify-center">
-              {faqCategories.map((category) => (
-                <motion.button
-                  key={category.id}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setOpenCategory(category.id)}
-                  className={`flex items-center gap-3 px-6 py-3 rounded-xl transition-all duration-300 ${
-                    openCategory === category.id
-                      ? "bg-gradient-to-r from-white to-white/90 dark:from-slate-800 dark:to-slate-900 shadow-xl"
-                      : "bg-gradient-to-r from-white/50 to-white/30 dark:from-slate-800/50 dark:to-slate-900/50 hover:bg-white/80 dark:hover:bg-slate-800/80"
-                  } border border-white/20 dark:border-slate-700/50`}
-                >
-                  <div
-                    className={`w-10 h-10 rounded-full bg-gradient-to-r ${category.color} flex items-center justify-center`}
-                  >
-                    {category.icon}
-                  </div>
-                  <span
-                    className={`font-medium ${
-                      openCategory === category.id
-                        ? "text-slate-800 dark:text-white"
-                        : "text-slate-600 dark:text-slate-400"
+            <motion.button
+              whileHover={{ scale: 1.1, rotate: 180 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={toggleTheme}
+              className={`p-3 rounded-full shadow-lg ${
+                theme === "dark"
+                  ? "bg-slate-800 text-amber-400 hover:bg-slate-700"
+                  : "bg-cream-300 text-cream-800 hover:bg-cream-400"
+              } transition-all duration-300`}
+            >
+              {theme === "dark" ? <FaSun size={20} /> : <FaMoon size={20} />}
+            </motion.button>
+          </motion.div>
+
+          {/* Header Section */}
+          <motion.section
+            ref={headerRef}
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-center mb-20 relative"
+          >
+            {/* Animated Background Elements */}
+            <motion.div
+              animate={{
+                y: [0, -20, 0],
+                rotate: [0, 360],
+              }}
+              transition={{
+                y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+                rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+              }}
+              className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 blur-3xl"
+            />
+            <motion.div
+              animate={{
+                y: [0, 20, 0],
+                rotate: [0, -360],
+              }}
+              transition={{
+                y: { duration: 5, repeat: Infinity, ease: "easeInOut" },
+                rotate: { duration: 25, repeat: Infinity, ease: "linear" },
+              }}
+              className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full bg-gradient-to-r from-amber-500/10 to-rose-500/10 blur-3xl"
+            />
+
+            <motion.div
+              animate={{ y: [0, -20, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              className="inline-flex items-center justify-center w-24 h-24 rounded-full mb-8 relative"
+            >
+              <div
+                className={`w-24 h-24 rounded-full absolute ${
+                  theme === "dark"
+                    ? "bg-gradient-to-r from-purple-500 to-pink-500"
+                    : "bg-gradient-to-r from-purple-400 to-pink-400"
+                } opacity-20 blur-xl`}
+              />
+              <div
+                className={`w-20 h-20 rounded-full ${
+                  theme === "dark"
+                    ? "bg-gradient-to-r from-purple-500 to-pink-500"
+                    : "bg-gradient-to-r from-purple-400 to-pink-400"
+                } flex items-center justify-center relative z-10 shadow-2xl`}
+              >
+                <FaQuestionCircle className="text-3xl text-white" />
+              </div>
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className={`text-4xl lg:text-6xl font-bold mb-6 tracking-tight ${
+                theme === "dark" ? "text-white" : "text-cream-900"
+              }`}
+            >
+              Frequently{" "}
+              <span
+                className={
+                  theme === "dark" ? "text-purple-400" : "text-purple-600"
+                }
+              >
+                Asked
+              </span>{" "}
+              Questions
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className={`text-xl lg:text-2xl max-w-3xl mx-auto leading-relaxed mb-12 ${
+                theme === "dark" ? "text-slate-400" : "text-cream-700"
+              }`}
+            >
+              Find quick answers to common questions about shopping with
+              AdesCart
+            </motion.p>
+
+            {/* Search Bar */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.7 }}
+              className="max-w-2xl mx-auto mb-12 relative"
+            >
+              <div className="relative">
+                <FaSearch
+                  className={`absolute left-4 top-1/2 transform -translate-y-1/2 ${
+                    theme === "dark" ? "text-slate-400" : "text-cream-600"
+                  }`}
+                />
+                <input
+                  type="text"
+                  placeholder="Search for answers..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className={`w-full pl-12 pr-4 py-4 rounded-2xl backdrop-blur-xl border transition-all duration-300 focus:outline-none focus:ring-2 ${
+                    theme === "dark"
+                      ? "bg-gradient-to-r from-slate-800/80 to-slate-900/80 border-slate-700/50 text-white placeholder-slate-400 focus:border-purple-500 focus:ring-purple-500/20"
+                      : "bg-gradient-to-r from-cream-50/80 to-cream-100/60 border-cream-300/50 text-cream-900 placeholder-cream-600 focus:border-purple-400 focus:ring-purple-400/20"
+                  }`}
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className={`absolute right-4 top-1/2 transform -translate-y-1/2 ${
+                      theme === "dark"
+                        ? "text-slate-400 hover:text-amber-500"
+                        : "text-cream-600 hover:text-amber-600"
                     }`}
                   >
-                    {category.title}
-                  </span>
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-
-        {/* Search Results Header */}
-        {searchTerm && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mb-8"
-          >
-            <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">
-              Search Results for "{searchTerm}"
-            </h2>
-            <p className="text-slate-600 dark:text-slate-400">
-              Found {filteredFAQs.length} answer
-              {filteredFAQs.length !== 1 ? "s" : ""}
-            </p>
-          </motion.div>
-        )}
-
-        {/* FAQ List */}
-        <motion.div
-          key={openCategory}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="space-y-4"
-        >
-          {filteredFAQs.length > 0 ? (
-            filteredFAQs.map((faq, index) => (
-              <FAQItem key={index} faq={faq} index={index} />
-            ))
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-12"
-            >
-              <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-r from-amber-500/10 to-rose-500/10 mb-6">
-                <FaSearch className="text-3xl text-amber-600" />
+                    Clear
+                  </button>
+                )}
               </div>
-              <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">
-                No results found
-              </h3>
-              <p className="text-slate-600 dark:text-slate-400 max-w-md mx-auto mb-6">
-                We couldn't find any answers matching "{searchTerm}". Try
-                different keywords or browse by category.
-              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.9 }}
+              className="flex justify-center"
+            >
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setSearchTerm("")}
-                className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold hover:shadow-xl hover:shadow-amber-500/30 transition-all duration-300"
+                onClick={() => scrollToSection("popular")}
+                className={`px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 flex items-center gap-3 ${
+                  theme === "dark"
+                    ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:shadow-xl hover:shadow-purple-500/30"
+                    : "bg-gradient-to-r from-purple-400 to-pink-400 hover:shadow-xl hover:shadow-purple-400/30"
+                } text-white`}
               >
-                Clear Search
+                <FaArrowDown className="animate-bounce" />
+                Browse Questions
               </motion.button>
             </motion.div>
-          )}
-        </motion.div>
+          </motion.section>
 
-        {/* Contact CTA */}
-        {!searchTerm && (
-          <motion.div
-            initial={{ y: 40, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="mt-16"
-          >
-            <div className="relative overflow-hidden rounded-3xl">
-              <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-purple-500/10" />
-              <div className="relative bg-gradient-to-r from-amber-500/5 to-rose-500/5 border border-amber-500/20 dark:border-amber-500/30 backdrop-blur-xl rounded-3xl p-12 text-center">
-                <h2 className="text-3xl lg:text-4xl font-bold mb-6">
-                  <span className="bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
-                    Still have questions?
+          {/* Popular Questions Section */}
+          {!searchTerm && (
+            <motion.section
+              ref={popularRef}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.8 }}
+              className="mb-20"
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="mb-12"
+              >
+                <h2
+                  className={`text-2xl lg:text-3xl font-bold mb-6 flex items-center gap-3 ${
+                    theme === "dark" ? "text-white" : "text-cream-900"
+                  }`}
+                >
+                  <IoSparkles
+                    className={
+                      theme === "dark" ? "text-amber-500" : "text-amber-600"
+                    }
+                  />
+                  Popular Questions
+                </h2>
+                <p
+                  className={`text-lg ${
+                    theme === "dark" ? "text-slate-400" : "text-cream-700"
+                  }`}
+                >
+                  Most frequently asked questions by our customers
+                </p>
+              </motion.div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {popularQuestions.map((question, index) => (
+                  <motion.button
+                    key={index}
+                    initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{
+                      duration: 0.6,
+                      delay: index * 0.1,
+                      type: "spring",
+                      stiffness: 100,
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      setOpenCategory(question.category);
+                      setTimeout(() => scrollToSection("faq"), 100);
+                    }}
+                    className={`p-4 rounded-xl backdrop-blur-xl border transition-all duration-300 text-left ${
+                      theme === "dark"
+                        ? "bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-slate-700/50 hover:shadow-xl hover:shadow-slate-900/50"
+                        : "bg-gradient-to-br from-cream-50/80 to-cream-100/60 border-cream-300/50 hover:shadow-xl hover:shadow-cream-200/50"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div
+                        className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                          theme === "dark"
+                            ? "bg-gradient-to-r from-amber-500/10 to-rose-500/10"
+                            : "bg-gradient-to-r from-amber-400/10 to-rose-400/10"
+                        }`}
+                      >
+                        <FaStar
+                          className={
+                            theme === "dark"
+                              ? "text-amber-500"
+                              : "text-amber-600"
+                          }
+                        />
+                      </div>
+                      <div>
+                        <p
+                          className={`font-medium ${
+                            theme === "dark" ? "text-white" : "text-cream-900"
+                          }`}
+                        >
+                          {question.q}
+                        </p>
+                        <span
+                          className={`text-xs mt-1 inline-block ${
+                            theme === "dark"
+                              ? "text-amber-400"
+                              : "text-amber-600"
+                          }`}
+                        >
+                          {
+                            faqCategories.find(
+                              (c) => c.id === question.category
+                            )?.title
+                          }
+                        </span>
+                      </div>
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+            </motion.section>
+          )}
+
+          {/* Category Tabs Section */}
+          {!searchTerm && (
+            <motion.section
+              ref={categoriesRef}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.8 }}
+              className="mb-20"
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="mb-8"
+              >
+                <h2
+                  className={`text-2xl lg:text-3xl font-bold mb-6 text-center ${
+                    theme === "dark" ? "text-white" : "text-cream-900"
+                  }`}
+                >
+                  Browse{" "}
+                  <span
+                    className={
+                      theme === "dark" ? "text-blue-400" : "text-blue-600"
+                    }
+                  >
+                    Categories
                   </span>
                 </h2>
-                <p className="text-xl text-slate-600 dark:text-slate-400 mb-8 max-w-2xl mx-auto">
+                <p
+                  className={`text-lg text-center ${
+                    theme === "dark" ? "text-slate-400" : "text-cream-700"
+                  }`}
+                >
+                  Select a category to explore related questions
+                </p>
+              </motion.div>
+
+              <div className="flex flex-wrap gap-3 justify-center">
+                {faqCategories.map((category, index) => (
+                  <motion.button
+                    key={category.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      setOpenCategory(category.id);
+                      setTimeout(() => scrollToSection("faq"), 100);
+                    }}
+                    className={`flex items-center gap-3 px-6 py-3 rounded-xl transition-all duration-300 ${
+                      openCategory === category.id
+                        ? theme === "dark"
+                          ? "bg-gradient-to-r from-slate-800 to-slate-900 shadow-xl"
+                          : "bg-gradient-to-r from-cream-200 to-cream-300 shadow-xl"
+                        : theme === "dark"
+                          ? "bg-gradient-to-r from-slate-800/50 to-slate-900/50 hover:bg-slate-800/80"
+                          : "bg-gradient-to-r from-cream-100/50 to-cream-200/50 hover:bg-cream-200/80"
+                    } border ${
+                      theme === "dark"
+                        ? "border-slate-700/50"
+                        : "border-cream-300/50"
+                    }`}
+                  >
+                    <motion.div
+                      whileHover={{ rotate: 360 }}
+                      transition={{ duration: 0.5 }}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        theme === "dark" ? category.color : category.lightColor
+                      }`}
+                    >
+                      {category.icon}
+                    </motion.div>
+                    <span
+                      className={`font-medium ${
+                        openCategory === category.id
+                          ? theme === "dark"
+                            ? "text-white"
+                            : "text-cream-900"
+                          : theme === "dark"
+                            ? "text-slate-400"
+                            : "text-cream-700"
+                      }`}
+                    >
+                      {category.title}
+                    </span>
+                  </motion.button>
+                ))}
+              </div>
+            </motion.section>
+          )}
+
+          {/* FAQ List Section */}
+          <motion.section
+            ref={faqRef}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.8 }}
+            className="mb-20"
+          >
+            {searchTerm ? (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="mb-8"
+              >
+                <h2
+                  className={`text-2xl lg:text-3xl font-bold mb-2 ${
+                    theme === "dark" ? "text-white" : "text-cream-900"
+                  }`}
+                >
+                  Search Results for "{searchTerm}"
+                </h2>
+                <p
+                  className={`${
+                    theme === "dark" ? "text-slate-400" : "text-cream-700"
+                  }`}
+                >
+                  Found {filteredFAQs.length} answer
+                  {filteredFAQs.length !== 1 ? "s" : ""}
+                </p>
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="mb-8"
+              >
+                <h2
+                  className={`text-2xl lg:text-3xl font-bold mb-2 ${
+                    theme === "dark" ? "text-white" : "text-cream-900"
+                  }`}
+                >
+                  {faqCategories.find((c) => c.id === openCategory)?.title}
+                </h2>
+                <p
+                  className={`${
+                    theme === "dark" ? "text-slate-400" : "text-cream-700"
+                  }`}
+                >
+                  {filteredFAQs.length} questions in this category
+                </p>
+              </motion.div>
+            )}
+
+            <div className="space-y-4">
+              {filteredFAQs.length > 0 ? (
+                filteredFAQs.map((faq, index) => (
+                  <FAQItem
+                    key={index}
+                    faq={faq}
+                    index={index}
+                    categoryId={searchTerm ? "search" : openCategory}
+                  />
+                ))
+              ) : searchTerm ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  className="text-center py-12"
+                >
+                  <div
+                    className={`inline-flex items-center justify-center w-24 h-24 rounded-full mb-6 ${
+                      theme === "dark"
+                        ? "bg-gradient-to-r from-amber-500/10 to-rose-500/10"
+                        : "bg-gradient-to-r from-amber-400/10 to-rose-400/10"
+                    }`}
+                  >
+                    <FaSearch className="text-3xl text-amber-600" />
+                  </div>
+                  <h3
+                    className={`text-2xl font-bold mb-3 ${
+                      theme === "dark" ? "text-white" : "text-cream-900"
+                    }`}
+                  >
+                    No results found
+                  </h3>
+                  <p
+                    className={`max-w-md mx-auto mb-6 ${
+                      theme === "dark" ? "text-slate-400" : "text-cream-700"
+                    }`}
+                  >
+                    We couldn't find any answers matching "{searchTerm}". Try
+                    different keywords or browse by category.
+                  </p>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setSearchTerm("")}
+                    className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                      theme === "dark"
+                        ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:shadow-xl hover:shadow-amber-500/30"
+                        : "bg-gradient-to-r from-amber-400 to-amber-500 text-white hover:shadow-xl hover:shadow-amber-400/30"
+                    }`}
+                  >
+                    Clear Search
+                  </motion.button>
+                </motion.div>
+              ) : null}
+            </div>
+          </motion.section>
+
+          {/* Contact CTA Section */}
+          <motion.section
+            ref={contactRef}
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.8, type: "spring" }}
+            className="relative overflow-hidden rounded-3xl"
+          >
+            <motion.div
+              animate={{
+                rotate: 360,
+              }}
+              transition={{
+                rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+              }}
+              className={`absolute inset-0 ${
+                theme === "dark"
+                  ? "bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-amber-500/10"
+                  : "bg-gradient-to-r from-purple-400/10 via-pink-400/10 to-amber-400/10"
+              }`}
+            />
+            <div
+              className={`relative rounded-3xl p-8 lg:p-12 text-center backdrop-blur-xl border ${
+                theme === "dark"
+                  ? "bg-gradient-to-r from-slate-800/50 to-slate-900/50 border-slate-700/50"
+                  : "bg-gradient-to-r from-cream-100/50 to-cream-200/50 border-cream-300/50"
+              }`}
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="mb-8"
+              >
+                <h2 className="text-3xl lg:text-4xl font-bold mb-4">
+                  <span
+                    className={
+                      theme === "dark" ? "text-white" : "text-cream-900"
+                    }
+                  >
+                    Still have{" "}
+                    <span
+                      className={
+                        theme === "dark" ? "text-amber-400" : "text-amber-600"
+                      }
+                    >
+                      questions
+                    </span>
+                    ?
+                  </span>
+                </h2>
+                <p
+                  className={`text-xl max-w-2xl mx-auto ${
+                    theme === "dark" ? "text-slate-400" : "text-cream-700"
+                  }`}
+                >
                   Can't find what you're looking for? Our support team is ready
                   to help!
                 </p>
-                <div className="flex flex-wrap justify-center gap-4">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-8 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold hover:shadow-xl hover:shadow-amber-500/30 transition-all duration-300"
-                    onClick={() => (window.location.href = "/contact")}
-                  >
-                    Contact Support
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-8 py-4 rounded-xl bg-gradient-to-r from-slate-100 to-gray-100 dark:from-slate-700 dark:to-slate-800 text-slate-700 dark:text-slate-300 font-semibold border border-slate-300 dark:border-slate-600 hover:shadow-xl transition-all duration-300"
-                    onClick={() => window.open("mailto:support@luxecart.com")}
-                  >
-                    Email Us
-                  </motion.button>
-                </div>
-              </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="flex flex-wrap justify-center gap-4"
+              >
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 flex items-center gap-3 ${
+                    theme === "dark"
+                      ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:shadow-xl hover:shadow-purple-500/30"
+                      : "bg-gradient-to-r from-purple-400 to-pink-400 hover:shadow-xl hover:shadow-purple-400/30"
+                  } text-white`}
+                  onClick={() => (window.location.href = "/contact")}
+                >
+                  <FaHeadset />
+                  Contact Support
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`px-8 py-4 rounded-xl font-bold text-lg border transition-all duration-300 flex items-center gap-3 ${
+                    theme === "dark"
+                      ? "bg-gradient-to-r from-slate-700 to-slate-800 text-slate-300 border-slate-600 hover:shadow-xl"
+                      : "bg-gradient-to-r from-cream-200 to-cream-300 text-cream-800 border-cream-400 hover:shadow-xl"
+                  }`}
+                  onClick={() => window.open("mailto:support@adescart.com")}
+                >
+                  <FaEnvelope />
+                  Email Us
+                </motion.button>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.4 }}
+                className={`mt-8 text-sm ${
+                  theme === "dark" ? "text-slate-500" : "text-cream-600"
+                }`}
+              >
+                Typically respond within 1-2 business hours
+              </motion.div>
             </div>
-          </motion.div>
-        )}
+          </motion.section>
+
+          {/* Scroll to Top Button */}
+          <motion.button
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 2 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className={`fixed bottom-6 left-6 w-12 h-12 rounded-full flex items-center justify-center shadow-lg z-50 transition-all duration-300 ${
+              theme === "dark"
+                ? "bg-gradient-to-r from-slate-800 to-slate-900 hover:from-purple-500 hover:to-pink-500"
+                : "bg-gradient-to-r from-cream-200 to-cream-300 hover:from-purple-400 hover:to-pink-400"
+            }`}
+          >
+            <FaArrowUp />
+          </motion.button>
+        </div>
       </div>
-    </motion.div>
+    </>
   );
 };
 
