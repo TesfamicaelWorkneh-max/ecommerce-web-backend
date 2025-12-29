@@ -350,3 +350,19 @@ html {
 [data-theme="dark"] ::-webkit-scrollbar-track {
   background: #1e293b;
 }
+/* Add to your main CSS file */
+@media (max-width: 475px) {
+  .text-xs {
+    font-size: 0.65rem;
+    line-height: 1rem;
+  }
+
+  .px-3 {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .gap-2 {
+    gap: 0.25rem;
+  }
+}
