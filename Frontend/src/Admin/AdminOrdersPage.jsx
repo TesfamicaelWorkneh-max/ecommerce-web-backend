@@ -4682,7 +4682,7 @@ export default function AdminOrdersPage() {
               {orders.map((order, index) => (
                 <div
                   key={order._id}
-                  className={`order-card relative p-5 rounded-2xl border shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl min-w-0 transform hover:-translate-y-1 ${themeClasses.card} ${themeClasses.cardHover} ${viewMode === "list" ? "flex flex-col md:flex-row md:items-start gap-5" : ""} ${selectedOrders.has(order._id) ? "ring-2 ring-blue-500" : ""}`}
+                  className={`order-card relative p-5 z-50 rounded-2xl border shadow-lg  transition-all duration-300 hover:shadow-xl min-w-0 transform hover:-translate-y-1 ${themeClasses.card} ${themeClasses.cardHover} ${viewMode === "list" ? "flex flex-col md:flex-row md:items-start gap-5" : ""} ${selectedOrders.has(order._id) ? "ring-2 ring-blue-500" : ""}`}
                   style={{
                     borderLeft: `6px solid ${getStatusColor(order.status)}`,
                     animationDelay: `${index * 0.1}s`,
