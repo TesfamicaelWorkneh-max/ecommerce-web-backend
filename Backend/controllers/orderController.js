@@ -1438,12 +1438,7 @@
 //   }
 // };
 import Order from "../models/Order.model.js";
-import Cart from "../models/Cart.model.js";
-import User from "../models/User.model.js";
-import {
-  sendNotification,
-  sendBulkNotifications,
-} from "../utils/sendNotification.js";
+import mongoose from "mongoose";
 
 // Helper to generate order number
 const generateOrderNumber = () => {
@@ -1753,23 +1748,36 @@ export const getAllOrders = async (req, res) => {
     else if (sort === "total_high") sortOption = { total: -1 };
     else if (sort === "total_low") sortOption = { total: 1 };
 
-    const [orders, total] = await Promise.all([
-      Order.find(query)
-        .populate("user", "name email phone")
-        .populate("items.product")
-        .sort(sortOption)
-        .skip((page - 1) * limit)
-        .limit(parseInt(limit)),
-      Order.countDocuments(query),
-    ]);
+    // Calculate skip for pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
 
+    // Get total count for pagination
+    const total = await Order.countDocuments(query);
+
+    // Fetch orders with pagination
+    const orders = await Order.find(query)
+      .populate("user", "name email phone")
+      .populate("items.product")
+      .sort(sortOption)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get status counts (for current filters except pagination)
     const statusCounts = await Order.aggregate([
+      { $match: query },
       { $group: { _id: "$status", count: { $sum: 1 } } },
     ]);
-    const totalRevenue = await Order.aggregate([
-      { $match: { status: "delivered" } },
+
+    // Calculate total revenue (only from delivered orders)
+    const deliveredOrders = await Order.aggregate([
+      { $match: { ...query, status: "delivered" } },
       { $group: { _id: null, total: { $sum: "$total" } } },
-    ]).then((result) => result[0]?.total || 0);
+    ]);
+
+    const totalRevenue = deliveredOrders[0]?.total || 0;
+
+    // Calculate average order value
+    const avgOrderValue = total > 0 ? totalRevenue / total : 0;
 
     console.log(
       `📊 Found ${orders.length} orders out of ${total}, status counts:`,
@@ -1781,11 +1789,15 @@ export const getAllOrders = async (req, res) => {
       data: orders,
       pagination: {
         total,
-        page: Number(page),
-        limit: Number(limit),
-        pages: Math.ceil(total / limit),
+        page: parseInt(page),
+        limit: parseInt(limit),
+        pages: Math.ceil(total / parseInt(limit)),
       },
-      stats: { statusCounts, totalRevenue },
+      stats: {
+        statusCounts,
+        totalRevenue,
+        averageOrderValue: avgOrderValue,
+      },
     });
   } catch (err) {
     console.error("Get all orders error:", err);
@@ -1925,6 +1937,7 @@ export const getActiveOrders = async (req, res) => {
     });
   }
 };
+
 export const getOrderDetails = async (req, res) => {
   try {
     const { id } = req.params;
