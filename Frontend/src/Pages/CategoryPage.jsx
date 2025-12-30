@@ -203,7 +203,7 @@ const CategoryPage = () => {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 z-50">
             {/* Sort By */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
@@ -216,6 +216,7 @@ const CategoryPage = () => {
                 isClearable
                 styles={customSelectStyles}
                 placeholder="Select sort order..."
+                className="z-50"
               />
             </div>
 
@@ -231,6 +232,7 @@ const CategoryPage = () => {
                 isClearable
                 styles={customSelectStyles}
                 placeholder="Filter by availability..."
+                className="z-50"
               />
             </div>
 
@@ -278,10 +280,11 @@ const CategoryPage = () => {
 
             {/* Category Type */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 z-50">
                 Category Type
               </label>
               <Select
+                className="z-50"
                 options={categoryTypeOptions}
                 value={categoryTypeOptions.find(
                   (opt) => opt.value === categoryType

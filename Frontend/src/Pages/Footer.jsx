@@ -1865,7 +1865,7 @@ const Footer = () => {
                 }`}
               >
                 Your trusted destination for premium products, exceptional
-                quality, and outstanding customer service since 2020.
+                quality, and outstanding customer service since 2025.
               </p>
               <div className="flex gap-3 sm:gap-4">
                 {socialLinks.map((social, index) => (
@@ -2112,7 +2112,7 @@ const Footer = () => {
                   theme === "dark" ? "text-slate-400" : "text-cream-700"
                 }`}
               >
-                © 2024 Ades. All rights reserved.
+                © 2025 Ades. All rights reserved.
               </div>
 
               <div className="flex flex-wrap justify-center gap-3 sm:gap-6">

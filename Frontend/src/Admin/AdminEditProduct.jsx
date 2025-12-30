@@ -2092,35 +2092,35 @@ const AdminEditProduct = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="min-h-screen bg-gradient-to-br from-emerald-50/30 via-white to-teal-50/20 dark:from-slate-950/95 dark:via-slate-900 dark:to-slate-950/95 py-12"
+      className="min-h-screen bg-gradient-to-br from-emerald-50/30 via-white to-teal-50/20 dark:from-slate-950/95 dark:via-slate-900 dark:to-slate-950/95 py-8 sm:py-12"
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <motion.button
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             onClick={() => navigate("/admin/products")}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 hover:from-emerald-500/20 hover:to-emerald-600/20 text-emerald-700 dark:text-emerald-300 font-medium border border-emerald-500/30 transition-all duration-300 mb-6"
+            className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 hover:from-emerald-500/20 hover:to-emerald-600/20 text-emerald-700 dark:text-emerald-300 font-medium border border-emerald-500/30 transition-all duration-300 mb-4 sm:mb-6 w-full sm:w-auto"
           >
             <FaArrowLeft />
             Back to Products
           </motion.button>
 
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 dark:border-emerald-500/30 backdrop-blur-sm mb-4">
-              <IoSparkles className="text-emerald-600 dark:text-emerald-400" />
-              <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 dark:border-emerald-500/30 backdrop-blur-sm mb-3 sm:mb-4">
+              <IoSparkles className="text-emerald-600 dark:text-emerald-400 text-sm sm:text-base" />
+              <span className="text-xs sm:text-sm font-medium text-emerald-700 dark:text-emerald-300">
                 Admin Panel • Edit Mode
               </span>
             </div>
-            <h1 className="text-4xl font-bold mb-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
               <span className="text-slate-800 dark:text-white">Edit</span>
-              <span className="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent ml-3">
+              <span className="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent ml-2 sm:ml-3">
                 Product
               </span>
             </h1>
-            <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-2xl mx-auto px-4">
               Update product information and description
             </p>
           </div>
@@ -2131,25 +2131,25 @@ const AdminEditProduct = () => {
           initial="hidden"
           animate="visible"
           onSubmit={handleSubmit}
-          className="grid lg:grid-cols-3 gap-8"
+          className="flex flex-col lg:grid lg:grid-cols-3 gap-6 sm:gap-8"
         >
           {/* Left Column - Basic Information */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6 sm:space-y-8 order-1 lg:order-1">
             {/* Basic Info Card */}
             <motion.div
               variants={itemVariants}
-              className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl"
+              className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 dark:border-slate-700/50 shadow-lg sm:shadow-xl"
             >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10">
-                  <FaInfoCircle className="text-emerald-600 dark:text-emerald-400 text-xl" />
+              <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10">
+                  <FaInfoCircle className="text-emerald-600 dark:text-emerald-400 text-lg sm:text-xl" />
                 </div>
-                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white">
                   Basic Information
                 </h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-4 sm:gap-6">
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                     Product Name *
@@ -2161,43 +2161,45 @@ const AdminEditProduct = () => {
                       setFormData({ ...formData, name: e.target.value })
                     }
                     placeholder="Enter product name"
-                    className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 text-slate-800 dark:text-white placeholder-slate-400"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-white/50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 text-slate-800 dark:text-white placeholder-slate-400 text-sm sm:text-base"
                     required
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                    Price ($) *
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={formData.price}
-                    onChange={(e) =>
-                      setFormData({ ...formData, price: e.target.value })
-                    }
-                    placeholder="0.00"
-                    className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 text-slate-800 dark:text-white placeholder-slate-400"
-                    required
-                  />
-                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Price ($) *
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.price}
+                      onChange={(e) =>
+                        setFormData({ ...formData, price: e.target.value })
+                      }
+                      placeholder="0.00"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-white/50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 text-slate-800 dark:text-white placeholder-slate-400 text-sm sm:text-base"
+                      required
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                    Stock Quantity
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formData.stock}
-                    onChange={(e) =>
-                      setFormData({ ...formData, stock: e.target.value })
-                    }
-                    placeholder="Available units"
-                    className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 text-slate-800 dark:text-white placeholder-slate-400"
-                  />
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Stock Quantity
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={formData.stock}
+                      onChange={(e) =>
+                        setFormData({ ...formData, stock: e.target.value })
+                      }
+                      placeholder="Available units"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-white/50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 text-slate-800 dark:text-white placeholder-slate-400 text-sm sm:text-base"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -2209,7 +2211,7 @@ const AdminEditProduct = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, category: e.target.value })
                     }
-                    className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 text-slate-800 dark:text-white appearance-none"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-white/50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 text-slate-800 dark:text-white appearance-none text-sm sm:text-base"
                     required
                   >
                     <option value="">Select a category</option>
@@ -2222,7 +2224,7 @@ const AdminEditProduct = () => {
                 </div>
               </div>
 
-              <div className="mt-6">
+              <div className="mt-4 sm:mt-6">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <div className="relative">
                     <input
@@ -2241,11 +2243,11 @@ const AdminEditProduct = () => {
                       />
                     </div>
                   </div>
-                  <span className="text-slate-700 dark:text-slate-300 font-medium">
+                  <span className="text-slate-700 dark:text-slate-300 font-medium text-sm sm:text-base">
                     Mark as Sold Out
                   </span>
                 </label>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 ml-14">
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2 ml-14">
                   When enabled, customers won't be able to purchase this product
                 </p>
               </div>
@@ -2254,21 +2256,21 @@ const AdminEditProduct = () => {
             {/* Description Card */}
             <motion.div
               variants={itemVariants}
-              className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl"
+              className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 dark:border-slate-700/50 shadow-lg sm:shadow-xl"
             >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10">
-                  <FaTag className="text-blue-600 dark:text-blue-400 text-xl" />
+              <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10">
+                  <FaTag className="text-blue-600 dark:text-blue-400 text-lg sm:text-xl" />
                 </div>
-                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white">
                   Product Description
                 </h2>
               </div>
 
-              <div className="space-y-8">
+              <div className="space-y-6 sm:space-y-8">
                 {/* Introduction */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 sm:mb-3">
                     Introduction *
                     <span className="ml-2 text-xs text-slate-500">
                       (Describe your product in 2-3 sentences)
@@ -2287,14 +2289,14 @@ const AdminEditProduct = () => {
                     }
                     placeholder="Example: Our premium facial serum is specially formulated to combat signs of aging while providing deep hydration. Perfect for all skin types, it delivers visible results within weeks..."
                     rows="4"
-                    className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 text-slate-800 dark:text-white placeholder-slate-400 resize-none leading-relaxed"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-white/50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 text-slate-800 dark:text-white placeholder-slate-400 resize-none leading-relaxed text-sm sm:text-base"
                     required
                   />
                 </div>
 
                 {/* Key Features */}
-                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/10 dark:to-cyan-900/10 p-6 rounded-2xl border border-blue-200 dark:border-blue-800/30">
-                  <div className="flex items-center justify-between mb-4">
+                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/10 dark:to-cyan-900/10 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-blue-200 dark:border-blue-800/30">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4">
                     <div>
                       <label className="block text-lg font-semibold text-slate-800 dark:text-white mb-1 flex items-center gap-2">
                         <FaStar className="text-blue-500" />
@@ -2304,17 +2306,17 @@ const AdminEditProduct = () => {
                         Add what makes your product special
                       </p>
                     </div>
-                    <span className="text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-3 py-1 rounded-full">
+                    <span className="text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-3 py-1 rounded-full mt-2 sm:mt-0 inline-block w-fit">
                       {formData.description.keyFeatures.length} added
                     </span>
                   </div>
 
                   {/* Features List Preview */}
-                  <div className="mb-6">
-                    <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                  <div className="mb-4 sm:mb-6">
+                    <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 sm:mb-3">
                       Features Preview:
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2">
                       {formData.description.keyFeatures.length > 0 ? (
                         formData.description.keyFeatures.map(
                           (feature, index) => (
@@ -2322,16 +2324,18 @@ const AdminEditProduct = () => {
                               <motion.div
                                 initial={{ scale: 0.8, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
-                                className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900/30 dark:to-cyan-900/30 border border-blue-200 dark:border-blue-800"
+                                className="flex items-center justify-between sm:justify-start gap-2 px-3 sm:px-4 py-2 rounded-full bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900/30 dark:to-cyan-900/30 border border-blue-200 dark:border-blue-800"
                               >
-                                <FaCheckCircle className="text-blue-500 text-sm" />
-                                <span className="text-sm text-slate-700 dark:text-slate-300">
-                                  {feature}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                  <FaCheckCircle className="text-blue-500 text-sm" />
+                                  <span className="text-sm text-slate-700 dark:text-slate-300">
+                                    {feature}
+                                  </span>
+                                </div>
                                 <button
                                   type="button"
                                   onClick={() => removeFeature(index)}
-                                  className="ml-2 text-red-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="text-red-500 hover:text-red-600 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                                 >
                                   <FaTimes className="text-xs" />
                                 </button>
@@ -2349,7 +2353,7 @@ const AdminEditProduct = () => {
 
                   {/* Add Feature Input */}
                   <div className="space-y-4">
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <input
                         type="text"
                         value={featureInput}
@@ -2359,16 +2363,16 @@ const AdminEditProduct = () => {
                           (e.preventDefault(), addFeature())
                         }
                         placeholder="Type a feature and press Enter or click Add..."
-                        className="flex-1 px-4 py-3 rounded-xl bg-white/70 dark:bg-slate-700/70 border border-blue-300 dark:border-blue-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 text-slate-800 dark:text-white placeholder-slate-400"
+                        className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-white/70 dark:bg-slate-700/70 border border-blue-300 dark:border-blue-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 text-slate-800 dark:text-white placeholder-slate-400 text-sm sm:text-base"
                       />
                       <motion.button
                         type="button"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={addFeature}
-                        className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-medium hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 flex items-center gap-2 whitespace-nowrap"
+                        className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-medium hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap text-sm sm:text-base w-full sm:w-auto"
                       >
-                        <FaPlus />
+                        <FaPlus className="text-xs sm:text-sm" />
                         Add Feature
                       </motion.button>
                     </div>
@@ -2379,7 +2383,7 @@ const AdminEditProduct = () => {
                         <FaLightbulb className="text-amber-500" />
                         Quick Suggestions:
                       </div>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                         {featureSuggestions.map((suggestion, index) => (
                           <motion.button
                             key={index}
@@ -2387,7 +2391,7 @@ const AdminEditProduct = () => {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => addSuggestion("feature", suggestion)}
-                            className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800 text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
+                            className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800 text-xs sm:text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 text-left"
                           >
                             + {suggestion}
                           </motion.button>
@@ -2398,8 +2402,8 @@ const AdminEditProduct = () => {
                 </div>
 
                 {/* Benefits */}
-                <div className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/10 dark:to-green-900/10 p-6 rounded-2xl border border-emerald-200 dark:border-emerald-800/30">
-                  <div className="flex items-center justify-between mb-4">
+                <div className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/10 dark:to-green-900/10 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-emerald-200 dark:border-emerald-800/30">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4">
                     <div>
                       <label className="block text-lg font-semibold text-slate-800 dark:text-white mb-1 flex items-center gap-2">
                         <FaLeaf className="text-emerald-500" />
@@ -2409,33 +2413,35 @@ const AdminEditProduct = () => {
                         What customers will gain from using your product
                       </p>
                     </div>
-                    <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 rounded-full">
+                    <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 rounded-full mt-2 sm:mt-0 inline-block w-fit">
                       {formData.description.benefits.length} added
                     </span>
                   </div>
 
                   {/* Benefits List Preview */}
-                  <div className="mb-6">
-                    <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                  <div className="mb-4 sm:mb-6">
+                    <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 sm:mb-3">
                       Benefits Preview:
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2">
                       {formData.description.benefits.length > 0 ? (
                         formData.description.benefits.map((benefit, index) => (
                           <div key={index} className="group relative">
                             <motion.div
                               initial={{ scale: 0.8, opacity: 0 }}
                               animate={{ scale: 1, opacity: 1 }}
-                              className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-emerald-100 to-green-100 dark:from-emerald-900/30 dark:to-green-900/30 border border-emerald-200 dark:border-emerald-800"
+                              className="flex items-center justify-between sm:justify-start gap-2 px-3 sm:px-4 py-2 rounded-full bg-gradient-to-r from-emerald-100 to-green-100 dark:from-emerald-900/30 dark:to-green-900/30 border border-emerald-200 dark:border-emerald-800"
                             >
-                              <FaCheckCircle className="text-emerald-500 text-sm" />
-                              <span className="text-sm text-slate-700 dark:text-slate-300">
-                                {benefit}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <FaCheckCircle className="text-emerald-500 text-sm" />
+                                <span className="text-sm text-slate-700 dark:text-slate-300">
+                                  {benefit}
+                                </span>
+                              </div>
                               <button
                                 type="button"
                                 onClick={() => removeBenefit(index)}
-                                className="ml-2 text-red-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="text-red-500 hover:text-red-600 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                               >
                                 <FaTimes className="text-xs" />
                               </button>
@@ -2452,7 +2458,7 @@ const AdminEditProduct = () => {
 
                   {/* Add Benefit Input */}
                   <div className="space-y-4">
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <input
                         type="text"
                         value={benefitInput}
@@ -2462,16 +2468,16 @@ const AdminEditProduct = () => {
                           (e.preventDefault(), addBenefit())
                         }
                         placeholder="Type a benefit and press Enter or click Add..."
-                        className="flex-1 px-4 py-3 rounded-xl bg-white/70 dark:bg-slate-700/70 border border-emerald-300 dark:border-emerald-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 text-slate-800 dark:text-white placeholder-slate-400"
+                        className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-white/70 dark:bg-slate-700/70 border border-emerald-300 dark:border-emerald-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 text-slate-800 dark:text-white placeholder-slate-400 text-sm sm:text-base"
                       />
                       <motion.button
                         type="button"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={addBenefit}
-                        className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 text-white font-medium hover:shadow-lg hover:shadow-emerald-500/30 transition-all duration-300 flex items-center gap-2 whitespace-nowrap"
+                        className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 text-white font-medium hover:shadow-lg hover:shadow-emerald-500/30 transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap text-sm sm:text-base w-full sm:w-auto"
                       >
-                        <FaPlus />
+                        <FaPlus className="text-xs sm:text-sm" />
                         Add Benefit
                       </motion.button>
                     </div>
@@ -2482,7 +2488,7 @@ const AdminEditProduct = () => {
                         <FaLightbulb className="text-amber-500" />
                         Quick Suggestions:
                       </div>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                         {benefitSuggestions.map((suggestion, index) => (
                           <motion.button
                             key={index}
@@ -2490,7 +2496,7 @@ const AdminEditProduct = () => {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => addSuggestion("benefit", suggestion)}
-                            className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-800 text-sm text-slate-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-200"
+                            className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-800 text-xs sm:text-sm text-slate-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-200 text-left"
                           >
                             + {suggestion}
                           </motion.button>
@@ -2501,8 +2507,8 @@ const AdminEditProduct = () => {
                 </div>
 
                 {/* Ingredients */}
-                <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10 p-6 rounded-2xl border border-purple-200 dark:border-purple-800/30">
-                  <div className="flex items-center justify-between mb-4">
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-purple-200 dark:border-purple-800/30">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4">
                     <div>
                       <label className="block text-lg font-semibold text-slate-800 dark:text-white mb-1 flex items-center gap-2">
                         <FaFlask className="text-purple-500" />
@@ -2512,17 +2518,17 @@ const AdminEditProduct = () => {
                         List key active ingredients
                       </p>
                     </div>
-                    <span className="text-sm font-medium text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/30 px-3 py-1 rounded-full">
+                    <span className="text-sm font-medium text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/30 px-3 py-1 rounded-full mt-2 sm:mt-0 inline-block w-fit">
                       {formData.description.ingredients.length} added
                     </span>
                   </div>
 
                   {/* Ingredients List Preview */}
-                  <div className="mb-6">
-                    <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                  <div className="mb-4 sm:mb-6">
+                    <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 sm:mb-3">
                       Ingredients Preview:
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2">
                       {formData.description.ingredients.length > 0 ? (
                         formData.description.ingredients.map(
                           (ingredient, index) => (
@@ -2530,16 +2536,18 @@ const AdminEditProduct = () => {
                               <motion.div
                                 initial={{ scale: 0.8, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
-                                className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 border border-purple-200 dark:border-purple-800"
+                                className="flex items-center justify-between sm:justify-start gap-2 px-3 sm:px-4 py-2 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 border border-purple-200 dark:border-purple-800"
                               >
-                                <FaVial className="text-purple-500 text-sm" />
-                                <span className="text-sm text-slate-700 dark:text-slate-300">
-                                  {ingredient}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                  <FaVial className="text-purple-500 text-sm" />
+                                  <span className="text-sm text-slate-700 dark:text-slate-300">
+                                    {ingredient}
+                                  </span>
+                                </div>
                                 <button
                                   type="button"
                                   onClick={() => removeIngredient(index)}
-                                  className="ml-2 text-red-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="text-red-500 hover:text-red-600 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                                 >
                                   <FaTimes className="text-xs" />
                                 </button>
@@ -2557,7 +2565,7 @@ const AdminEditProduct = () => {
 
                   {/* Add Ingredient Input */}
                   <div className="space-y-4">
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <input
                         type="text"
                         value={ingredientInput}
@@ -2567,16 +2575,16 @@ const AdminEditProduct = () => {
                           (e.preventDefault(), addIngredient())
                         }
                         placeholder="Type an ingredient and press Enter or click Add..."
-                        className="flex-1 px-4 py-3 rounded-xl bg-white/70 dark:bg-slate-700/70 border border-purple-300 dark:border-purple-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 text-slate-800 dark:text-white placeholder-slate-400"
+                        className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-white/70 dark:bg-slate-700/70 border border-purple-300 dark:border-purple-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 text-slate-800 dark:text-white placeholder-slate-400 text-sm sm:text-base"
                       />
                       <motion.button
                         type="button"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={addIngredient}
-                        className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300 flex items-center gap-2 whitespace-nowrap"
+                        className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap text-sm sm:text-base w-full sm:w-auto"
                       >
-                        <FaPlus />
+                        <FaPlus className="text-xs sm:text-sm" />
                         Add Ingredient
                       </motion.button>
                     </div>
@@ -2587,7 +2595,7 @@ const AdminEditProduct = () => {
                         <FaLightbulb className="text-amber-500" />
                         Quick Suggestions:
                       </div>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                         {ingredientSuggestions.map((suggestion, index) => (
                           <motion.button
                             key={index}
@@ -2597,7 +2605,7 @@ const AdminEditProduct = () => {
                             onClick={() =>
                               addSuggestion("ingredient", suggestion)
                             }
-                            className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-purple-200 dark:border-purple-800 text-sm text-slate-700 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-200"
+                            className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-purple-200 dark:border-purple-800 text-xs sm:text-sm text-slate-700 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-200 text-left"
                           >
                             + {suggestion}
                           </motion.button>
@@ -2608,8 +2616,8 @@ const AdminEditProduct = () => {
                 </div>
 
                 {/* How to Use */}
-                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/10 dark:to-cyan-900/10 p-6 rounded-2xl border border-blue-200 dark:border-blue-800/30">
-                  <div className="flex items-center justify-between mb-4">
+                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/10 dark:to-cyan-900/10 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-blue-200 dark:border-blue-800/30">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4">
                     <div>
                       <label className="block text-lg font-semibold text-slate-800 dark:text-white mb-1 flex items-center gap-2">
                         <FaBoxOpen className="text-blue-500" />
@@ -2619,47 +2627,47 @@ const AdminEditProduct = () => {
                         Step-by-step instructions for best results
                       </p>
                     </div>
-                    <span className="text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-3 py-1 rounded-full">
+                    <span className="text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-3 py-1 rounded-full mt-2 sm:mt-0 inline-block w-fit">
                       {formData.description.howToUse.length} steps
                     </span>
                   </div>
 
                   {/* Usage List Preview */}
-                  <div className="mb-6">
-                    <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                  <div className="mb-4 sm:mb-6">
+                    <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 sm:mb-3">
                       Usage Steps Preview:
                     </div>
-                    <div className="space-y-3">
+                    <div className="space-y-2 sm:space-y-3">
                       {formData.description.howToUse.length > 0 ? (
                         formData.description.howToUse.map((step, index) => (
                           <div key={index} className="group relative">
                             <motion.div
                               initial={{ opacity: 0, x: -10 }}
                               animate={{ opacity: 1, x: 0 }}
-                              className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border border-blue-200 dark:border-blue-800"
+                              className="flex items-start gap-3 p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border border-blue-200 dark:border-blue-800"
                             >
-                              <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0">
-                                <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="text-xs sm:text-sm font-bold text-blue-600 dark:text-blue-400">
                                   {index + 1}
                                 </span>
                               </div>
                               <div className="flex-1">
-                                <span className="text-slate-700 dark:text-slate-300">
+                                <span className="text-sm sm:text-base text-slate-700 dark:text-slate-300">
                                   {step}
                                 </span>
                               </div>
                               <button
                                 type="button"
                                 onClick={() => removeUsage(index)}
-                                className="text-red-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                                className="text-red-500 hover:text-red-600 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex-shrink-0"
                               >
-                                <FaTimes />
+                                <FaTimes className="text-sm" />
                               </button>
                             </motion.div>
                           </div>
                         ))
                       ) : (
-                        <div className="text-slate-500 dark:text-slate-400 text-sm italic p-4">
+                        <div className="text-slate-500 dark:text-slate-400 text-sm italic p-3 sm:p-4">
                           No usage steps added yet
                         </div>
                       )}
@@ -2668,7 +2676,7 @@ const AdminEditProduct = () => {
 
                   {/* Add Usage Input */}
                   <div className="space-y-4">
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <input
                         type="text"
                         value={usageInput}
@@ -2677,16 +2685,16 @@ const AdminEditProduct = () => {
                           e.key === "Enter" && (e.preventDefault(), addUsage())
                         }
                         placeholder="Type a usage step and press Enter or click Add..."
-                        className="flex-1 px-4 py-3 rounded-xl bg-white/70 dark:bg-slate-700/70 border border-blue-300 dark:border-blue-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 text-slate-800 dark:text-white placeholder-slate-400"
+                        className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-white/70 dark:bg-slate-700/70 border border-blue-300 dark:border-blue-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 text-slate-800 dark:text-white placeholder-slate-400 text-sm sm:text-base"
                       />
                       <motion.button
                         type="button"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={addUsage}
-                        className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-medium hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 flex items-center gap-2 whitespace-nowrap"
+                        className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-medium hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap text-sm sm:text-base w-full sm:w-auto"
                       >
-                        <FaPlus />
+                        <FaPlus className="text-xs sm:text-sm" />
                         Add Step
                       </motion.button>
                     </div>
@@ -2697,7 +2705,7 @@ const AdminEditProduct = () => {
                         <FaLightbulb className="text-amber-500" />
                         Quick Suggestions:
                       </div>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                         {usageSuggestions.map((suggestion, index) => (
                           <motion.button
                             key={index}
@@ -2705,7 +2713,7 @@ const AdminEditProduct = () => {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => addSuggestion("usage", suggestion)}
-                            className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800 text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
+                            className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800 text-xs sm:text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 text-left"
                           >
                             + {suggestion}
                           </motion.button>
@@ -2716,8 +2724,8 @@ const AdminEditProduct = () => {
                 </div>
 
                 {/* Storage Instructions */}
-                <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 p-6 rounded-2xl border border-amber-200 dark:border-amber-800/30">
-                  <div className="flex items-center justify-between mb-4">
+                <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-amber-200 dark:border-amber-800/30">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4">
                     <div>
                       <label className="block text-lg font-semibold text-slate-800 dark:text-white mb-1 flex items-center gap-2">
                         <FaCalendarAlt className="text-amber-500" />
@@ -2727,33 +2735,35 @@ const AdminEditProduct = () => {
                         Proper storage guidelines for product longevity
                       </p>
                     </div>
-                    <span className="text-sm font-medium text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 px-3 py-1 rounded-full">
+                    <span className="text-sm font-medium text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 px-3 py-1 rounded-full mt-2 sm:mt-0 inline-block w-fit">
                       {formData.description.storage.length} tips
                     </span>
                   </div>
 
                   {/* Storage List Preview */}
-                  <div className="mb-6">
-                    <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                  <div className="mb-4 sm:mb-6">
+                    <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 sm:mb-3">
                       Storage Tips Preview:
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2">
                       {formData.description.storage.length > 0 ? (
                         formData.description.storage.map((tip, index) => (
                           <div key={index} className="group relative">
                             <motion.div
                               initial={{ scale: 0.8, opacity: 0 }}
                               animate={{ scale: 1, opacity: 1 }}
-                              className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 border border-amber-200 dark:border-amber-800"
+                              className="flex items-center justify-between sm:justify-start gap-2 px-3 sm:px-4 py-2 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 border border-amber-200 dark:border-amber-800"
                             >
-                              <FaTemperatureLow className="text-amber-500 text-sm" />
-                              <span className="text-sm text-slate-700 dark:text-slate-300">
-                                {tip}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <FaTemperatureLow className="text-amber-500 text-sm" />
+                                <span className="text-sm text-slate-700 dark:text-slate-300">
+                                  {tip}
+                                </span>
+                              </div>
                               <button
                                 type="button"
                                 onClick={() => removeStorage(index)}
-                                className="ml-2 text-red-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="text-red-500 hover:text-red-600 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                               >
                                 <FaTimes className="text-xs" />
                               </button>
@@ -2770,7 +2780,7 @@ const AdminEditProduct = () => {
 
                   {/* Add Storage Input */}
                   <div className="space-y-4">
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <input
                         type="text"
                         value={storageInput}
@@ -2780,16 +2790,16 @@ const AdminEditProduct = () => {
                           (e.preventDefault(), addStorage())
                         }
                         placeholder="Type a storage tip and press Enter or click Add..."
-                        className="flex-1 px-4 py-3 rounded-xl bg-white/70 dark:bg-slate-700/70 border border-amber-300 dark:border-amber-700 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all duration-300 text-slate-800 dark:text-white placeholder-slate-400"
+                        className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-white/70 dark:bg-slate-700/70 border border-amber-300 dark:border-amber-700 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all duration-300 text-slate-800 dark:text-white placeholder-slate-400 text-sm sm:text-base"
                       />
                       <motion.button
                         type="button"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={addStorage}
-                        className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium hover:shadow-lg hover:shadow-amber-500/30 transition-all duration-300 flex items-center gap-2 whitespace-nowrap"
+                        className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium hover:shadow-lg hover:shadow-amber-500/30 transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap text-sm sm:text-base w-full sm:w-auto"
                       >
-                        <FaPlus />
+                        <FaPlus className="text-xs sm:text-sm" />
                         Add Tip
                       </motion.button>
                     </div>
@@ -2800,7 +2810,7 @@ const AdminEditProduct = () => {
                         <FaLightbulb className="text-amber-500" />
                         Quick Suggestions:
                       </div>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                         {storageSuggestions.map((suggestion, index) => (
                           <motion.button
                             key={index}
@@ -2808,7 +2818,7 @@ const AdminEditProduct = () => {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => addSuggestion("storage", suggestion)}
-                            className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-800 text-sm text-slate-700 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all duration-200"
+                            className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-800 text-xs sm:text-sm text-slate-700 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all duration-200 text-left"
                           >
                             + {suggestion}
                           </motion.button>
@@ -2822,25 +2832,25 @@ const AdminEditProduct = () => {
           </div>
 
           {/* Right Column - Image & Submit */}
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8 order-2 lg:order-2">
             {/* Image Upload Card */}
             <motion.div
               variants={itemVariants}
-              className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl"
+              className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 dark:border-slate-700/50 shadow-lg sm:shadow-xl"
             >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10">
-                  <FaImage className="text-purple-600 dark:text-purple-400 text-xl" />
+              <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10">
+                  <FaImage className="text-purple-600 dark:text-purple-400 text-lg sm:text-xl" />
                 </div>
-                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white">
                   Product Image
                 </h2>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {/* Image Preview */}
                 <div className="relative">
-                  <div className="aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-600">
+                  <div className="aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-600">
                     {imagePreview ? (
                       <img
                         src={imagePreview}
@@ -2848,12 +2858,12 @@ const AdminEditProduct = () => {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center p-8">
-                        <FaUpload className="text-4xl text-slate-400 dark:text-slate-500 mb-4" />
-                        <p className="text-slate-500 dark:text-slate-400 text-center">
+                      <div className="w-full h-full flex flex-col items-center justify-center p-6 sm:p-8">
+                        <FaUpload className="text-3xl sm:text-4xl text-slate-400 dark:text-slate-500 mb-3 sm:mb-4" />
+                        <p className="text-slate-500 dark:text-slate-400 text-center text-sm sm:text-base">
                           Current product image
                         </p>
-                        <p className="text-sm text-slate-400 dark:text-slate-500 mt-2">
+                        <p className="text-xs sm:text-sm text-slate-400 dark:text-slate-500 mt-1 sm:mt-2">
                           Click below to change
                         </p>
                       </div>
@@ -2867,7 +2877,7 @@ const AdminEditProduct = () => {
                         setImagePreview(null);
                         setFormData({ ...formData, image: null });
                       }}
-                      className="absolute top-3 right-3 w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors"
+                      className="absolute top-2 sm:top-3 right-2 sm:right-3 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors text-sm"
                     >
                       <FaTimes />
                     </button>
@@ -2887,14 +2897,14 @@ const AdminEditProduct = () => {
                     htmlFor="image-upload"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="block w-full px-6 py-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium text-center cursor-pointer shadow-lg hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300"
+                    className="block w-full px-4 sm:px-6 py-3 sm:py-4 rounded-lg sm:rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium text-center cursor-pointer shadow-lg hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300 text-sm sm:text-base"
                   >
-                    <div className="flex items-center justify-center gap-3">
-                      <FaUpload />
+                    <div className="flex items-center justify-center gap-2 sm:gap-3">
+                      <FaUpload className="text-sm sm:text-base" />
                       {formData.image ? "Image Changed" : "Change Image"}
                     </div>
                   </motion.label>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 text-center mt-3">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 text-center mt-2 sm:mt-3">
                     Leave empty to keep current image
                   </p>
                 </div>
@@ -2904,23 +2914,23 @@ const AdminEditProduct = () => {
             {/* Stats & Info Card */}
             <motion.div
               variants={itemVariants}
-              className="bg-gradient-to-br from-emerald-500/5 to-teal-500/5 backdrop-blur-sm rounded-2xl p-6 border border-emerald-500/20"
+              className="bg-gradient-to-br from-emerald-500/5 to-teal-500/5 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-emerald-500/20"
             >
-              <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+              <h3 className="font-bold text-slate-800 dark:text-white mb-3 sm:mb-4 flex items-center gap-2">
                 <FaInfoCircle className="text-emerald-500" />
                 Description Summary
               </h3>
 
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <FaCheckCircle className="text-emerald-500" />
-                    <span className="text-sm text-slate-700 dark:text-slate-300">
+                    <FaCheckCircle className="text-emerald-500 text-sm" />
+                    <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">
                       Introduction
                     </span>
                   </div>
                   <span
-                    className={`text-sm ${formData.description.intro ? "text-emerald-600" : "text-slate-400"}`}
+                    className={`text-xs sm:text-sm ${formData.description.intro ? "text-emerald-600" : "text-slate-400"}`}
                   >
                     {formData.description.intro ? "✓ Added" : "Required"}
                   </span>
@@ -2928,60 +2938,60 @@ const AdminEditProduct = () => {
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <FaStar className="text-blue-500" />
-                    <span className="text-sm text-slate-700 dark:text-slate-300">
+                    <FaStar className="text-blue-500 text-sm" />
+                    <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">
                       Key Features
                     </span>
                   </div>
-                  <span className="text-sm text-blue-600">
+                  <span className="text-xs sm:text-sm text-blue-600">
                     {formData.description.keyFeatures.length} added
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <FaLeaf className="text-emerald-500" />
-                    <span className="text-sm text-slate-700 dark:text-slate-300">
+                    <FaLeaf className="text-emerald-500 text-sm" />
+                    <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">
                       Benefits
                     </span>
                   </div>
-                  <span className="text-sm text-emerald-600">
+                  <span className="text-xs sm:text-sm text-emerald-600">
                     {formData.description.benefits.length} added
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <FaFlask className="text-purple-500" />
-                    <span className="text-sm text-slate-700 dark:text-slate-300">
+                    <FaFlask className="text-purple-500 text-sm" />
+                    <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">
                       Ingredients
                     </span>
                   </div>
-                  <span className="text-sm text-purple-600">
+                  <span className="text-xs sm:text-sm text-purple-600">
                     {formData.description.ingredients.length} added
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <FaBoxOpen className="text-blue-500" />
-                    <span className="text-sm text-slate-700 dark:text-slate-300">
+                    <FaBoxOpen className="text-blue-500 text-sm" />
+                    <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">
                       Usage Steps
                     </span>
                   </div>
-                  <span className="text-sm text-blue-600">
+                  <span className="text-xs sm:text-sm text-blue-600">
                     {formData.description.howToUse.length} added
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <FaCalendarAlt className="text-amber-500" />
-                    <span className="text-sm text-slate-700 dark:text-slate-300">
+                    <FaCalendarAlt className="text-amber-500 text-sm" />
+                    <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">
                       Storage Tips
                     </span>
                   </div>
-                  <span className="text-sm text-amber-600">
+                  <span className="text-xs sm:text-sm text-amber-600">
                     {formData.description.storage.length} added
                   </span>
                 </div>
@@ -2991,27 +3001,27 @@ const AdminEditProduct = () => {
             {/* Quick Tips */}
             <motion.div
               variants={itemVariants}
-              className="bg-gradient-to-br from-blue-500/5 to-cyan-500/5 backdrop-blur-sm rounded-2xl p-6 border border-blue-500/20"
+              className="bg-gradient-to-br from-blue-500/5 to-cyan-500/5 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-blue-500/20"
             >
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
-                  <FaEdit className="text-white text-xl" />
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+                  <FaEdit className="text-white text-lg sm:text-xl" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-800 dark:text-white mb-2">
+                  <h3 className="font-bold text-slate-800 dark:text-white mb-1 sm:mb-2 text-sm sm:text-base">
                     Editing Tips
                   </h3>
-                  <ul className="text-sm text-slate-600 dark:text-slate-400 space-y-2">
+                  <ul className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 space-y-1 sm:space-y-2">
                     <li className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1 sm:mt-1.5 flex-shrink-0" />
                       Keep descriptions updated with latest features
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1 sm:mt-1.5 flex-shrink-0" />
                       Update images for seasonal promotions
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1 sm:mt-1.5 flex-shrink-0" />
                       Review pricing against competitors
                     </li>
                   </ul>
@@ -3026,27 +3036,29 @@ const AdminEditProduct = () => {
                 disabled={saving}
                 whileHover={{ scale: saving ? 1 : 1.02 }}
                 whileTap={{ scale: saving ? 1 : 0.98 }}
-                className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 ${
+                className={`w-full py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold text-base sm:text-lg transition-all duration-300 ${
                   saving
                     ? "bg-gradient-to-r from-emerald-500/50 to-teal-500/50 cursor-not-allowed"
                     : "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-lg hover:shadow-2xl hover:shadow-emerald-500/30"
-                } text-white flex items-center justify-center gap-3`}
+                } text-white flex items-center justify-center gap-2 sm:gap-3`}
               >
                 {saving ? (
                   <>
-                    <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
-                    Updating Product...
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 sm:border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span className="text-sm sm:text-base">
+                      Updating Product...
+                    </span>
                   </>
                 ) : (
                   <>
-                    <FaEdit />
-                    Update Product
-                    <FaCheckCircle />
+                    <FaEdit className="text-sm sm:text-base" />
+                    <span className="text-sm sm:text-base">Update Product</span>
+                    <FaCheckCircle className="text-sm sm:text-base" />
                   </>
                 )}
               </motion.button>
 
-              <p className="text-sm text-slate-500 dark:text-slate-400 text-center mt-4">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 text-center mt-3 sm:mt-4">
                 Click update to save all changes
               </p>
             </motion.div>

@@ -1248,94 +1248,113 @@ const AdminSidebar = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100]"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
               onClick={() => setIsModalOpen(false)}
             />
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[101] w-full max-w-md"
+              className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none"
             >
-              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20">
-                      <FaUpload className="text-green-600 dark:text-green-400" />
+              <div
+                className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-md pointer-events-auto max-h-[90vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-4 sm:mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20">
+                        <FaUpload className="text-green-600 dark:text-green-400" />
+                      </div>
+                      <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                        Upload Hero Image
+                      </h2>
                     </div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                      Upload Hero Image
-                    </h2>
-                  </div>
-                  <button
-                    onClick={() => setIsModalOpen(false)}
-                    className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                  >
-                    <FaTimes className="text-slate-500 dark:text-slate-400" />
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 text-center">
-                    {file ? (
-                      <div className="space-y-4">
-                        <img
-                          src={URL.createObjectURL(file)}
-                          alt="Preview"
-                          className="max-h-48 mx-auto rounded-lg"
-                        />
-                        <p className="text-sm text-slate-600 dark:text-slate-400">
-                          {file.name}
-                        </p>
-                      </div>
-                    ) : (
-                      <div>
-                        <FaUpload className="w-12 h-12 mx-auto mb-4 text-slate-400" />
-                        <p className="text-slate-600 dark:text-slate-300 mb-2">
-                          Click to select an image
-                        </p>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
-                          PNG, JPG, GIF up to 5MB
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="hidden"
-                    id="file-upload"
-                  />
-                  <label
-                    htmlFor="file-upload"
-                    className="block w-full px-4 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg text-center cursor-pointer transition-colors text-slate-700 dark:text-slate-300"
-                  >
-                    Choose Image
-                  </label>
-
-                  <div className="flex gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
                     <button
                       onClick={() => setIsModalOpen(false)}
-                      className="flex-1 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg text-slate-700 dark:text-slate-300 font-medium transition-colors"
+                      className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
                     >
-                      Cancel
+                      <FaTimes className="text-slate-500 dark:text-slate-400" />
                     </button>
-                    <button
-                      onClick={handleUpload}
-                      disabled={!file || uploading}
-                      className="flex-1 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-lg text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {uploading ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          Uploading...
-                        </span>
+                  </div>
+
+                  <div className="space-y-4 sm:space-y-6">
+                    <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-6 sm:p-8 text-center">
+                      {file ? (
+                        <div className="space-y-4">
+                          <div className="relative aspect-video rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-700">
+                            <img
+                              src={URL.createObjectURL(file)}
+                              alt="Preview"
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                          <p className="text-sm text-slate-600 dark:text-slate-400 break-words">
+                            {file.name}
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-500">
+                            {(file.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
                       ) : (
-                        "Upload"
+                        <div className="space-y-3">
+                          <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 flex items-center justify-center">
+                            <FaUpload className="w-8 h-8 text-green-600 dark:text-green-400" />
+                          </div>
+                          <div>
+                            <p className="text-slate-600 dark:text-slate-300 font-medium mb-1">
+                              Drop your image here
+                            </p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                              or click to browse
+                            </p>
+                          </div>
+                          <p className="text-xs text-slate-400 dark:text-slate-500 pt-2 border-t border-slate-200 dark:border-slate-700">
+                            PNG, JPG, GIF up to 5MB
+                          </p>
+                        </div>
                       )}
-                    </button>
+                    </div>
+
+                    <div className="space-y-3">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="hidden"
+                        id="file-upload"
+                      />
+                      <label
+                        htmlFor="file-upload"
+                        className="block w-full px-4 py-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10 hover:from-green-100 hover:to-emerald-100 dark:hover:from-green-800/20 dark:hover:to-emerald-800/20 border border-green-200 dark:border-green-800/30 rounded-lg text-center cursor-pointer transition-all duration-200 text-green-700 dark:text-green-400 font-medium"
+                      >
+                        Choose Image
+                      </label>
+
+                      <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+                        <button
+                          onClick={() => setIsModalOpen(false)}
+                          className="flex-1 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg text-slate-700 dark:text-slate-300 font-medium transition-all duration-200"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleUpload}
+                          disabled={!file || uploading}
+                          className="flex-1 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:from-slate-400 disabled:to-slate-500 disabled:cursor-not-allowed rounded-lg text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-green-500/20"
+                        >
+                          {uploading ? (
+                            <span className="flex items-center justify-center gap-2">
+                              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                              Uploading...
+                            </span>
+                          ) : (
+                            "Upload Image"
+                          )}
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

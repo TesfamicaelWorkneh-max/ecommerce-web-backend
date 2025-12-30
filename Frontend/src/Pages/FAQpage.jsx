@@ -46,6 +46,76 @@ const FAQPage = () => {
   const contactRef = useRef(null);
   const containerRef = useRef(null);
 
+  // Animation variants
+  const pageVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut",
+      },
+    },
+  };
+
+  const faqItemVariants = {
+    closed: {
+      height: 0,
+      opacity: 0,
+      marginTop: 0,
+      transition: {
+        height: {
+          duration: 0.4,
+          ease: [0.04, 0.62, 0.23, 0.98],
+        },
+        opacity: {
+          duration: 0.3,
+          ease: "easeIn",
+        },
+      },
+    },
+    open: {
+      height: "auto",
+      opacity: 1,
+      marginTop: "1.5rem",
+      transition: {
+        height: {
+          duration: 0.5,
+          ease: [0.04, 0.62, 0.23, 0.98],
+        },
+        opacity: {
+          duration: 0.4,
+          delay: 0.1,
+          ease: "easeOut",
+        },
+        marginTop: {
+          duration: 0.4,
+          ease: "easeOut",
+        },
+      },
+    },
+  };
+
+  const contentVariants = {
+    closed: {
+      opacity: 0,
+      y: -10,
+      transition: {
+        duration: 0.3,
+        ease: "easeIn",
+      },
+    },
+    open: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.4,
+        delay: 0.2,
+        ease: "easeOut",
+      },
+    },
+  };
+
   // Scroll animations
   const { scrollYProgress } = useScroll({
     container: containerRef,
@@ -166,14 +236,14 @@ const FAQPage = () => {
       },
       {
         q: "How can I contact customer service?",
-        a: "You can reach us 24/7 through live chat, email at support@adescart.com, or call +1 (555) 123-4567 during business hours (9AM-6PM PST).",
+        a: "You can reach us 24/7 through live chat, email at support@adescart.com, or call +251964623413 during business hours (9AM-6PM PST).",
         tags: ["contact", "support"],
       },
     ],
     ordering: [
       {
         q: "What payment methods do you accept?",
-        a: "We accept all major credit cards (Visa, Mastercard, American Express, Discover), PayPal, Apple Pay, Google Pay, and Shop Pay for secure checkout.",
+        a: "For now we accept only chapa payment but later we will integrate all major credit cards (Visa, Mastercard, American Express, Discover), PayPal, Apple Pay, Google Pay, and Shop Pay for secure checkout.",
         tags: ["payment", "checkout"],
       },
       {
@@ -254,7 +324,7 @@ const FAQPage = () => {
     account: [
       {
         q: "How do I create an account?",
-        a: "Click 'Sign Up' in the top right corner, enter your email and create a password. You can also sign up with Google or Facebook for faster login.",
+        a: "Click 'Sign Up' in our signup page you will accessed it soon vissiting the site, enter your email and create a password. You can also sign up with Google or Facebook for faster login.",
         tags: ["signup", "register"],
       },
       {
@@ -364,27 +434,44 @@ const FAQPage = () => {
     }
   };
 
-  // FAQ Item component
-  const FAQItem = ({ faq, index, categoryId }) => {
-    const isOpen = openItems[`${categoryId}-${index}`] || false;
+  // Toggle FAQ item with smooth animation
+  const toggleFAQItem = (categoryId, index) => {
+    const key = `${categoryId}-${index}`;
 
-    const toggleItem = () => {
-      setOpenItems((prev) => ({
-        ...prev,
-        [`${categoryId}-${index}`]: !isOpen,
-      }));
-    };
+    // Close all other items in the same category
+    if (!openItems[key]) {
+      const newOpenItems = {};
+      Object.keys(openItems).forEach((itemKey) => {
+        if (itemKey.startsWith(`${categoryId}-`)) {
+          newOpenItems[itemKey] = false;
+        }
+      });
+      setOpenItems({ ...newOpenItems, [key]: true });
+    } else {
+      setOpenItems({ ...openItems, [key]: false });
+    }
+  };
+
+  // FAQ Item component with improved animations
+  const FAQItem = ({ faq, index, categoryId }) => {
+    const itemKey = `${categoryId}-${index}`;
+    const isOpen = openItems[itemKey] || false;
 
     return (
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, delay: index * 0.1 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{
+          duration: 0.6,
+          delay: index * 0.05,
+          ease: [0.22, 1, 0.36, 1],
+        }}
         className="mb-4"
+        layout
       >
         <motion.button
-          onClick={toggleItem}
+          onClick={() => toggleFAQItem(categoryId, index)}
           className={`w-full p-6 rounded-2xl backdrop-blur-xl transition-all duration-300 text-left ${
             theme === "dark"
               ? "bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-slate-700/50 hover:shadow-xl hover:shadow-slate-900/50"
@@ -392,6 +479,7 @@ const FAQPage = () => {
           }`}
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
+          layout
         >
           <div className="flex items-center justify-between">
             <h3
@@ -403,7 +491,7 @@ const FAQPage = () => {
             </h3>
             <motion.div
               animate={{ rotate: isOpen ? 180 : 0 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.3, ease: "circOut" }}
               className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
                 theme === "dark"
                   ? "bg-gradient-to-r from-amber-500/10 to-rose-500/10"
@@ -425,21 +513,23 @@ const FAQPage = () => {
               )}
             </motion.div>
           </div>
-          <AnimatePresence>
+
+          <AnimatePresence initial={false}>
             {isOpen && (
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
+                variants={faqItemVariants}
+                initial="closed"
+                animate="open"
+                exit="closed"
                 className="overflow-hidden"
+                layout
               >
-                <div
-                  className={`pt-6 border-t mt-4 ${
-                    theme === "dark"
-                      ? "border-slate-700/30"
-                      : "border-cream-300/50"
-                  }`}
+                <motion.div
+                  variants={contentVariants}
+                  initial="closed"
+                  animate="open"
+                  exit="closed"
+                  className="pt-6 border-t"
                 >
                   <p
                     className={`mb-4 ${
@@ -454,7 +544,7 @@ const FAQPage = () => {
                         key={idx}
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: idx * 0.1 }}
+                        transition={{ delay: 0.1 + idx * 0.05 }}
                         className={`px-3 py-1 rounded-full text-xs ${
                           theme === "dark"
                             ? "bg-gradient-to-r from-amber-500/10 to-rose-500/10 text-amber-400"
@@ -465,7 +555,7 @@ const FAQPage = () => {
                       </motion.span>
                     ))}
                   </div>
-                </div>
+                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
@@ -529,10 +619,11 @@ const FAQPage = () => {
                         ? "#475569"
                         : "#E8D8BC",
                 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
                 className="w-3 h-3 rounded-full transition-all duration-300"
               />
               <div
-                className={`absolute right-6 top-1/2 transform -translate-y-1/2 px-2 py-1 rounded text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity ${
+                className={`absolute right-6 top-1/2 transform -translate-y-1/2 px-2 py-1 rounded text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
                   theme === "dark"
                     ? "bg-slate-800 text-white"
                     : "bg-cream-100 text-cream-900"
@@ -560,12 +651,12 @@ const FAQPage = () => {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.2, duration: 0.4 }}
             className="fixed top-6 right-20 z-50"
           >
             <motion.button
               whileHover={{ scale: 1.1, rotate: 180 }}
-              whileTap={{ scale: 0.9 }}
+              whileTap={{ scale: 0.95 }}
               onClick={toggleTheme}
               className={`p-3 rounded-full shadow-lg ${
                 theme === "dark"
@@ -582,7 +673,7 @@ const FAQPage = () => {
             ref={headerRef}
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="text-center mb-20 relative"
           >
             {/* Animated Background Elements */}
@@ -635,26 +726,29 @@ const FAQPage = () => {
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
               className={`text-4xl lg:text-6xl font-bold mb-6 tracking-tight ${
                 theme === "dark" ? "text-white" : "text-cream-900"
               }`}
             >
               Frequently{" "}
-              <span
+              <motion.span
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.4 }}
                 className={
                   theme === "dark" ? "text-purple-400" : "text-purple-600"
                 }
               >
                 Asked
-              </span>{" "}
+              </motion.span>{" "}
               Questions
             </motion.h1>
 
             <motion.p
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
               className={`text-xl lg:text-2xl max-w-3xl mx-auto leading-relaxed mb-12 ${
                 theme === "dark" ? "text-slate-400" : "text-cream-700"
               }`}
@@ -667,7 +761,7 @@ const FAQPage = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.7 }}
+              transition={{ delay: 0.7, duration: 0.5 }}
               className="max-w-2xl mx-auto mb-12 relative"
             >
               <div className="relative">
@@ -705,7 +799,7 @@ const FAQPage = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.9 }}
+              transition={{ delay: 0.9, duration: 0.5 }}
               className="flex justify-center"
             >
               <motion.button
@@ -774,8 +868,9 @@ const FAQPage = () => {
                       delay: index * 0.1,
                       type: "spring",
                       stiffness: 100,
+                      damping: 12,
                     }}
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.05, y: -5 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
                       setOpenCategory(question.category);
@@ -855,13 +950,16 @@ const FAQPage = () => {
                   }`}
                 >
                   Browse{" "}
-                  <span
+                  <motion.span
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
                     className={
                       theme === "dark" ? "text-blue-400" : "text-blue-600"
                     }
                   >
                     Categories
-                  </span>
+                  </motion.span>
                 </h2>
                 <p
                   className={`text-lg text-center ${
@@ -880,7 +978,7 @@ const FAQPage = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.1 }}
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.05, y: -3 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
                       setOpenCategory(category.id);
@@ -1087,13 +1185,16 @@ const FAQPage = () => {
                     }
                   >
                     Still have{" "}
-                    <span
+                    <motion.span
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      transition={{ delay: 0.2 }}
                       className={
                         theme === "dark" ? "text-amber-400" : "text-amber-600"
                       }
                     >
                       questions
-                    </span>
+                    </motion.span>
                     ?
                   </span>
                 </h2>
@@ -1115,7 +1216,7 @@ const FAQPage = () => {
                 className="flex flex-wrap justify-center gap-4"
               >
                 <motion.button
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.05, y: -3 }}
                   whileTap={{ scale: 0.95 }}
                   className={`px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 flex items-center gap-3 ${
                     theme === "dark"
@@ -1128,7 +1229,7 @@ const FAQPage = () => {
                   Contact Support
                 </motion.button>
                 <motion.button
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.05, y: -3 }}
                   whileTap={{ scale: 0.95 }}
                   className={`px-8 py-4 rounded-xl font-bold text-lg border transition-all duration-300 flex items-center gap-3 ${
                     theme === "dark"
@@ -1160,13 +1261,15 @@ const FAQPage = () => {
           <motion.button
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 2 }}
+            transition={{ delay: 2, duration: 0.5 }}
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             className={`fixed bottom-6 left-6 w-12 h-12 rounded-full flex items-center justify-center shadow-lg z-50 transition-all duration-300 ${
               theme === "dark"
                 ? "bg-gradient-to-r from-slate-800 to-slate-900 hover:from-purple-500 hover:to-pink-500"
                 : "bg-gradient-to-r from-cream-200 to-cream-300 hover:from-purple-400 hover:to-pink-400"
             }`}
+            whileHover={{ scale: 1.1, y: -3 }}
+            whileTap={{ scale: 0.95 }}
           >
             <FaArrowUp />
           </motion.button>

@@ -796,6 +796,116 @@ const OrderHistoryPage = () => {
 
   const user = JSON.parse(localStorage.getItem("user"));
 
+  // Animation variants
+  const pageVariants = {
+    initial: { opacity: 0 },
+    animate: {
+      opacity: 1,
+      transition: {
+        duration: 0.6,
+        ease: "easeInOut",
+      },
+    },
+    exit: { opacity: 0 },
+  };
+
+  const cardVariants = {
+    hidden: {
+      opacity: 0,
+      y: 40,
+      scale: 0.95,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.5,
+        ease: [0.6, -0.05, 0.01, 0.99],
+      },
+    },
+    hover: {
+      y: -8,
+      scale: 1.02,
+      transition: {
+        duration: 0.3,
+        ease: "easeOut",
+      },
+    },
+    tap: {
+      scale: 0.98,
+    },
+  };
+
+  const detailVariants = {
+    hidden: {
+      opacity: 0,
+      height: 0,
+      y: -10,
+    },
+    visible: {
+      opacity: 1,
+      height: "auto",
+      y: 0,
+      transition: {
+        duration: 0.4,
+        ease: [0.4, 0, 0.2, 1],
+      },
+    },
+    exit: {
+      opacity: 0,
+      height: 0,
+      y: -10,
+      transition: {
+        duration: 0.3,
+        ease: "easeIn",
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: {
+      opacity: 0,
+      y: 20,
+      scale: 0.9,
+    },
+    visible: (i) => ({
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        delay: i * 0.05,
+        duration: 0.5,
+        ease: "backOut",
+      },
+    }),
+    hover: {
+      scale: 1.05,
+      transition: {
+        duration: 0.2,
+      },
+    },
+  };
+
+  const floatAnimation = {
+    y: [0, -6, 0],
+    rotate: [0, 2, -2, 0],
+    transition: {
+      duration: 4,
+      repeat: Infinity,
+      ease: "easeInOut",
+    },
+  };
+
+  const shimmerAnimation = {
+    backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+    transition: {
+      duration: 2,
+      repeat: Infinity,
+      ease: "linear",
+    },
+  };
+
   // Check and set theme
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") || "light";
@@ -844,7 +954,7 @@ const OrderHistoryPage = () => {
     return () => {
       // Any cleanup if needed
     };
-  }, []); // Empty dependency array - runs once on mount
+  }, []);
 
   const toggleTheme = () => {
     const newTheme = theme === "dark" ? "light" : "dark";
@@ -1009,36 +1119,21 @@ const OrderHistoryPage = () => {
   const OrderCard = ({ order, isDelivered = false, index }) => {
     if (!order || typeof order !== "object") return null;
 
+    const isExpanded = expandedOrder === order._id;
+
     return (
       <motion.div
-        initial={{ opacity: 0, y: 30, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{
-          duration: 0.5,
-          delay: index * 0.1,
-          type: "spring",
-          stiffness: 100,
-          damping: 15,
-        }}
-        whileHover={{
-          y: -8,
-          scale: 1.02,
-          transition: { duration: 0.3 },
-        }}
+        variants={cardVariants}
+        initial="hidden"
+        animate="visible"
+        whileHover="hover"
+        whileTap="tap"
+        custom={index}
         className="group relative"
       >
-        {/* Floating animation */}
+        {/* Floating decoration */}
         <motion.div
-          animate={{
-            y: [0, -5, 0],
-            rotate: [0, 1, -1, 0],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
+          animate={floatAnimation}
           className="absolute -top-3 -right-3 w-6 h-6 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 dark:from-amber-500 dark:to-orange-500 opacity-20"
         />
 
@@ -1047,15 +1142,31 @@ const OrderHistoryPage = () => {
             theme === "dark"
               ? "from-slate-800/90 to-slate-900/90 border-slate-700/50"
               : "from-cream-100 to-cream-50 border-cream-300"
-          } backdrop-blur-xl rounded-2xl p-6 border shadow-xl hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-300 cursor-pointer`}
+          } backdrop-blur-xl rounded-2xl p-6 border shadow-xl hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-300 cursor-pointer overflow-hidden`}
           onClick={() => toggleOrderDetails(order._id)}
         >
+          {/* Shimmer effect on hover */}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-100/10 to-transparent"
+            animate={shimmerAnimation}
+            style={{
+              backgroundSize: "200% 100%",
+              opacity: isExpanded ? 0.1 : 0,
+            }}
+          />
+
           {/* Order Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <motion.div
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6"
+            layout
+          >
             <div className="flex items-center gap-3">
               <motion.div
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.5 }}
+                animate={{
+                  rotate: isExpanded ? 360 : 0,
+                  scale: isExpanded ? 1.1 : 1,
+                }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
                 className="p-3 rounded-xl bg-gradient-to-br from-amber-400/20 to-orange-400/20 dark:from-amber-500/20 dark:to-orange-500/20 border border-amber-400/30 dark:border-amber-500/30"
               >
                 {isDelivered ? (
@@ -1101,30 +1212,34 @@ const OrderHistoryPage = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Order Items Preview */}
           {order.items &&
             Array.isArray(order.items) &&
             order.items.length > 0 && (
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="mb-6"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{
+                  opacity: 1,
+                  height: "auto",
+                  transition: { delay: 0.1 },
+                }}
+                className="mb-6 overflow-hidden"
               >
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {order.items.slice(0, 3).map((item, idx) => (
                     <motion.div
                       key={idx}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.1 }}
-                      whileHover={{ scale: 1.05 }}
+                      variants={itemVariants}
+                      initial="hidden"
+                      animate="visible"
+                      whileHover="hover"
+                      custom={idx}
                       className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 border border-amber-200 dark:border-amber-800/30"
                     >
                       <div className="w-12 h-12 rounded-lg overflow-hidden bg-gradient-to-br from-amber-100 to-orange-100 dark:from-slate-700 dark:to-slate-800">
-                        <img
+                        <motion.img
                           src={getImageUrl(
                             item.product?.images?.[0] ||
                               item.product?.image ||
@@ -1132,6 +1247,9 @@ const OrderHistoryPage = () => {
                           )}
                           alt={item.product?.name || item.productName}
                           className="w-full h-full object-contain p-1"
+                          initial={{ scale: 1 }}
+                          whileHover={{ scale: 1.1 }}
+                          transition={{ duration: 0.3 }}
                           onError={(e) => {
                             e.target.onerror = null;
                             e.target.src =
@@ -1153,6 +1271,7 @@ const OrderHistoryPage = () => {
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
+                      transition={{ delay: 0.3 }}
                       className="flex items-center justify-center p-3 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 border border-amber-200 dark:border-amber-800/30"
                     >
                       <span className="text-sm font-medium text-slate-800 dark:text-slate-300">
@@ -1165,16 +1284,22 @@ const OrderHistoryPage = () => {
             )}
 
           {/* View Details Button */}
-          <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
+          <motion.div
+            className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700"
+            layout
+          >
             <motion.button
               whileHover={{ x: 5 }}
               className="flex items-center gap-2 text-sm font-medium text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 transition-colors duration-300"
             >
               <FaReceipt />
-              {expandedOrder === order._id ? "Hide Details" : "View Details"}
-              <FaArrowRight
-                className={`transition-transform duration-300 ${expandedOrder === order._id ? "rotate-90" : ""}`}
-              />
+              {isExpanded ? "Hide Details" : "View Details"}
+              <motion.div
+                animate={{ rotate: isExpanded ? 90 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <FaArrowRight />
+              </motion.div>
             </motion.button>
             {isDelivered &&
               order.items &&
@@ -1182,7 +1307,7 @@ const OrderHistoryPage = () => {
               order.items.length > 0 && (
                 <div className="flex items-center gap-2">
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -1197,7 +1322,7 @@ const OrderHistoryPage = () => {
                   </motion.button>
                   {/* Return Request Button */}
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -1212,128 +1337,154 @@ const OrderHistoryPage = () => {
                   </motion.button>
                 </div>
               )}
-          </div>
+          </motion.div>
 
           {/* Expanded Order Details */}
           <AnimatePresence>
-            {expandedOrder === order._id &&
-              order.items &&
-              Array.isArray(order.items) && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                  className="overflow-hidden"
-                >
-                  <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700 space-y-4">
-                    <h4
-                      className={`font-bold ${theme === "dark" ? "text-white" : "text-slate-800"}`}
-                    >
-                      Order Details
-                    </h4>
-                    <div className="space-y-3">
-                      {order.items.map((item, idx) => (
-                        <motion.div
-                          key={idx}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: idx * 0.05 }}
-                          className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 border border-amber-200 dark:border-amber-800/30"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-amber-100 to-orange-100 dark:from-slate-700 dark:to-slate-800">
-                              <img
-                                src={getImageUrl(
-                                  item.product?.images?.[0] ||
-                                    item.product?.image ||
-                                    item.image
-                                )}
-                                alt={item.product?.name || item.productName}
-                                className="w-full h-full object-contain p-1"
-                                onError={(e) => {
-                                  e.target.onerror = null;
-                                  e.target.src =
-                                    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&h=100&fit=crop";
-                                }}
-                              />
-                            </div>
-                            <div>
-                              <div className="font-semibold text-slate-800 dark:text-white">
-                                {item.product?.name ||
-                                  item.productName ||
-                                  "Product"}
-                              </div>
-                              <div className="text-sm text-slate-600 dark:text-slate-400">
-                                Quantity: {item.quantity}
-                              </div>
-                              {isDelivered && item.product && (
-                                <motion.button
-                                  whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.95 }}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleReturnRequest(order, item.product);
-                                  }}
-                                  className="mt-2 px-3 py-1 text-xs rounded-lg bg-gradient-to-r from-rose-500/20 to-pink-500/20 hover:from-rose-500/30 hover:to-pink-500/30 text-rose-700 dark:text-rose-300 border border-rose-500/30 transition-all duration-300 flex items-center gap-1"
-                                >
-                                  <FaUndo className="text-xs" />
-                                  Return Item
-                                </motion.button>
+            {isExpanded && order.items && Array.isArray(order.items) && (
+              <motion.div
+                variants={detailVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="overflow-hidden"
+              >
+                <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700 space-y-4">
+                  <motion.h4
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className={`font-bold ${theme === "dark" ? "text-white" : "text-slate-800"}`}
+                  >
+                    Order Details
+                  </motion.h4>
+                  <div className="space-y-3">
+                    {order.items.map((item, idx) => (
+                      <motion.div
+                        key={idx}
+                        variants={itemVariants}
+                        initial="hidden"
+                        animate="visible"
+                        whileHover="hover"
+                        custom={idx}
+                        className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 border border-amber-200 dark:border-amber-800/30"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-amber-100 to-orange-100 dark:from-slate-700 dark:to-slate-800">
+                            <motion.img
+                              src={getImageUrl(
+                                item.product?.images?.[0] ||
+                                  item.product?.image ||
+                                  item.image
                               )}
-                            </div>
+                              alt={item.product?.name || item.productName}
+                              className="w-full h-full object-contain p-1"
+                              initial={{ scale: 1 }}
+                              whileHover={{ scale: 1.1 }}
+                              transition={{ duration: 0.3 }}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src =
+                                  "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&h=100&fit=crop";
+                              }}
+                            />
                           </div>
-                          <div className="text-right">
-                            <div className="font-bold text-slate-800 dark:text-white">
-                              {formatPrice(
-                                (item.price || 0) * (item.quantity || 1)
-                              )}
+                          <div>
+                            <div className="font-semibold text-slate-800 dark:text-white">
+                              {item.product?.name ||
+                                item.productName ||
+                                "Product"}
                             </div>
                             <div className="text-sm text-slate-600 dark:text-slate-400">
-                              {formatPrice(item.price)} each
+                              Quantity: {item.quantity}
                             </div>
+                            {isDelivered && item.product && (
+                              <motion.button
+                                whileHover={{ scale: 1.05, x: 5 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleReturnRequest(order, item.product);
+                                }}
+                                className="mt-2 px-3 py-1 text-xs rounded-lg bg-gradient-to-r from-rose-500/20 to-pink-500/20 hover:from-rose-500/30 hover:to-pink-500/30 text-rose-700 dark:text-rose-300 border border-rose-500/30 transition-all duration-300 flex items-center gap-1"
+                              >
+                                <FaUndo className="text-xs" />
+                                Return Item
+                              </motion.button>
+                            )}
                           </div>
-                        </motion.div>
-                      ))}
-                    </div>
-
-                    {/* Order Summary */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 }}
-                      className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 border border-amber-200 dark:border-amber-800/30 rounded-xl p-4"
-                    >
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-slate-700 dark:text-slate-300">
-                          <span>Subtotal</span>
-                          <span>{formatPrice(order.total)}</span>
                         </div>
-                        <div className="flex justify-between text-slate-700 dark:text-slate-300">
-                          <span>Shipping</span>
-                          <span className="text-green-600 dark:text-green-400">
-                            FREE
+                        <div className="text-right">
+                          <div className="font-bold text-slate-800 dark:text-white">
+                            {formatPrice(
+                              (item.price || 0) * (item.quantity || 1)
+                            )}
+                          </div>
+                          <div className="text-sm text-slate-600 dark:text-slate-400">
+                            {formatPrice(item.price)} each
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {/* Order Summary */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ delay: 0.2, type: "spring" }}
+                    className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 border border-amber-200 dark:border-amber-800/30 rounded-xl p-4"
+                  >
+                    <div className="space-y-2">
+                      <motion.div
+                        className="flex justify-between text-slate-700 dark:text-slate-300"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.25 }}
+                      >
+                        <span>Subtotal</span>
+                        <span>{formatPrice(order.total)}</span>
+                      </motion.div>
+                      <motion.div
+                        className="flex justify-between text-slate-700 dark:text-slate-300"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 }}
+                      >
+                        <span>Shipping</span>
+                        <span className="text-green-600 dark:text-green-400">
+                          FREE
+                        </span>
+                      </motion.div>
+                      <motion.div
+                        className="flex justify-between text-slate-700 dark:text-slate-300"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.35 }}
+                      >
+                        <span>Tax</span>
+                        <span>{formatPrice((order.total || 0) * 0.1)}</span>
+                      </motion.div>
+                      <motion.div
+                        className="pt-2 border-t border-amber-200 dark:border-amber-800/30"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                      >
+                        <div className="flex justify-between font-bold text-lg">
+                          <span className="text-slate-800 dark:text-white">
+                            Total
+                          </span>
+                          <span className="bg-gradient-to-r from-amber-600 via-orange-500 to-amber-600 bg-clip-text text-transparent">
+                            {formatPrice((order.total || 0) * 1.1)}
                           </span>
                         </div>
-                        <div className="flex justify-between text-slate-700 dark:text-slate-300">
-                          <span>Tax</span>
-                          <span>{formatPrice((order.total || 0) * 0.1)}</span>
-                        </div>
-                        <div className="pt-2 border-t border-amber-200 dark:border-amber-800/30">
-                          <div className="flex justify-between font-bold text-lg">
-                            <span className="text-slate-800 dark:text-white">
-                              Total
-                            </span>
-                            <span className="bg-gradient-to-r from-amber-600 via-orange-500 to-amber-600 bg-clip-text text-transparent">
-                              {formatPrice((order.total || 0) * 1.1)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  </div>
-                </motion.div>
-              )}
+                      </motion.div>
+                    </div>
+                  </motion.div>
+                </div>
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
       </motion.div>
@@ -1344,6 +1495,7 @@ const OrderHistoryPage = () => {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
       className="space-y-8"
     >
       {[1, 2].map((section) => (
@@ -1351,29 +1503,50 @@ const OrderHistoryPage = () => {
           key={section}
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: section * 0.2 }}
+          transition={{ delay: section * 0.2, duration: 0.5 }}
           className="space-y-4"
         >
-          <div className="h-8 bg-gradient-to-r from-amber-200 to-orange-200 dark:from-slate-800/50 dark:to-slate-800/30 rounded-xl w-1/4"></div>
+          <motion.div
+            animate={shimmerAnimation}
+            style={{
+              background:
+                theme === "dark"
+                  ? "linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%)"
+                  : "linear-gradient(90deg, #fef3c7 25%, #fde68a 50%, #fef3c7 75%)",
+              backgroundSize: "200% 100%",
+            }}
+            className="h-8 rounded-xl w-1/4"
+          ></motion.div>
           {[1, 2].map((item) => (
             <motion.div
               key={item}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: item * 0.1 }}
-              className="animate-pulse"
+              transition={{ delay: item * 0.1, duration: 0.4 }}
+              className="relative overflow-hidden"
             >
-              <div className="bg-gradient-to-br from-cream-100 to-cream-50 dark:from-slate-800/50 dark:to-slate-800/30 rounded-2xl p-6 space-y-4 border border-cream-300 dark:border-slate-700/50">
+              <motion.div
+                animate={shimmerAnimation}
+                style={{
+                  background:
+                    theme === "dark"
+                      ? "linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%)"
+                      : "linear-gradient(90deg, #fef3c7 25%, #fde68a 50%, #fef3c7 75%)",
+                  backgroundSize: "200% 100%",
+                }}
+                className="absolute inset-0"
+              />
+              <div className="relative bg-gradient-to-br from-cream-100 to-cream-50 dark:from-slate-800/50 dark:to-slate-800/30 rounded-2xl p-6 space-y-4 border border-cream-300 dark:border-slate-700/50">
                 <div className="flex justify-between items-center">
-                  <div className="h-6 bg-gradient-to-r from-amber-200 to-orange-200 dark:from-slate-700/50 dark:to-slate-700/30 rounded w-1/3"></div>
-                  <div className="h-8 bg-gradient-to-r from-amber-200 to-orange-200 dark:from-slate-700/50 dark:to-slate-700/30 rounded-full w-24"></div>
+                  <div className="h-6 rounded w-1/3 bg-amber-200/30 dark:bg-slate-700/30"></div>
+                  <div className="h-8 rounded-full w-24 bg-amber-200/30 dark:bg-slate-700/30"></div>
                 </div>
-                <div className="h-4 bg-gradient-to-r from-amber-200 to-orange-200 dark:from-slate-700/50 dark:to-slate-700/30 rounded w-1/4"></div>
+                <div className="h-4 rounded w-1/4 bg-amber-200/30 dark:bg-slate-700/30"></div>
                 <div className="space-y-2">
                   {[1, 2].map((line) => (
                     <div
                       key={line}
-                      className="h-10 bg-gradient-to-r from-amber-200 to-orange-200 dark:from-slate-700/50 dark:to-slate-700/30 rounded"
+                      className="h-10 rounded bg-amber-200/30 dark:bg-slate-700/30"
                     ></div>
                   ))}
                 </div>
@@ -1389,14 +1562,16 @@ const OrderHistoryPage = () => {
   if (authError) {
     return (
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        variants={pageVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
         className="min-h-screen bg-gradient-to-br from-cream-50 via-cream-100 to-amber-50/30 dark:from-slate-950/95 dark:via-slate-900 dark:to-slate-950/95 flex items-center justify-center p-4"
       >
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 100 }}
+          initial={{ scale: 0.9, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 100, damping: 20 }}
           className="max-w-md mx-auto p-8 bg-gradient-to-br from-cream-100 to-cream-50 dark:from-slate-800/90 dark:to-slate-900/90 backdrop-blur-xl rounded-2xl border border-cream-300 dark:border-slate-700/50 shadow-xl text-center"
         >
           <motion.div
@@ -1404,19 +1579,29 @@ const OrderHistoryPage = () => {
               rotate: [0, 10, -10, 0],
               scale: [1, 1.1, 1],
             }}
-            transition={{ duration: 2, repeat: Infinity }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-red-500/20 to-pink-500/20 border border-red-500/30 dark:border-red-500/50 mb-6"
           >
             <FaExclamationTriangle className="text-red-500 text-3xl" />
           </motion.div>
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">
+          <motion.h2
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-2xl font-bold text-slate-800 dark:text-white mb-3"
+          >
             Authentication Required
-          </h2>
-          <p className="text-slate-600 dark:text-slate-400 mb-6">
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-slate-600 dark:text-slate-400 mb-6"
+          >
             Please log in to view your order history.
-          </p>
+          </motion.p>
           <motion.button
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate("/login")}
             className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold rounded-xl hover:shadow-xl hover:shadow-amber-500/30 transition-all duration-300 flex items-center gap-3 mx-auto"
@@ -1433,32 +1618,51 @@ const OrderHistoryPage = () => {
   if (error && !loading) {
     return (
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        variants={pageVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
         className="min-h-screen bg-gradient-to-br from-cream-50 via-cream-100 to-amber-50/30 dark:from-slate-950/95 dark:via-slate-900 dark:to-slate-950/95 flex items-center justify-center p-4"
       >
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 100 }}
+          initial={{ scale: 0.9, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 100, damping: 20 }}
           className="max-w-md mx-auto p-8 bg-gradient-to-br from-cream-100 to-cream-50 dark:from-slate-800/90 dark:to-slate-900/90 backdrop-blur-xl rounded-2xl border border-cream-300 dark:border-slate-700/50 shadow-xl text-center"
         >
           <motion.div
             animate={{
               y: [0, -5, 0],
             }}
-            transition={{ duration: 2, repeat: Infinity }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 dark:border-amber-500/50 mb-6"
           >
             <FaExclamationTriangle className="text-amber-500 text-3xl" />
           </motion.div>
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">
+          <motion.h2
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-2xl font-bold text-slate-800 dark:text-white mb-3"
+          >
             Unable to Load Orders
-          </h2>
-          <p className="text-slate-600 dark:text-slate-400 mb-6">{error}</p>
-          <div className="flex gap-3 justify-center">
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-slate-600 dark:text-slate-400 mb-6"
+          >
+            {error}
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="flex gap-3 justify-center"
+          >
             <motion.button
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
               onClick={fetchInitialOrders}
               className="px-6 py-3 bg-gradient-to-r from-amber-500/20 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-600/30 text-amber-700 dark:text-amber-300 font-medium border border-amber-500/30 dark:border-amber-500/50 rounded-xl transition-all duration-300"
@@ -1466,14 +1670,14 @@ const OrderHistoryPage = () => {
               Try Again
             </motion.button>
             <motion.button
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate("/products")}
               className="px-6 py-3 bg-gradient-to-r from-blue-500/20 to-blue-600/20 hover:from-blue-500/30 hover:to-blue-600/30 text-blue-700 dark:text-blue-300 font-medium border border-blue-500/30 dark:border-blue-500/50 rounded-xl transition-all duration-300"
             >
               Browse Products
             </motion.button>
-          </div>
+          </motion.div>
         </motion.div>
       </motion.div>
     );
@@ -1481,29 +1685,37 @@ const OrderHistoryPage = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
       className="min-h-screen bg-gradient-to-br from-cream-50 via-cream-100 to-amber-50/30 dark:from-slate-950/95 dark:via-slate-900 dark:to-slate-950/95"
     >
       {/* Scroll Progress Bar */}
       <motion.div
         className="fixed top-0 left-0 h-1 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 dark:from-amber-500 dark:via-orange-500 dark:to-amber-500 z-50"
         style={{ width: `${scrollProgress}%` }}
-        transition={{ duration: 0.1 }}
+        transition={{ duration: 0.1, ease: "linear" }}
       />
 
       {/* Back to Top Button */}
       <AnimatePresence>
         {isScrolling && (
           <motion.button
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             className="fixed bottom-8 right-8 w-12 h-12 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full shadow-lg flex items-center justify-center z-40 hover:shadow-xl transition-all duration-300"
           >
-            ↑
+            <motion.span
+              animate={{ y: [0, -2, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              ↑
+            </motion.span>
           </motion.button>
         )}
       </AnimatePresence>
@@ -1513,6 +1725,7 @@ const OrderHistoryPage = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.5 }}
           className="flex justify-end mb-6"
         >
           <motion.button
@@ -1532,15 +1745,15 @@ const OrderHistoryPage = () => {
 
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, type: "spring" }}
+          transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
           className="text-center mb-12"
         >
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: "spring" }}
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-400/20 to-orange-400/20 dark:from-amber-500/20 dark:to-orange-500/20 border border-amber-400/30 dark:border-amber-500/30 backdrop-blur-sm mb-6"
           >
             <motion.div
@@ -1557,7 +1770,7 @@ const OrderHistoryPage = () => {
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
             className="text-4xl lg:text-5xl font-bold mb-6"
           >
             <span
@@ -1565,15 +1778,20 @@ const OrderHistoryPage = () => {
             >
               Your Order
             </span>
-            <span className="bg-gradient-to-r from-amber-600 via-orange-500 to-amber-600 bg-clip-text text-transparent ml-3">
+            <motion.span
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+              className="bg-gradient-to-r from-amber-600 via-orange-500 to-amber-600 bg-clip-text text-transparent ml-3"
+            >
               History
-            </span>
+            </motion.span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
             className={`text-lg ${theme === "dark" ? "text-slate-300" : "text-slate-600"} max-w-2xl mx-auto`}
           >
             Track and manage all your orders in one place
@@ -1584,11 +1802,11 @@ const OrderHistoryPage = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.6 }}
           className="flex flex-wrap gap-3 justify-center mb-8"
         >
           <motion.button
-            whileHover={{ scale: 1.05, y: -5 }}
+            whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate("/products")}
             className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500/20 to-blue-600/20 hover:from-blue-500/30 hover:to-blue-600/30 text-blue-700 dark:text-blue-300 font-medium border border-blue-500/30 dark:border-blue-500/50 transition-all duration-300 flex items-center gap-2"
@@ -1597,7 +1815,7 @@ const OrderHistoryPage = () => {
             Continue Shopping
           </motion.button>
           <motion.button
-            whileHover={{ scale: 1.05, y: -5 }}
+            whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate("/")}
             className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-500/20 to-emerald-500/20 hover:from-green-500/30 hover:to-emerald-500/30 text-green-700 dark:text-green-300 font-medium border border-green-500/30 dark:border-green-500/50 transition-all duration-300 flex items-center gap-2"
@@ -1613,14 +1831,14 @@ const OrderHistoryPage = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
+            transition={{ delay: 0.7, duration: 0.5 }}
             className="space-y-12"
           >
             {/* Active Orders */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
+              transition={{ delay: 0.8 }}
             >
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
@@ -1659,6 +1877,7 @@ const OrderHistoryPage = () => {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
                   className="text-center py-16 bg-gradient-to-br from-cream-100 to-cream-50 dark:from-slate-800/50 dark:to-slate-800/30 backdrop-blur-sm rounded-2xl border border-cream-300 dark:border-slate-700/50"
                 >
                   <motion.div
@@ -1682,7 +1901,7 @@ const OrderHistoryPage = () => {
                     You don't have any active orders at the moment.
                   </p>
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => navigate("/products")}
                     className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold hover:shadow-xl hover:shadow-amber-500/30 transition-all duration-300 flex items-center gap-3 mx-auto"
@@ -1709,7 +1928,7 @@ const OrderHistoryPage = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
+              transition={{ delay: 0.9 }}
             >
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
@@ -1751,6 +1970,7 @@ const OrderHistoryPage = () => {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
                   className="text-center py-16 bg-gradient-to-br from-cream-100 to-cream-50 dark:from-slate-800/50 dark:to-slate-800/30 backdrop-blur-sm rounded-2xl border border-cream-300 dark:border-slate-700/50"
                 >
                   <motion.div
@@ -1775,7 +1995,7 @@ const OrderHistoryPage = () => {
                     purchase.
                   </p>
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => navigate("/products")}
                     className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold hover:shadow-xl hover:shadow-amber-500/30 transition-all duration-300 flex items-center gap-3 mx-auto"
