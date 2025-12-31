@@ -114,6 +114,7 @@ import uploadRoutes from "./routes/uploadRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import heroImageRoutes from "./routes/heroImageRoutes.js";
+import categoryImageRoutes from "./routes/categoryImageRoutes.js";
 // Add after other routes
 
 import dns from "dns";
@@ -206,6 +207,7 @@ app.use("/api/adminanalytics", adminDashboardAnalitics);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/admin", adminUserRoutes);
 app.use("/api/admin/uploadHero", heroImageRoutes);
+app.use("/api/category-images", categoryImageRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/blog", blogRoutes);
 app.use("/api/users", userRoutes);
