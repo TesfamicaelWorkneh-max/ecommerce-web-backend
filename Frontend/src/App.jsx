@@ -304,6 +304,9 @@ import ShippingInfoPage from "./Pages/ShippingInfoPage.jsx";
 import ReturnPolicyPage from "./Pages/ReturnPolicyPage.jsx";
 import SearchResultsPage from "./Pages/SearchResultPage.jsx";
 import ProductDetailPage from "./Components/ProductDetailPage";
+import Categories from "./Pages/Categories";
+import LandingPage from "./Pages/LandingPage";
+
 import FAQPage from "./Pages/FAQpage.jsx";
 import ContactPage from "./Pages/Contact.jsx";
 import Navigation from "./Pages/Navigation";
@@ -456,7 +459,7 @@ function App() {
         <Route path="/blog/:slug" element={<BlogPostPage />} />
 
         {/* ================= USER ROUTES (Protected) ================= */}
-        <Route
+        {/* <Route
           path="/"
           element={
             <ProtectedRoute>
@@ -466,7 +469,16 @@ function App() {
               </>
             </ProtectedRoute>
           }
+        /> */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <LandingPage />
+            </ProtectedRoute>
+          }
         />
+
         <Route
           path="/about"
           element={
