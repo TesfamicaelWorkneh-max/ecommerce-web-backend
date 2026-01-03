@@ -1265,7 +1265,7 @@ const ProductCard = ({ product, index = 0 }) => {
           className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-lg ${
             prod.isSold
               ? "bg-gradient-to-r from-rose-500 to-rose-600 text-white"
-              : "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white"
+              : "bg-white text-slate-700"
           }`}
         >
           {prod.isSold ? (
@@ -1340,7 +1340,7 @@ const ProductCard = ({ product, index = 0 }) => {
       </motion.button>
 
       {/* Product Image Container */}
-      <div className="relative overflow-hidden dark:bg-gray-800/50">
+      <div className="relative  dark:bg-gray-800/50">
         <Link to={`/product/${prod._id}`} className="block">
           {/* Image with hover effect */}
           <motion.img

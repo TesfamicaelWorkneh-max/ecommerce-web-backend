@@ -19,7 +19,6 @@ import {
 } from "react-icons/fa";
 
 const ReturnPolicyPage = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,19 +28,6 @@ const ReturnPolicyPage = () => {
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 800);
     return () => clearTimeout(timer);
-  }, []);
-
-  // Check system theme
-  useEffect(() => {
-    const darkModeMediaQuery = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    );
-    setIsDarkMode(darkModeMediaQuery.matches);
-
-    const handleChange = (e) => setIsDarkMode(e.matches);
-    darkModeMediaQuery.addEventListener("change", handleChange);
-
-    return () => darkModeMediaQuery.removeEventListener("change", handleChange);
   }, []);
 
   // Enhanced scroll animation with momentum
@@ -75,7 +61,7 @@ const ReturnPolicyPage = () => {
       description:
         "Return any item within 30 days of delivery for a full refund.",
       icon: <FaCalendarAlt />,
-      color: "from-blue-500 to-cyan-500",
+      color: "from-[#D7C097] to-[#EEEEEE]",
       delay: 0.1,
       rotation: 5,
     },
@@ -83,7 +69,7 @@ const ReturnPolicyPage = () => {
       title: "Free Returns",
       description: "We provide prepaid return labels for all eligible items.",
       icon: <FaShippingFast />,
-      color: "from-green-500 to-emerald-500",
+      color: "from-[#D8C9A7] to-[#EEEEEE]",
       delay: 0.2,
       rotation: -3,
     },
@@ -92,7 +78,7 @@ const ReturnPolicyPage = () => {
       description:
         "Receive your refund within 3-5 business days after we receive your return.",
       icon: <FaMoneyBillWave />,
-      color: "from-amber-500 to-orange-500",
+      color: "from-[#D7C097]/90 to-[#EEEEEE]/90",
       delay: 0.3,
       rotation: 2,
     },
@@ -100,7 +86,7 @@ const ReturnPolicyPage = () => {
       title: "Easy Process",
       description: "Initiate returns directly from your account dashboard.",
       icon: <FaUndo />,
-      color: "from-purple-500 to-pink-500",
+      color: "from-[#EEEEEE] to-[#D8C9A7]",
       delay: 0.4,
       rotation: -5,
     },
@@ -132,9 +118,12 @@ const ReturnPolicyPage = () => {
   ];
 
   const processSteps = [
-    { text: "Login to your account and go to 'My Orders'", delay: 0.1 },
+    {
+      text: "Login to your account and go to 'My Orders then delivered orders'",
+      delay: 0.1,
+    },
     { text: "Select the item you want to return", delay: 0.2 },
-    { text: "Choose return reason and print prepaid label", delay: 0.3 },
+    { text: "Choose return reason and add proof images", delay: 0.3 },
     { text: "Pack item securely with all accessories", delay: 0.4 },
     { text: "Drop off at any carrier location", delay: 0.5 },
     { text: "Track return status in your account", delay: 0.6 },
@@ -145,28 +134,28 @@ const ReturnPolicyPage = () => {
       day: "Day 1",
       action: "Initiate return online",
       icon: <FaUndo />,
-      color: "from-blue-500 to-cyan-500",
+      color: "from-[#D7C097] to-[#EEEEEE]",
       delay: 0.1,
     },
     {
       day: "Day 2-3",
       action: "Ship item back to us",
       icon: <FaShippingFast />,
-      color: "from-green-500 to-emerald-500",
+      color: "from-[#D8C9A7] to-[#EEEEEE]",
       delay: 0.2,
     },
     {
       day: "Day 4-5",
       action: "We receive and inspect",
       icon: <FaCheckCircle />,
-      color: "from-amber-500 to-orange-500",
+      color: "from-[#D7C097]/90 to-[#EEEEEE]/90",
       delay: 0.3,
     },
     {
       day: "Day 6-7",
       action: "Refund processed",
       icon: <FaMoneyBillWave />,
-      color: "from-purple-500 to-pink-500",
+      color: "from-[#EEEEEE] to-[#D8C9A7]",
       delay: 0.4,
     },
   ];
@@ -181,7 +170,7 @@ const ReturnPolicyPage = () => {
   const faqs = [
     {
       q: "How do I track my return?",
-      a: "You can track your return in your account dashboard under 'My Returns'.",
+      a: "You can track your return in your account dashboard under 'My Orders in the delivered sections'.",
       delay: 0.1,
     },
     {
@@ -189,11 +178,7 @@ const ReturnPolicyPage = () => {
       a: "Contact us within 48 hours of delivery with photos for immediate assistance.",
       delay: 0.2,
     },
-    {
-      q: "Can I exchange an item?",
-      a: "Yes! Select 'Exchange' instead of 'Return' during the return process.",
-      delay: 0.3,
-    },
+
     {
       q: "How long does inspection take?",
       a: "Quality inspection typically takes 1-2 business days after we receive your return.",
@@ -287,15 +272,6 @@ const ReturnPolicyPage = () => {
     },
   };
 
-  const shimmerAnimation = {
-    backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-    transition: {
-      duration: 3,
-      repeat: Infinity,
-      ease: "linear",
-    },
-  };
-
   return (
     <>
       {/* Loading Animation */}
@@ -305,12 +281,12 @@ const ReturnPolicyPage = () => {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-cream-50 to-cream-100 dark:from-gray-900 dark:to-gray-800"
+            className="fixed inset-0 z-50 flex items-center justify-center dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 bg-gradient-to-br from-[#EEEEEE] to-[#D8C9A7]"
           >
             <div className="relative">
               <motion.div
                 animate={pulseAnimation}
-                className="w-24 h-24 rounded-full bg-gradient-to-r from-amber-500 to-orange-500"
+                className="w-24 h-24 rounded-full bg-gradient-to-r from-[#D7C097] to-[#EEEEEE]"
               />
               <motion.div
                 animate={floatingAnimation}
@@ -328,14 +304,14 @@ const ReturnPolicyPage = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6 }}
-        className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100 dark:from-gray-900 dark:to-gray-800 pt-24 pb-12 overflow-hidden relative max-sm:py-32"
+        className="min-h-screen dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 bg-gradient-to-br from-[#EEEEEE] via-[#D8C9A7] to-[#EEEEEE] pt-24 pb-12 overflow-hidden relative max-sm:py-32"
       >
         {/* Animated Background Elements */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
           {[...Array(15)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute rounded-full bg-gradient-to-r from-amber-400/5 to-orange-500/5 dark:from-purple-600/5 dark:to-pink-600/5"
+              className="absolute rounded-full bg-gradient-to-r from-[#D7C097]/5 to-[#EEEEEE]/5 dark:from-[#D7C097]/5 dark:to-[#D8C9A7]/5"
               initial={{
                 x: Math.random() * 100 + "%",
                 y: Math.random() * 100 + "%",
@@ -371,12 +347,12 @@ const ReturnPolicyPage = () => {
           style={{ width: `${scrollProgress}%` }}
           animate={{
             background: [
-              "linear-gradient(90deg, #f59e0b, #f97316, #f59e0b)",
-              "linear-gradient(90deg, #f97316, #f59e0b, #f97316)",
-              "linear-gradient(90deg, #f59e0b, #f97316, #f59e0b)",
+              "linear-gradient(90deg, #D7C097, #EEEEEE, #D7C097)",
+              "linear-gradient(90deg, #EEEEEE, #D7C097, #EEEEEE)",
+              "linear-gradient(90deg, #D7C097, #EEEEEE, #D7C097)",
             ],
             backgroundSize: "200% 100%",
-            boxShadow: "0 0 20px rgba(245, 158, 11, 0.5)",
+            boxShadow: "0 0 20px rgba(215, 192, 151, 0.5)",
           }}
           transition={{
             duration: 2,
@@ -404,13 +380,13 @@ const ReturnPolicyPage = () => {
               whileHover={{
                 scale: 1.1,
                 rotate: 360,
-                boxShadow: "0 0 30px rgba(245, 158, 11, 0.5)",
+                boxShadow: "0 0 30px rgba(215, 192, 151, 0.5)",
               }}
               whileTap={{ scale: 0.9 }}
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-r from-amber-500 to-orange-500 dark:from-purple-600 dark:to-pink-600 text-white rounded-full shadow-2xl flex items-center justify-center z-40 hover:shadow-3xl transition-all duration-300 group"
+              className="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-r from-[#D7C097] to-[#EEEEEE] dark:from-[#D7C097] dark:to-gray-900 text-white rounded-full shadow-2xl flex items-center justify-center z-40 hover:shadow-3xl transition-all duration-300 group"
             >
-              <motion.div className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+              <motion.div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#D7C097]/80 to-[#EEEEEE]/80 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
               <FaChevronUp className="w-6 h-6 relative" />
             </motion.button>
           )}
@@ -437,9 +413,9 @@ const ReturnPolicyPage = () => {
                   },
                 }}
                 whileHover={{ scale: 1.1, rotate: 360 }}
-                className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 mb-6 shadow-2xl group relative"
+                className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-r from-[#D7C097] to-[#EEEEEE] mb-6 shadow-2xl group relative"
               >
-                <motion.div className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+                <motion.div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#D7C097]/80 to-[#EEEEEE]/80 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
                 <motion.div animate={floatingAnimation}>
                   <FaUndo className="text-4xl text-white relative" />
                 </motion.div>
@@ -449,7 +425,7 @@ const ReturnPolicyPage = () => {
               {[0, 120, 240].map((rotation, i) => (
                 <motion.div
                   key={i}
-                  className="absolute w-4 h-4 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500"
+                  className="absolute w-4 h-4 rounded-full bg-gradient-to-r from-[#D8C9A7] to-[#EEEEEE]"
                   animate={{
                     rotate: rotation,
                     x: [0, 60 * Math.cos((rotation * Math.PI) / 180), 0],
@@ -475,11 +451,11 @@ const ReturnPolicyPage = () => {
               variants={itemVariants}
               className="text-4xl lg:text-6xl font-bold mb-6 relative"
             >
-              <span className="bg-gradient-to-r from-amber-900 via-orange-800 to-amber-900 dark:from-white dark:via-purple-200 dark:to-white bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-gray-900 via-[#D7C097] to-gray-900 dark:from-white dark:via-[#D8C9A7] dark:to-white bg-clip-text text-transparent">
                 Return & Refund Policy
               </span>
               <motion.span
-                className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-64 h-1 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"
+                className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-64 h-1 bg-gradient-to-r from-[#D7C097] to-[#EEEEEE] rounded-full"
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
                 transition={{ delay: 0.8, duration: 0.8 }}
@@ -488,14 +464,14 @@ const ReturnPolicyPage = () => {
 
             <motion.p
               variants={itemVariants}
-              className="text-xl lg:text-2xl text-amber-800/80 dark:text-purple-300 max-w-3xl mx-auto mb-6"
+              className="text-xl lg:text-2xl text-gray-900/80 dark:text-[#D8C9A7] max-w-3xl mx-auto mb-6"
             >
               Simple, hassle-free returns. Your satisfaction is guaranteed.
             </motion.p>
 
             <motion.p
               variants={itemVariants}
-              className="text-lg text-amber-700/70 dark:text-purple-400/70 max-w-2xl mx-auto"
+              className="text-lg text-gray-900/70 dark:text-[#D8C9A7]/70 max-w-2xl mx-auto"
             >
               We believe in making returns as easy as shopping. That's why we've
               created a transparent, customer-friendly return policy that puts
@@ -542,7 +518,7 @@ const ReturnPolicyPage = () => {
                   transition: { type: "spring", stiffness: 400, damping: 25 },
                 }}
                 whileTap={{ scale: 0.95 }}
-                className="p-8 rounded-3xl bg-gradient-to-br from-white/90 to-white/80 dark:from-gray-800/90 dark:to-gray-900/90 backdrop-blur-xl border border-amber-100 dark:border-purple-900/50 shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden group"
+                className="p-8 rounded-3xl dark:bg-gradient-to-br dark:from-gray-800/90 dark:to-[#D7C097]/90 dark:border-[#D7C097]/50 bg-gradient-to-br from-white/90 to-[#EEEEEE]/80 backdrop-blur-xl border border-[#EEEEEE] dark:border-[#D7C097]/50 shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden group"
               >
                 {/* Shimmer effect */}
                 <motion.div
@@ -571,7 +547,7 @@ const ReturnPolicyPage = () => {
                   initial={{ opacity: 0, y: 10 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: point.delay + 0.3 }}
-                  className="text-xl font-bold text-amber-900 dark:text-white mb-3"
+                  className="text-xl font-bold dark:text-white text-gray-900 mb-3"
                 >
                   {point.title}
                 </motion.h3>
@@ -580,7 +556,7 @@ const ReturnPolicyPage = () => {
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   transition={{ delay: point.delay + 0.4 }}
-                  className="text-amber-700 dark:text-purple-300"
+                  className="dark:text-[#D8C9A7] text-gray-900"
                 >
                   {point.description}
                 </motion.p>
@@ -608,17 +584,17 @@ const ReturnPolicyPage = () => {
                 whileInView={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.3 }}
                 viewport={{ once: true }}
-                className="p-8 rounded-3xl bg-gradient-to-br from-white/90 to-white/80 dark:from-gray-800/90 dark:to-gray-900/90 backdrop-blur-xl border border-amber-100 dark:border-purple-900/50 shadow-xl relative overflow-hidden"
+                className="p-8 rounded-3xl dark:bg-gradient-to-br dark:from-gray-800/90 dark:to-[#D7C097]/90 dark:border-[#D7C097]/50 bg-gradient-to-br from-white/90 to-[#EEEEEE]/80 backdrop-blur-xl border border-[#EEEEEE] dark:border-[#D7C097]/50 shadow-xl relative overflow-hidden"
               >
-                <div className="absolute top-4 right-4 w-24 h-24 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-full blur-2xl" />
+                <div className="absolute top-4 right-4 w-24 h-24 bg-gradient-to-r from-[#D7C097]/10 to-[#EEEEEE]/10 rounded-full blur-2xl" />
 
                 <motion.h2
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="text-2xl font-bold text-amber-900 dark:text-white mb-8 flex items-center gap-3"
+                  className="text-2xl font-bold dark:text-white text-gray-900 mb-8 flex items-center gap-3"
                 >
-                  <FaCheckCircle className="text-green-500" />
+                  <FaCheckCircle className="text-[#D7C097]" />
                   Return Eligibility
                 </motion.h2>
 
@@ -631,17 +607,17 @@ const ReturnPolicyPage = () => {
                       transition={{ delay: condition.delay }}
                       viewport={{ once: true }}
                       whileHover={{ x: 5 }}
-                      className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-r from-cream-50 to-cream-100 dark:from-gray-800/50 dark:to-gray-900/50 hover:shadow-md transition-all duration-300"
+                      className="flex items-start gap-4 p-4 rounded-xl dark:bg-gradient-to-r dark:from-gray-800/50 dark:to-[#D7C097]/50 bg-gradient-to-r from-[#EEEEEE] to-[#D8C9A7]/50 hover:shadow-md transition-all duration-300"
                     >
                       <motion.div
                         initial={{ scale: 0 }}
                         whileInView={{ scale: 1 }}
                         transition={{ delay: condition.delay + 0.1 }}
-                        className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${condition.valid ? "bg-green-500/20" : "bg-rose-500/20"}`}
+                        className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${condition.valid ? "bg-[#D7C097]/20" : "bg-rose-500/20"}`}
                       >
                         <div
                           className={
-                            condition.valid ? "text-green-500" : "text-rose-500"
+                            condition.valid ? "text-[#D7C097]" : "text-rose-500"
                           }
                         >
                           {condition.valid ? (
@@ -653,7 +629,7 @@ const ReturnPolicyPage = () => {
                       </motion.div>
 
                       <span
-                        className={`text-lg ${condition.valid ? "text-amber-800 dark:text-purple-200" : "text-amber-600/70 dark:text-purple-400/70"}`}
+                        className={`text-lg ${condition.valid ? "dark:text-[#D8C9A7] text-gray-900" : "dark:text-[#D8C9A7]/70 text-gray-900/70"}`}
                       >
                         {condition.text}
                       </span>
@@ -668,15 +644,15 @@ const ReturnPolicyPage = () => {
                 whileInView={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.4 }}
                 viewport={{ once: true }}
-                className="p-8 rounded-3xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 dark:from-blue-900/20 dark:to-cyan-900/20 border border-blue-500/20 dark:border-blue-500/30 backdrop-blur-xl shadow-xl relative overflow-hidden"
+                className="p-8 rounded-3xl bg-gradient-to-br from-[#D7C097]/10 to-[#EEEEEE]/10 dark:from-[#D7C097]/20 dark:to-[#D8C9A7]/20 border border-[#D7C097]/20 dark:border-[#D7C097]/30 backdrop-blur-xl shadow-xl relative overflow-hidden"
               >
-                <div className="absolute -top-4 -left-4 w-32 h-32 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-full blur-3xl" />
+                <div className="absolute -top-4 -left-4 w-32 h-32 bg-gradient-to-r from-[#D7C097]/10 to-[#EEEEEE]/10 rounded-full blur-3xl" />
 
                 <motion.h3
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   transition={{ delay: 0.5 }}
-                  className="text-2xl font-bold text-amber-900 dark:text-white mb-8"
+                  className="text-2xl font-bold dark:text-white text-gray-900 mb-8"
                 >
                   Refund Timeline
                 </motion.h3>
@@ -684,7 +660,7 @@ const ReturnPolicyPage = () => {
                 <div className="space-y-6 relative">
                   {/* Timeline line */}
                   <motion.div
-                    className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 to-cyan-500"
+                    className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#D7C097] to-[#EEEEEE]"
                     initial={{ scaleY: 0 }}
                     whileInView={{ scaleY: 1 }}
                     transition={{ duration: 1, delay: 0.6 }}
@@ -723,7 +699,7 @@ const ReturnPolicyPage = () => {
                           initial={{ opacity: 0 }}
                           whileInView={{ opacity: 1 }}
                           transition={{ delay: step.delay + 0.2 }}
-                          className="text-sm font-bold text-amber-700 dark:text-purple-300 mb-1"
+                          className="text-sm font-bold dark:text-[#D8C9A7] text-gray-900/80 mb-1"
                         >
                           {step.day}
                         </motion.div>
@@ -731,7 +707,7 @@ const ReturnPolicyPage = () => {
                           initial={{ opacity: 0 }}
                           whileInView={{ opacity: 1 }}
                           transition={{ delay: step.delay + 0.3 }}
-                          className="text-lg font-medium text-amber-800 dark:text-purple-200"
+                          className="text-lg font-medium dark:text-[#D8C9A7] text-gray-900"
                         >
                           {step.action}
                         </motion.div>
@@ -761,17 +737,17 @@ const ReturnPolicyPage = () => {
                 whileInView={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.4 }}
                 viewport={{ once: true }}
-                className="p-8 rounded-3xl bg-gradient-to-br from-white/90 to-white/80 dark:from-gray-800/90 dark:to-gray-900/90 backdrop-blur-xl border border-amber-100 dark:border-purple-900/50 shadow-xl relative overflow-hidden"
+                className="p-8 rounded-3xl dark:bg-gradient-to-br dark:from-gray-800/90 dark:to-[#D7C097]/90 dark:border-[#D7C097]/50 bg-gradient-to-br from-white/90 to-[#EEEEEE]/80 backdrop-blur-xl border border-[#EEEEEE] dark:border-[#D7C097]/50 shadow-xl relative overflow-hidden"
               >
-                <div className="absolute top-4 left-4 w-24 h-24 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-full blur-2xl" />
+                <div className="absolute top-4 left-4 w-24 h-24 bg-gradient-to-r from-[#D7C097]/10 to-[#EEEEEE]/10 rounded-full blur-2xl" />
 
                 <motion.h2
                   initial={{ opacity: 0, x: 20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 }}
-                  className="text-2xl font-bold text-amber-900 dark:text-white mb-8 flex items-center gap-3"
+                  className="text-2xl font-bold dark:text-white text-gray-900 mb-8 flex items-center gap-3"
                 >
-                  <FaUndo className="text-amber-500" />
+                  <FaUndo className="text-[#D7C097]" />
                   How to Return
                 </motion.h2>
 
@@ -784,14 +760,14 @@ const ReturnPolicyPage = () => {
                       transition={{ delay: step.delay }}
                       viewport={{ once: true }}
                       whileHover={{ x: 5, scale: 1.02 }}
-                      className="flex items-start gap-4 p-5 rounded-xl bg-gradient-to-r from-cream-50 to-cream-100 dark:from-gray-800/50 dark:to-gray-900/50 hover:shadow-lg transition-all duration-300 relative overflow-hidden group"
+                      className="flex items-start gap-4 p-5 rounded-xl dark:bg-gradient-to-r dark:from-gray-800/50 dark:to-[#D7C097]/50 bg-gradient-to-r from-[#EEEEEE] to-[#D8C9A7]/50 hover:shadow-lg transition-all duration-300 relative overflow-hidden group"
                     >
                       {/* Step number background */}
                       <motion.div
                         initial={{ scale: 0 }}
                         whileInView={{ scale: 1 }}
                         transition={{ delay: step.delay + 0.1 }}
-                        className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center text-white font-bold relative group-hover:scale-110 transition-transform duration-300"
+                        className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-r from-[#D7C097] to-[#EEEEEE] flex items-center justify-center text-white font-bold relative group-hover:scale-110 transition-transform duration-300"
                       >
                         <span className="relative z-10">{index + 1}</span>
                         <div className="absolute inset-0 rounded-full bg-white/20 blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -801,7 +777,7 @@ const ReturnPolicyPage = () => {
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
                         transition={{ delay: step.delay + 0.2 }}
-                        className="text-lg text-amber-800 dark:text-purple-200 pt-1"
+                        className="text-lg dark:text-[#D8C9A7] text-gray-900 pt-1"
                       >
                         {step.text}
                       </motion.span>
@@ -816,20 +792,20 @@ const ReturnPolicyPage = () => {
                 whileInView={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.5 }}
                 viewport={{ once: true }}
-                className="p-8 rounded-3xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-500/20 dark:border-green-500/30 backdrop-blur-xl shadow-xl relative overflow-hidden"
+                className="p-8 rounded-3xl bg-gradient-to-br from-[#D8C9A7]/10 to-[#EEEEEE]/10 dark:from-[#D8C9A7]/20 dark:to-[#D7C097]/20 border border-[#D8C9A7]/20 dark:border-[#D8C9A7]/30 backdrop-blur-xl shadow-xl relative overflow-hidden"
               >
                 <motion.div
                   animate={rotateAnimation}
-                  className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-r from-green-500/5 to-emerald-500/5 rounded-full"
+                  className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-r from-[#D8C9A7]/5 to-[#EEEEEE]/5 rounded-full"
                 />
 
                 <motion.h3
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   transition={{ delay: 0.6 }}
-                  className="text-2xl font-bold text-amber-900 dark:text-white mb-6 flex items-center gap-3"
+                  className="text-2xl font-bold dark:text-white text-gray-900 mb-6 flex items-center gap-3"
                 >
-                  <FaQuestionCircle className="text-amber-500" />
+                  <FaQuestionCircle className="text-[#D7C097]" />
                   Need Help?
                 </motion.h3>
 
@@ -837,7 +813,7 @@ const ReturnPolicyPage = () => {
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   transition={{ delay: 0.7 }}
-                  className="text-lg text-amber-700 dark:text-purple-300 mb-8"
+                  className="text-lg dark:text-[#D8C9A7] text-gray-900 mb-8"
                 >
                   Contact our support team for return assistance
                 </motion.p>
@@ -855,15 +831,15 @@ const ReturnPolicyPage = () => {
                         scale: 1.02,
                         transition: { type: "spring", stiffness: 400 },
                       }}
-                      className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-cream-50 to-cream-100 dark:from-gray-800/50 dark:to-gray-900/50 hover:shadow-md transition-all duration-300 group"
+                      className="flex items-center gap-4 p-4 rounded-xl dark:bg-gradient-to-r dark:from-gray-800/50 dark:to-[#D7C097]/50 bg-gradient-to-r from-[#EEEEEE] to-[#D8C9A7]/50 hover:shadow-md transition-all duration-300 group"
                     >
                       <motion.div
                         initial={{ scale: 0 }}
                         whileInView={{ scale: 1 }}
                         transition={{ delay: contact.delay + 0.1 }}
-                        className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
+                        className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-r from-[#D7C097]/20 to-[#EEEEEE]/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
                       >
-                        <div className="text-amber-600 dark:text-amber-400">
+                        <div className="text-[#D7C097] dark:text-[#D7C097]">
                           {contact.icon}
                         </div>
                       </motion.div>
@@ -872,7 +848,7 @@ const ReturnPolicyPage = () => {
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
                         transition={{ delay: contact.delay + 0.2 }}
-                        className="text-lg font-medium text-amber-800 dark:text-purple-200"
+                        className="text-lg font-medium dark:text-[#D8C9A7] text-gray-900"
                       >
                         {contact.text}
                       </motion.span>
@@ -887,17 +863,17 @@ const ReturnPolicyPage = () => {
                 whileInView={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.6 }}
                 viewport={{ once: true }}
-                className="p-8 rounded-3xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-500/20 dark:border-amber-500/30 backdrop-blur-xl shadow-xl relative overflow-hidden"
+                className="p-8 rounded-3xl bg-gradient-to-br from-[#D7C097]/10 to-[#EEEEEE]/10 dark:from-[#D7C097]/20 dark:to-[#D8C9A7]/20 border border-[#D7C097]/20 dark:border-[#D7C097]/30 backdrop-blur-xl shadow-xl relative overflow-hidden"
               >
-                <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-full blur-3xl" />
+                <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-gradient-to-r from-[#D7C097]/10 to-[#EEEEEE]/10 rounded-full blur-3xl" />
 
                 <motion.h3
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   transition={{ delay: 0.7 }}
-                  className="text-2xl font-bold text-amber-900 dark:text-white mb-6 flex items-center gap-3"
+                  className="text-2xl font-bold dark:text-white text-gray-900 mb-6 flex items-center gap-3"
                 >
-                  <FaMoneyBillWave className="text-amber-500" />
+                  <FaMoneyBillWave className="text-[#D7C097]" />
                   Refund Information
                 </motion.h3>
 
@@ -913,13 +889,13 @@ const ReturnPolicyPage = () => {
                       key={index}
                       variants={itemVariants}
                       custom={index}
-                      className="flex items-start gap-3 text-amber-700 dark:text-purple-300"
+                      className="flex items-start gap-3 dark:text-[#D8C9A7] text-gray-900"
                     >
                       <motion.div
                         initial={{ scale: 0 }}
                         whileInView={{ scale: 1 }}
                         transition={{ delay: 0.8 + index * 0.1 }}
-                        className="flex-shrink-0 w-2 h-2 rounded-full bg-amber-500 mt-2"
+                        className="flex-shrink-0 w-2 h-2 rounded-full bg-[#D7C097] mt-2"
                       />
                       <span className="text-lg">{point}</span>
                     </motion.li>
@@ -942,14 +918,14 @@ const ReturnPolicyPage = () => {
             viewport={{ once: true, margin: "-100px" }}
             className="mt-20"
           >
-            <div className="p-8 rounded-3xl bg-gradient-to-br from-white/90 to-white/80 dark:from-gray-800/90 dark:to-gray-900/90 backdrop-blur-xl border border-amber-100 dark:border-purple-900/50 shadow-xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-full blur-3xl" />
+            <div className="p-8 rounded-3xl dark:bg-gradient-to-br dark:from-gray-800/90 dark:to-[#D7C097]/90 dark:border-[#D7C097]/50 bg-gradient-to-br from-white/90 to-[#EEEEEE]/80 backdrop-blur-xl border border-[#EEEEEE] dark:border-[#D7C097]/50 shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#D7C097]/10 to-[#EEEEEE]/10 rounded-full blur-3xl" />
 
               <motion.h2
                 initial={{ opacity: 0, y: -20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8 }}
-                className="text-3xl lg:text-4xl font-bold text-amber-900 dark:text-white mb-10"
+                className="text-3xl lg:text-4xl font-bold dark:text-white text-gray-900 mb-10"
               >
                 Frequently Asked Questions
               </motion.h2>
@@ -967,7 +943,7 @@ const ReturnPolicyPage = () => {
                       scale: 1.02,
                       transition: { type: "spring", stiffness: 300 },
                     }}
-                    className="p-6 rounded-2xl bg-gradient-to-r from-cream-50 to-cream-100 dark:from-gray-800/50 dark:to-gray-900/50 hover:shadow-lg transition-all duration-300 relative overflow-hidden group"
+                    className="p-6 rounded-2xl dark:bg-gradient-to-r dark:from-gray-800/50 dark:to-[#D7C097]/50 bg-gradient-to-r from-[#EEEEEE] to-[#D8C9A7]/50 hover:shadow-lg transition-all duration-300 relative overflow-hidden group"
                   >
                     {/* Shimmer effect */}
                     <motion.div
@@ -981,16 +957,16 @@ const ReturnPolicyPage = () => {
                       initial={{ opacity: 0 }}
                       whileInView={{ opacity: 1 }}
                       transition={{ delay: faq.delay + 0.1 }}
-                      className="font-bold text-xl text-amber-800 dark:text-white mb-3 flex items-center gap-2"
+                      className="font-bold text-xl dark:text-white text-gray-900 mb-3 flex items-center gap-2"
                     >
-                      <FaQuestionCircle className="text-amber-500 text-lg" />
+                      <FaQuestionCircle className="text-[#D7C097] text-lg" />
                       {faq.q}
                     </motion.h4>
                     <motion.p
                       initial={{ opacity: 0 }}
                       whileInView={{ opacity: 1 }}
                       transition={{ delay: faq.delay + 0.2 }}
-                      className="text-amber-700 dark:text-purple-300"
+                      className="dark:text-[#D8C9A7] text-gray-900"
                     >
                       {faq.a}
                     </motion.p>
@@ -1013,14 +989,14 @@ const ReturnPolicyPage = () => {
             viewport={{ once: true }}
             className="mt-16"
           >
-            <div className="p-8 rounded-3xl bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-green-500/10 dark:from-green-900/20 dark:via-emerald-900/20 dark:to-green-900/20 border border-green-500/20 dark:border-green-500/30 backdrop-blur-xl shadow-xl text-center relative overflow-hidden">
+            <div className="p-8 rounded-3xl bg-gradient-to-r from-[#D8C9A7]/10 via-[#EEEEEE]/10 to-[#D8C9A7]/10 dark:from-[#D8C9A7]/20 dark:via-[#D7C097]/20 dark:to-[#D8C9A7]/20 border border-[#D8C9A7]/20 dark:border-[#D8C9A7]/30 backdrop-blur-xl shadow-xl text-center relative overflow-hidden">
               {/* Animated gradient background */}
               <motion.div
                 className="absolute inset-0"
                 animate={{
                   background: [
-                    "linear-gradient(45deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.1))",
-                    "linear-gradient(45deg, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1))",
+                    "linear-gradient(45deg, rgba(216, 201, 167, 0.1), rgba(238, 238, 238, 0.1), rgba(216, 201, 167, 0.1))",
+                    "linear-gradient(45deg, rgba(238, 238, 238, 0.1), rgba(216, 201, 167, 0.1), rgba(238, 238, 238, 0.1))",
                   ],
                 }}
                 transition={{ duration: 5, repeat: Infinity }}
@@ -1028,7 +1004,7 @@ const ReturnPolicyPage = () => {
 
               <motion.div
                 animate={floatingAnimation}
-                className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 mb-6"
+                className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-[#D7C097] to-[#EEEEEE] mb-6"
               >
                 <FaShieldAlt className="text-2xl text-white" />
               </motion.div>
@@ -1037,7 +1013,7 @@ const ReturnPolicyPage = () => {
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 transition={{ delay: 1 }}
-                className="text-2xl lg:text-3xl font-bold text-amber-900 dark:text-white mb-4"
+                className="text-2xl lg:text-3xl font-bold dark:text-white text-gray-900 mb-4"
               >
                 Satisfaction Guaranteed
               </motion.h3>
@@ -1046,7 +1022,7 @@ const ReturnPolicyPage = () => {
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 transition={{ delay: 1.1 }}
-                className="text-lg text-amber-700 dark:text-purple-300 max-w-2xl mx-auto"
+                className="text-lg dark:text-[#D8C9A7] text-gray-900 max-w-2xl mx-auto"
               >
                 We stand behind every product we sell. If you're not completely
                 satisfied, our hassle-free return policy ensures you can shop

@@ -1,2029 +1,78 @@
-// // // // // // import React from "react";
-// // // // // // import { motion } from "framer-motion";
-// // // // // // import { FaLeaf, FaStar, FaHeart } from "react-icons/fa";
-// // // // // // import HeroImage from "/src/assets/home_img5.png";
-
-// // // // // // /**
-// // // // // //  * Option 4 — Sparkles + Glow Particles + Blurred Blobs
-// // // // // //  * - Particles can float slightly outside hero container edges (more magical)
-// // // // // //  * - Floating cards animate infinitely and were lowered to avoid overlap
-// // // // // //  * - Decorative sparkles around the text
-// // // // // //  * - Soft blurred blobs in the background
-// // // // // //  */
-
-// // // // // // const floatLoop = {
-// // // // // //   y: [0, -12, 0, 12, 0],
-// // // // // //   x: [0, 8, 0, -8, 0],
-// // // // // //   rotate: [0, 4, 0, -4, 0],
-// // // // // // };
-
-// // // // // // const floatingVariants = {
-// // // // // //   float: {
-// // // // // //     ...floatLoop,
-// // // // // //     transition: {
-// // // // // //       duration: 8,
-// // // // // //       repeat: Infinity,
-// // // // // //       ease: "easeInOut",
-// // // // // //     },
-// // // // // //   },
-// // // // // // };
-
-// // // // // // const sparkleVariants = {
-// // // // // //   anim: (i) => ({
-// // // // // //     y: [0, -6 - (i % 3), 0],
-// // // // // //     opacity: [0.3, 1, 0.3],
-// // // // // //     scale: [0.6, 1 + (i % 2) * 0.2, 0.6],
-// // // // // //     transition: {
-// // // // // //       duration: 4 + (i % 4),
-// // // // // //       repeat: Infinity,
-// // // // // //       ease: "easeInOut",
-// // // // // //       delay: i * 0.12,
-// // // // // //     },
-// // // // // //   }),
-// // // // // // };
-
-// // // // // // const blobVariants = {
-// // // // // //   move: (i) => ({
-// // // // // //     x: [0, i % 2 === 0 ? 30 : -30, 0],
-// // // // // //     y: [0, i % 3 === 0 ? -20 : 20, 0],
-// // // // // //     transition: { duration: 14 + i * 2, repeat: Infinity, ease: "easeInOut" },
-// // // // // //   }),
-// // // // // // };
-
-// // // // // // const Home = () => {
-// // // // // //   // Precompute particles positions (a stable size on each render is fine)
-// // // // // //   const imageParticles = Array.from({ length: 12 }).map((_, i) => {
-// // // // // //     // allow positions slightly outside container using -8..108%
-// // // // // //     const top = `${-8 + Math.random() * 116}%`;
-// // // // // //     const left = `${-8 + Math.random() * 116}%`;
-// // // // // //     const size = 6 + Math.round(Math.random() * 18); // px
-// // // // // //     const colorPalette = [
-// // // // // //       "rgba(16,185,129,0.14)",
-// // // // // //       "rgba(245,158,11,0.12)",
-// // // // // //       "rgba(236,72,153,0.10)",
-// // // // // //       "rgba(59,130,246,0.10)",
-// // // // // //     ];
-// // // // // //     const color = colorPalette[i % colorPalette.length];
-// // // // // //     return { top, left, size, color, id: i };
-// // // // // //   });
-
-// // // // // //   const textSparkles = Array.from({ length: 10 }).map((_, i) => ({
-// // // // // //     top: `${5 + Math.random() * 70}%`,
-// // // // // //     left: `${Math.random() * 90}%`,
-// // // // // //     id: i,
-// // // // // //     delay: i * 0.15,
-// // // // // //   }));
-
-// // // // // //   const blobs = [
-// // // // // //     { size: 320, top: -120, left: -120, color: "rgba(16,185,129,0.10)" },
-// // // // // //     { size: 420, top: 120, left: -80, color: "rgba(245,158,11,0.07)" },
-// // // // // //     { size: 360, top: -80, left: 280, color: "rgba(236,72,153,0.06)" },
-// // // // // //   ];
-
-// // // // // //   return (
-// // // // // //     <motion.div
-// // // // // //       className="min-h-screen flex items-center justify-center w-full bg-lime-900 relative overflow-hidden"
-// // // // // //       initial={{ opacity: 0 }}
-// // // // // //       animate={{ opacity: 1 }}
-// // // // // //       transition={{ duration: 0.9 }}
-// // // // // //     >
-// // // // // //       {/* Background blurred color blobs (soft, behind content) */}
-// // // // // //       {blobs.map((b, i) => (
-// // // // // //         <motion.div
-// // // // // //           key={i}
-// // // // // //           custom={i}
-// // // // // //           variants={blobVariants}
-// // // // // //           animate="move"
-// // // // // //           style={{
-// // // // // //             position: "absolute",
-// // // // // //             width: b.size,
-// // // // // //             height: b.size,
-// // // // // //             top: b.top,
-// // // // // //             left: b.left,
-// // // // // //             borderRadius: "50%",
-// // // // // //             background: b.color,
-// // // // // //             filter: "blur(80px)",
-// // // // // //             zIndex: 5,
-// // // // // //             pointerEvents: "none",
-// // // // // //             mixBlendMode: "screen",
-// // // // // //           }}
-// // // // // //         />
-// // // // // //       ))}
-
-// // // // // //       <div className="w-full flex flex-col lg:flex-row justify-center items-center min-h-screen px-4 lg:px-16 relative z-10">
-// // // // // //         {/* ======== Image / left column ======== */}
-// // // // // //         <motion.div
-// // // // // //           className="w-full lg:w-[60%] flex items-center justify-center h-[480px] md:h-[720px] lg:h-screen overflow-visible relative"
-// // // // // //           initial={{ scale: 0, opacity: 0 }}
-// // // // // //           animate={{ scale: 1, opacity: 1 }}
-// // // // // //           transition={{ duration: 1.1, ease: "easeOut" }}
-// // // // // //         >
-// // // // // //           {/* Hero image */}
-// // // // // //           <img
-// // // // // //             src={HeroImage}
-// // // // // //             alt="Hero"
-// // // // // //             className="w-full h-full object-contain rounded-b-2xl drop-shadow-2xl"
-// // // // // //             style={{ zIndex: 20 }}
-// // // // // //           />
-
-// // // // // //           {/* Glow particles around image (soft circles) */}
-// // // // // //           {imageParticles.map((p) => (
-// // // // // //             <motion.div
-// // // // // //               key={p.id}
-// // // // // //               animate={{
-// // // // // //                 y: [0, p.id % 2 === 0 ? -12 : 12, 0],
-// // // // // //                 x: [0, p.id % 3 === 0 ? -10 : 10, 0],
-// // // // // //                 opacity: [0.05, 0.3, 0.05],
-// // // // // //                 scale: [0.9, 1.2, 0.9],
-// // // // // //               }}
-// // // // // //               transition={{
-// // // // // //                 duration: 8 + (p.id % 5),
-// // // // // //                 repeat: Infinity,
-// // // // // //                 ease: "easeInOut",
-// // // // // //                 delay: p.id * 0.12,
-// // // // // //               }}
-// // // // // //               style={{
-// // // // // //                 position: "absolute",
-// // // // // //                 top: p.top,
-// // // // // //                 left: p.left,
-// // // // // //                 width: p.size,
-// // // // // //                 height: p.size,
-// // // // // //                 borderRadius: 9999,
-// // // // // //                 background: p.color,
-// // // // // //                 zIndex: 15,
-// // // // // //                 filter: "blur(12px)",
-// // // // // //                 pointerEvents: "none",
-// // // // // //                 mixBlendMode: "screen",
-// // // // // //               }}
-// // // // // //             />
-// // // // // //           ))}
-
-// // // // // //           {/* Floating animated info cards (lowered / non-overlapping) */}
-// // // // // //           {[
-// // // // // //             {
-// // // // // //               icon: <FaLeaf className="text-green-300" />,
-// // // // // //               text: "Organic & Natural",
-// // // // // //               bg: "bg-green-600/40",
-// // // // // //               style: { top: "14%", left: 12 },
-// // // // // //             },
-// // // // // //             {
-// // // // // //               icon: <FaStar className="text-yellow-300" />,
-// // // // // //               text: "Premium Quality",
-// // // // // //               bg: "bg-yellow-500/40",
-// // // // // //               style: { top: "24%", right: 20 },
-// // // // // //             },
-// // // // // //             {
-// // // // // //               icon: <FaHeart className="text-pink-300" />,
-// // // // // //               text: "Loved by Users",
-// // // // // //               bg: "bg-pink-500/40",
-// // // // // //               style: { top: "36%", left: 20 }, // lowered to avoid overlap
-// // // // // //             },
-// // // // // //           ].map((card, idx) => (
-// // // // // //             <motion.div
-// // // // // //               key={idx}
-// // // // // //               variants={floatingVariants}
-// // // // // //               animate="float"
-// // // // // //               className={`${card.bg} backdrop-blur-md p-3 sm:p-4 rounded-xl shadow-2xl flex items-center gap-3 max-w-[220px] absolute`}
-// // // // // //               style={{
-// // // // // //                 zIndex: 30,
-// // // // // //                 display: "flex",
-// // // // // //                 alignItems: "center",
-// // // // // //                 ...card.style,
-// // // // // //               }}
-// // // // // //             >
-// // // // // //               {card.icon}
-// // // // // //               <p className="text-white font-semibold text-sm sm:text-lg">
-// // // // // //                 {card.text}
-// // // // // //               </p>
-// // // // // //             </motion.div>
-// // // // // //           ))}
-// // // // // //         </motion.div>
-
-// // // // // //         {/* ======== Text / right column ======== */}
-// // // // // //         <motion.div
-// // // // // //           className="w-full sm:w-[72%] lg:w-1/2 text-white flex flex-col justify-center items-center lg:items-start px-4 lg:px-8 py-10 relative z-30"
-// // // // // //           initial={{ opacity: 0, x: 20 }}
-// // // // // //           animate={{ opacity: 1, x: 0 }}
-// // // // // //           transition={{ duration: 0.9, delay: 0.15 }}
-// // // // // //         >
-// // // // // //           {/* Sparkles around text (soft golden/white) */}
-// // // // // //           {textSparkles.map((s, i) => (
-// // // // // //             <motion.div
-// // // // // //               key={s.id}
-// // // // // //               custom={i}
-// // // // // //               variants={sparkleVariants}
-// // // // // //               animate="anim"
-// // // // // //               style={{
-// // // // // //                 position: "absolute",
-// // // // // //                 top: s.top,
-// // // // // //                 left: s.left,
-// // // // // //                 width: 6,
-// // // // // //                 height: 6,
-// // // // // //                 borderRadius: 9999,
-// // // // // //                 background:
-// // // // // //                   i % 2 === 0
-// // // // // //                     ? "rgba(255,244,229,0.95)"
-// // // // // //                     : "rgba(255,255,255,0.85)",
-// // // // // //                 boxShadow: "0 0 12px rgba(255,244,229,0.6)",
-// // // // // //                 zIndex: 40,
-// // // // // //                 pointerEvents: "none",
-// // // // // //               }}
-// // // // // //             />
-// // // // // //           ))}
-
-// // // // // //           {/* Decorative small icon floaters close to the heading */}
-// // // // // //           <motion.div
-// // // // // //             className="absolute -top-6 right-8 flex gap-2 z-40 pointer-events-none"
-// // // // // //             initial={{ opacity: 0.6 }}
-// // // // // //             animate={{ y: [0, 10, 0], rotate: [0, 10, 0] }}
-// // // // // //             transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-// // // // // //           >
-// // // // // //             <FaLeaf className="text-green-200 text-xl" />
-// // // // // //             <FaStar className="text-yellow-300 text-xl" />
-// // // // // //             <FaHeart className="text-pink-300 text-xl" />
-// // // // // //           </motion.div>
-
-// // // // // //           {/* Subtle gradient stroke behind heading for glow */}
-// // // // // //           <motion.div
-// // // // // //             className="absolute -left-6 -top-2 w-[80%] h-28 md:h-32 rounded-lg pointer-events-none"
-// // // // // //             style={{
-// // // // // //               background:
-// // // // // //                 "linear-gradient(90deg, rgba(16,185,129,0.06), rgba(245,158,11,0.04), rgba(236,72,153,0.03))",
-// // // // // //               filter: "blur(18px)",
-// // // // // //               zIndex: 20,
-// // // // // //             }}
-// // // // // //             initial={{ opacity: 0 }}
-// // // // // //             animate={{ opacity: 1 }}
-// // // // // //             transition={{ duration: 1.5 }}
-// // // // // //           />
-
-// // // // // //           <motion.h1
-// // // // // //             className="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-4 text-center lg:text-left relative z-40"
-// // // // // //             initial={{ opacity: 0, y: 12 }}
-// // // // // //             animate={{ opacity: 1, y: 0 }}
-// // // // // //             transition={{ duration: 0.9, delay: 0.25 }}
-// // // // // //             style={{ textShadow: "0 6px 20px rgba(0,0,0,0.36)" }}
-// // // // // //           >
-// // // // // //             Glow. Style. Confidence.
-// // // // // //           </motion.h1>
-
-// // // // // //           <motion.p
-// // // // // //             className="text-gray-100 w-full lg:text-left mb-6 text-base md:text-lg text-center md:max-w-xl relative z-40"
-// // // // // //             initial={{ opacity: 0, y: 18 }}
-// // // // // //             animate={{ opacity: 1, y: 0 }}
-// // // // // //             transition={{ duration: 0.9, delay: 0.45 }}
-// // // // // //           >
-// // // // // //             Discover premium Skin, Hair & Lifestyle essentials — crafted for
-// // // // // //             your everyday beauty. Luxurious formulation, natural ingredients,
-// // // // // //             and a glow you'll love.
-// // // // // //           </motion.p>
-
-// // // // // //           <div className="flex gap-4 md:justify-start justify-center relative z-40">
-// // // // // //             <motion.button
-// // // // // //               className="bg-[#222b21] hover:bg-[#2f3b2f] text-white px-5 py-3 rounded-xl font-semibold shadow-lg"
-// // // // // //               whileHover={{ scale: 1.04 }}
-// // // // // //               whileTap={{ scale: 0.98 }}
-// // // // // //               initial={{ opacity: 0 }}
-// // // // // //               animate={{ opacity: 1 }}
-// // // // // //               transition={{ duration: 0.9, delay: 0.8 }}
-// // // // // //             >
-// // // // // //               Shop Now
-// // // // // //             </motion.button>
-
-// // // // // //             <motion.button
-// // // // // //               className="border border-white/40 text-white px-5 py-3 rounded-xl font-semibold hover:bg-white/5"
-// // // // // //               whileHover={{ scale: 1.04 }}
-// // // // // //               whileTap={{ scale: 0.98 }}
-// // // // // //               initial={{ opacity: 0 }}
-// // // // // //               animate={{ opacity: 1 }}
-// // // // // //               transition={{ duration: 0.9, delay: 1.1 }}
-// // // // // //             >
-// // // // // //               Explore
-// // // // // //             </motion.button>
-// // // // // //           </div>
-// // // // // //         </motion.div>
-// // // // // //       </div>
-// // // // // //     </motion.div>
-// // // // // //   );
-// // // // // // };
-
-// // // // // // export default Home;
-// // // // // // import React from "react";
-// // // // // // import { motion } from "framer-motion";
-// // // // // // import { FaLeaf, FaStar, FaHeart } from "react-icons/fa";
-// // // // // // import HeroImage from "/src/assets/home_img5.png";
-
-// // // // // // /* ================== Animations ================== */
-// // // // // // const floatLoop = {
-// // // // // //   y: [0, -12, 0, 12, 0],
-// // // // // //   x: [0, 8, 0, -8, 0],
-// // // // // //   rotate: [0, 4, 0, -4, 0],
-// // // // // // };
-
-// // // // // // const floatingVariants = {
-// // // // // //   float: {
-// // // // // //     ...floatLoop,
-// // // // // //     transition: { duration: 8, repeat: Infinity, ease: "easeInOut" },
-// // // // // //   },
-// // // // // // };
-
-// // // // // // const sparkleVariants = {
-// // // // // //   anim: (i) => ({
-// // // // // //     y: [0, -6 - (i % 3), 0],
-// // // // // //     opacity: [0.3, 1, 0.3],
-// // // // // //     scale: [0.6, 1 + (i % 2) * 0.2, 0.6],
-// // // // // //     transition: {
-// // // // // //       duration: 4 + (i % 4),
-// // // // // //       repeat: Infinity,
-// // // // // //       ease: "easeInOut",
-// // // // // //       delay: i * 0.12,
-// // // // // //     },
-// // // // // //   }),
-// // // // // // };
-
-// // // // // // const blobVariants = {
-// // // // // //   move: (i) => ({
-// // // // // //     x: [0, i % 2 === 0 ? 30 : -30, 0],
-// // // // // //     y: [0, i % 3 === 0 ? -20 : 20, 0],
-// // // // // //     transition: { duration: 14 + i * 2, repeat: Infinity, ease: "easeInOut" },
-// // // // // //   }),
-// // // // // // };
-
-// // // // // // /* ================== Component ================== */
-// // // // // // const Home = () => {
-// // // // // //   const imageParticles = Array.from({ length: 12 }).map((_, i) => ({
-// // // // // //     top: `${-8 + Math.random() * 116}%`,
-// // // // // //     left: `${-8 + Math.random() * 116}%`,
-// // // // // //     size: 6 + Math.round(Math.random() * 18),
-// // // // // //     color: i % 2 === 0 ? "rgba(210,190,160,0.25)" : "rgba(255,248,235,0.25)",
-// // // // // //     id: i,
-// // // // // //   }));
-
-// // // // // //   const textSparkles = Array.from({ length: 10 }).map((_, i) => ({
-// // // // // //     top: `${5 + Math.random() * 70}%`,
-// // // // // //     left: `${Math.random() * 90}%`,
-// // // // // //     id: i,
-// // // // // //   }));
-
-// // // // // //   const blobs = [
-// // // // // //     { size: 320, top: -120, left: -120, color: "rgba(245,238,220,0.7)" },
-// // // // // //     { size: 420, top: 120, left: -80, color: "rgba(225,210,185,0.55)" },
-// // // // // //     { size: 360, top: -80, left: 280, color: "rgba(255,248,235,0.5)" },
-// // // // // //   ];
-
-// // // // // //   return (
-// // // // // //     <motion.div
-// // // // // //       className="
-// // // // // //         min-h-screen w-full relative overflow-hidden
-// // // // // //         bg-[#FBF7F2] text-[#3b3a36]
-// // // // // //         dark:bg-[#1f1c18] dark:text-[#f5efe6]
-// // // // // //         flex items-center justify-center
-// // // // // //       "
-// // // // // //       initial={{ opacity: 0 }}
-// // // // // //       animate={{ opacity: 1 }}
-// // // // // //       transition={{ duration: 0.9 }}
-// // // // // //     >
-// // // // // //       {/* ===== Background Blobs ===== */}
-// // // // // //       {blobs.map((b, i) => (
-// // // // // //         <motion.div
-// // // // // //           key={i}
-// // // // // //           custom={i}
-// // // // // //           variants={blobVariants}
-// // // // // //           animate="move"
-// // // // // //           style={{
-// // // // // //             position: "absolute",
-// // // // // //             width: b.size,
-// // // // // //             height: b.size,
-// // // // // //             top: b.top,
-// // // // // //             left: b.left,
-// // // // // //             borderRadius: "50%",
-// // // // // //             background: b.color,
-// // // // // //             filter: "blur(90px)",
-// // // // // //             zIndex: 5,
-// // // // // //             mixBlendMode: "multiply",
-// // // // // //           }}
-// // // // // //         />
-// // // // // //       ))}
-
-// // // // // //       <div className="w-full flex flex-col lg:flex-row items-center px-6 lg:px-16 relative z-10">
-// // // // // //         {/* ===== Image ===== */}
-// // // // // //         <motion.div
-// // // // // //           className="w-full lg:w-[60%] flex items-center justify-center h-[480px] lg:h-screen relative"
-// // // // // //           initial={{ scale: 0.85, opacity: 0 }}
-// // // // // //           animate={{ scale: 1, opacity: 1 }}
-// // // // // //           transition={{ duration: 1 }}
-// // // // // //         >
-// // // // // //           <img
-// // // // // //             src={HeroImage}
-// // // // // //             alt="Hero"
-// // // // // //             className="w-full h-full object-contain drop-shadow-2xl"
-// // // // // //           />
-
-// // // // // //           {imageParticles.map((p) => (
-// // // // // //             <motion.div
-// // // // // //               key={p.id}
-// // // // // //               animate={{ y: [0, -10, 0], opacity: [0.2, 0.5, 0.2] }}
-// // // // // //               transition={{ duration: 6 + p.id, repeat: Infinity }}
-// // // // // //               style={{
-// // // // // //                 position: "absolute",
-// // // // // //                 top: p.top,
-// // // // // //                 left: p.left,
-// // // // // //                 width: p.size,
-// // // // // //                 height: p.size,
-// // // // // //                 borderRadius: "50%",
-// // // // // //                 background: p.color,
-// // // // // //                 filter: "blur(10px)",
-// // // // // //               }}
-// // // // // //             />
-// // // // // //           ))}
-
-// // // // // //           {/* Floating Cards */}
-// // // // // //           {[
-// // // // // //             {
-// // // // // //               icon: <FaLeaf />,
-// // // // // //               text: "Organic & Natural",
-// // // // // //               top: "14%",
-// // // // // //               left: 16,
-// // // // // //             },
-// // // // // //             {
-// // // // // //               icon: <FaStar />,
-// // // // // //               text: "Premium Quality",
-// // // // // //               top: "24%",
-// // // // // //               right: 20,
-// // // // // //             },
-// // // // // //             { icon: <FaHeart />, text: "Loved by Users", top: "36%", left: 24 },
-// // // // // //           ].map((c, i) => (
-// // // // // //             <motion.div
-// // // // // //               key={i}
-// // // // // //               variants={floatingVariants}
-// // // // // //               animate="float"
-// // // // // //               className="
-// // // // // //                 absolute flex items-center gap-3 px-4 py-3 rounded-xl
-// // // // // //                 bg-[#EFE6D8]/80 dark:bg-[#2c2722]/70
-// // // // // //                 backdrop-blur-md shadow-xl
-// // // // // //               "
-// // // // // //               style={{ top: c.top, left: c.left, right: c.right }}
-// // // // // //             >
-// // // // // //               <span className="text-[#b89b6a]">{c.icon}</span>
-// // // // // //               <p className="font-semibold text-sm">{c.text}</p>
-// // // // // //             </motion.div>
-// // // // // //           ))}
-// // // // // //         </motion.div>
-
-// // // // // //         {/* ===== Text ===== */}
-// // // // // //         <motion.div
-// // // // // //           className="w-full lg:w-1/2 flex flex-col items-center lg:items-start px-4 py-10"
-// // // // // //           initial={{ opacity: 0, x: 30 }}
-// // // // // //           animate={{ opacity: 1, x: 0 }}
-// // // // // //           transition={{ duration: 0.9 }}
-// // // // // //         >
-// // // // // //           {textSparkles.map((s, i) => (
-// // // // // //             <motion.div
-// // // // // //               key={i}
-// // // // // //               variants={sparkleVariants}
-// // // // // //               custom={i}
-// // // // // //               animate="anim"
-// // // // // //               style={{
-// // // // // //                 position: "absolute",
-// // // // // //                 top: s.top,
-// // // // // //                 left: s.left,
-// // // // // //                 width: 6,
-// // // // // //                 height: 6,
-// // // // // //                 borderRadius: "50%",
-// // // // // //                 background: "rgba(255,248,235,0.9)",
-// // // // // //                 boxShadow: "0 0 12px rgba(255,248,235,0.6)",
-// // // // // //               }}
-// // // // // //             />
-// // // // // //           ))}
-
-// // // // // //           <h1 className="text-4xl lg:text-6xl font-extrabold mb-4 max-sm:text-center">
-// // // // // //             Glow. Style. Confidence.
-// // // // // //           </h1>
-
-// // // // // //           <p className="max-w-xl mb-6 text-center lg:text-left text-[#6b645a] dark:text-[#d8cfc2]">
-// // // // // //             Discover premium Skin, Hair & Lifestyle essentials — crafted for
-// // // // // //             your everyday beauty with warm, natural elegance.
-// // // // // //           </p>
-
-// // // // // //           <div className="flex gap-4">
-// // // // // //             <button
-// // // // // //               className="
-// // // // // //                 px-6 py-3 rounded-xl font-semibold
-// // // // // //                 bg-[#d6c2a0] text-[#3b2f1e]
-// // // // // //                 hover:bg-[#cbb28c]
-// // // // // //                 dark:bg-[#bfa178] dark:text-[#1f1c18]
-// // // // // //               "
-// // // // // //             >
-// // // // // //               Shop Now
-// // // // // //             </button>
-
-// // // // // //             <button
-// // // // // //               className="
-// // // // // //                 px-6 py-3 rounded-xl font-semibold
-// // // // // //                 border border-[#d6c2a0]
-// // // // // //                 hover:bg-[#f1e8da]
-// // // // // //                 dark:border-[#bfa178] dark:hover:bg-[#2a241e]
-// // // // // //               "
-// // // // // //             >
-// // // // // //               Explore
-// // // // // //             </button>
-// // // // // //           </div>
-// // // // // //         </motion.div>
-// // // // // //       </div>
-// // // // // //     </motion.div>
-// // // // // //   );
-// // // // // // };
-
-// // // // // // export default Home;
-
-// // // // // // import React from "react";
-// // // // // // import { motion } from "framer-motion";
-// // // // // // import {
-// // // // // //   FaLeaf,
-// // // // // //   FaStar,
-// // // // // //   FaHeart,
-// // // // // //   FaShoppingBag,
-// // // // // //   FaTruck,
-// // // // // //   FaShieldAlt,
-// // // // // //   FaArrowRight,
-// // // // // // } from "react-icons/fa";
-// // // // // // import { IoSparkles } from "react-icons/io5";
-// // // // // // import { GiSparkles } from "react-icons/gi";
-// // // // // // import HeroImage from "/src/assets/home_img5.png";
-
-// // // // // // /* ================== Animations ================== */
-// // // // // // const floatLoop = {
-// // // // // //   y: [0, -15, 0, 15, 0],
-// // // // // //   x: [0, 10, 0, -10, 0],
-// // // // // //   rotate: [0, 5, 0, -5, 0],
-// // // // // //   transition: { duration: 8, repeat: Infinity, ease: "easeInOut" },
-// // // // // // };
-
-// // // // // // const fadeInUp = {
-// // // // // //   hidden: { opacity: 0, y: 40 },
-// // // // // //   visible: { opacity: 1, y: 0 },
-// // // // // // };
-
-// // // // // // const staggerContainer = {
-// // // // // //   hidden: { opacity: 0 },
-// // // // // //   visible: {
-// // // // // //     opacity: 1,
-// // // // // //     transition: {
-// // // // // //       staggerChildren: 0.1,
-// // // // // //     },
-// // // // // //   },
-// // // // // // };
-
-// // // // // // const glowAnimation = {
-// // // // // //   hidden: { scale: 0.8, opacity: 0 },
-// // // // // //   visible: {
-// // // // // //     scale: 1,
-// // // // // //     opacity: 1,
-// // // // // //     transition: {
-// // // // // //       duration: 1.5,
-// // // // // //       repeat: Infinity,
-// // // // // //       repeatType: "reverse",
-// // // // // //       ease: "easeInOut",
-// // // // // //     },
-// // // // // //   },
-// // // // // // };
-
-// // // // // // const particleVariants = (i) => ({
-// // // // // //   animate: {
-// // // // // //     y: [0, -20 - (i % 3) * 10, 0],
-// // // // // //     x: [0, i % 2 === 0 ? 15 : -15, 0],
-// // // // // //     opacity: [0.2, 0.8, 0.2],
-// // // // // //     scale: [0.8, 1.2, 0.8],
-// // // // // //     transition: {
-// // // // // //       duration: 6 + (i % 4),
-// // // // // //       repeat: Infinity,
-// // // // // //       ease: "easeInOut",
-// // // // // //       delay: i * 0.15,
-// // // // // //     },
-// // // // // //   },
-// // // // // // });
-
-// // // // // // const blobVariants = (i) => ({
-// // // // // //   move: {
-// // // // // //     x: [0, i % 2 === 0 ? 40 : -40, 0],
-// // // // // //     y: [0, i % 3 === 0 ? -30 : 30, 0],
-// // // // // //     rotate: [0, 180, 360],
-// // // // // //     transition: {
-// // // // // //       duration: 20 + i * 3,
-// // // // // //       repeat: Infinity,
-// // // // // //       ease: "easeInOut",
-// // // // // //     },
-// // // // // //   },
-// // // // // // });
-
-// // // // // // /* ================== Component ================== */
-// // // // // // const Home = () => {
-// // // // // //   const particles = Array.from({ length: 24 }).map((_, i) => ({
-// // // // // //     top: `${-5 + Math.random() * 110}%`,
-// // // // // //     left: `${-5 + Math.random() * 110}%`,
-// // // // // //     size: 8 + Math.round(Math.random() * 24),
-// // // // // //     color:
-// // // // // //       i % 3 === 0
-// // // // // //         ? "rgba(225, 169, 95, 0.3)"
-// // // // // //         : i % 3 === 1
-// // // // // //           ? "rgba(245, 238, 230, 0.2)"
-// // // // // //           : "rgba(212, 162, 89, 0.25)",
-// // // // // //     delay: i * 0.1,
-// // // // // //     id: i,
-// // // // // //   }));
-
-// // // // // //   const blobs = [
-// // // // // //     {
-// // // // // //       size: 400,
-// // // // // //       top: -160,
-// // // // // //       left: -160,
-// // // // // //       color: "rgba(225, 169, 95, 0.15)",
-// // // // // //       delay: 0,
-// // // // // //     },
-// // // // // //     {
-// // // // // //       size: 500,
-// // // // // //       top: 160,
-// // // // // //       left: -100,
-// // // // // //       color: "rgba(245, 238, 230, 0.12)",
-// // // // // //       delay: 0.3,
-// // // // // //     },
-// // // // // //     {
-// // // // // //       size: 420,
-// // // // // //       top: -100,
-// // // // // //       left: 320,
-// // // // // //       color: "rgba(212, 162, 89, 0.18)",
-// // // // // //       delay: 0.6,
-// // // // // //     },
-// // // // // //     {
-// // // // // //       size: 380,
-// // // // // //       top: 200,
-// // // // // //       left: 280,
-// // // // // //       color: "rgba(197, 149, 77, 0.1)",
-// // // // // //       delay: 0.9,
-// // // // // //     },
-// // // // // //   ];
-
-// // // // // //   const features = [
-// // // // // //     { icon: <FaLeaf />, title: "100% Natural", desc: "Organic ingredients" },
-// // // // // //     { icon: <FaStar />, title: "Premium Quality", desc: "Luxury standards" },
-// // // // // //     { icon: <FaHeart />, title: "Cruelty Free", desc: "Ethically sourced" },
-// // // // // //     {
-// // // // // //       icon: <FaShieldAlt />,
-// // // // // //       title: "Safe & Tested",
-// // // // // //       desc: "Dermatologist approved",
-// // // // // //     },
-// // // // // //   ];
-
-// // // // // //   const stats = [
-// // // // // //     { value: "10k+", label: "Happy Customers" },
-// // // // // //     { value: "4.9", label: "Average Rating" },
-// // // // // //     { value: "100+", label: "Products" },
-// // // // // //     { value: "24/7", label: "Support" },
-// // // // // //   ];
-
-// // // // // //   return (
-// // // // // //     <motion.div
-// // // // // //       className="min-h-screen w-full relative overflow-hidden"
-// // // // // //       initial={{ opacity: 0 }}
-// // // // // //       animate={{ opacity: 1 }}
-// // // // // //       transition={{ duration: 1 }}
-// // // // // //     >
-// // // // // //       {/* Background Gradient */}
-// // // // // //       <div className="absolute inset-0 bg-gradient-to-br from-amber-50/30 via-white to-rose-50/20 dark:from-slate-950/95 dark:via-slate-900 dark:to-slate-950/95" />
-
-// // // // // //       {/* Animated Blobs */}
-// // // // // //       {blobs.map((b, i) => (
-// // // // // //         <motion.div
-// // // // // //           key={i}
-// // // // // //           custom={i}
-// // // // // //           variants={blobVariants(i)}
-// // // // // //           animate="move"
-// // // // // //           initial="hidden"
-// // // // // //           style={{
-// // // // // //             position: "absolute",
-// // // // // //             width: b.size,
-// // // // // //             height: b.size,
-// // // // // //             top: b.top,
-// // // // // //             left: b.left,
-// // // // // //             borderRadius: "50%",
-// // // // // //             background: b.color,
-// // // // // //             filter: "blur(120px)",
-// // // // // //             zIndex: 0,
-// // // // // //           }}
-// // // // // //         />
-// // // // // //       ))}
-
-// // // // // //       {/* Floating Particles */}
-// // // // // //       {particles.map((p) => (
-// // // // // //         <motion.div
-// // // // // //           key={p.id}
-// // // // // //           custom={p.id}
-// // // // // //           variants={particleVariants(p.id)}
-// // // // // //           animate="animate"
-// // // // // //           style={{
-// // // // // //             position: "absolute",
-// // // // // //             top: p.top,
-// // // // // //             left: p.left,
-// // // // // //             width: p.size,
-// // // // // //             height: p.size,
-// // // // // //             borderRadius: "50%",
-// // // // // //             background: p.color,
-// // // // // //             filter: "blur(12px)",
-// // // // // //             zIndex: 1,
-// // // // // //           }}
-// // // // // //         />
-// // // // // //       ))}
-
-// // // // // //       {/* Main Content */}
-// // // // // //       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 lg:py-24">
-// // // // // //         <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
-// // // // // //           {/* Left Column - Text Content */}
-// // // // // //           <motion.div
-// // // // // //             variants={staggerContainer}
-// // // // // //             initial="hidden"
-// // // // // //             animate="visible"
-// // // // // //             className="space-y-8"
-// // // // // //           >
-// // // // // //             {/* Badge */}
-// // // // // //             <motion.div
-// // // // // //               variants={fadeInUp}
-// // // // // //               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-amber-500/10 to-rose-500/10 border border-amber-500/20 dark:border-amber-500/30 backdrop-blur-sm"
-// // // // // //             >
-// // // // // //               <GiSparkles className="text-amber-500" />
-// // // // // //               <span className="text-sm font-medium text-amber-700 dark:text-amber-300">
-// // // // // //                 ✨ Premium Beauty Collection
-// // // // // //               </span>
-// // // // // //             </motion.div>
-
-// // // // // //             {/* Main Heading */}
-// // // // // //             <motion.h1
-// // // // // //               variants={fadeInUp}
-// // // // // //               className="text-5xl lg:text-7xl font-bold leading-tight"
-// // // // // //             >
-// // // // // //               <span className="bg-gradient-to-r from-amber-600 via-amber-500 to-rose-500 bg-clip-text text-transparent">
-// // // // // //                 Radiant Beauty
-// // // // // //               </span>
-// // // // // //               <br />
-// // // // // //               <span className="text-slate-800 dark:text-white">
-// // // // // //                 Starts Within
-// // // // // //               </span>
-// // // // // //             </motion.h1>
-
-// // // // // //             {/* Description */}
-// // // // // //             <motion.p
-// // // // // //               variants={fadeInUp}
-// // // // // //               className="text-lg lg:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl"
-// // // // // //             >
-// // // // // //               Discover our premium collection of skincare, haircare, and
-// // // // // //               wellness products—meticulously crafted with natural ingredients
-// // // // // //               for your everyday glow.
-// // // // // //             </motion.p>
-
-// // // // // //             {/* Features Grid */}
-// // // // // //             <motion.div
-// // // // // //               variants={staggerContainer}
-// // // // // //               className="grid grid-cols-2 gap-4 max-sm:grid-cols-1"
-// // // // // //             >
-// // // // // //               {features.map((feature, i) => (
-// // // // // //                 <motion.div
-// // // // // //                   key={i}
-// // // // // //                   variants={fadeInUp}
-// // // // // //                   className="flex items-center gap-3 p-4 rounded-2xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-white/20 dark:border-slate-700/50 hover:border-amber-200 dark:hover:border-amber-700 transition-all duration-300 group"
-// // // // // //                 >
-// // // // // //                   <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500/10 to-rose-500/10 group-hover:from-amber-500/20 group-hover:to-rose-500/20 transition-all duration-300">
-// // // // // //                     <span className="text-amber-600 dark:text-amber-400 text-lg">
-// // // // // //                       {feature.icon}
-// // // // // //                     </span>
-// // // // // //                   </div>
-// // // // // //                   <div>
-// // // // // //                     <h3 className="font-semibold text-slate-800 dark:text-white">
-// // // // // //                       {feature.title}
-// // // // // //                     </h3>
-// // // // // //                     <p className="text-sm text-slate-600 dark:text-slate-400">
-// // // // // //                       {feature.desc}
-// // // // // //                     </p>
-// // // // // //                   </div>
-// // // // // //                 </motion.div>
-// // // // // //               ))}
-// // // // // //             </motion.div>
-
-// // // // // //             {/* CTA Buttons */}
-// // // // // //             <motion.div
-// // // // // //               variants={fadeInUp}
-// // // // // //               className="flex flex-wrap gap-4 pt-4"
-// // // // // //             >
-// // // // // //               <motion.button
-// // // // // //                 whileHover={{ scale: 1.05 }}
-// // // // // //                 whileTap={{ scale: 0.95 }}
-// // // // // //                 className="group px-8 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold flex items-center gap-3 hover:shadow-2xl hover:shadow-amber-500/30 transition-all duration-300"
-// // // // // //               >
-// // // // // //                 <FaShoppingBag className="text-lg" />
-// // // // // //                 <span>Shop Collection</span>
-// // // // // //                 <FaArrowRight className="group-hover:translate-x-1 transition-transform duration-300" />
-// // // // // //               </motion.button>
-
-// // // // // //               <motion.button
-// // // // // //                 whileHover={{ scale: 1.05 }}
-// // // // // //                 whileTap={{ scale: 0.95 }}
-// // // // // //                 className="px-8 py-4 rounded-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white font-semibold hover:shadow-xl transition-all duration-300"
-// // // // // //               >
-// // // // // //                 Learn More
-// // // // // //               </motion.button>
-// // // // // //             </motion.div>
-
-// // // // // //             {/* Stats */}
-// // // // // //             <motion.div
-// // // // // //               variants={staggerContainer}
-// // // // // //               className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8"
-// // // // // //             >
-// // // // // //               {stats.map((stat, i) => (
-// // // // // //                 <motion.div key={i} variants={fadeInUp} className="text-center">
-// // // // // //                   <div className="text-3xl font-bold bg-gradient-to-r from-amber-600 to-rose-500 bg-clip-text text-transparent">
-// // // // // //                     {stat.value}
-// // // // // //                   </div>
-// // // // // //                   <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-// // // // // //                     {stat.label}
-// // // // // //                   </div>
-// // // // // //                 </motion.div>
-// // // // // //               ))}
-// // // // // //             </motion.div>
-// // // // // //           </motion.div>
-
-// // // // // //           {/* Right Column - Hero Image */}
-// // // // // //           <motion.div
-// // // // // //             initial={{ opacity: 0, scale: 0.9 }}
-// // // // // //             animate={{ opacity: 1, scale: 1 }}
-// // // // // //             transition={{ duration: 1, delay: 0.2 }}
-// // // // // //             className="relative"
-// // // // // //           >
-// // // // // //             {/* Image Container with Glow */}
-// // // // // //             <div className="relative">
-// // // // // //               <div className="absolute inset-0  blur-3xl" />
-
-// // // // // //               <motion.div
-// // // // // //                 animate={floatLoop}
-// // // // // //                 className="relative  overflow-hidden"
-// // // // // //               >
-// // // // // //                 <img
-// // // // // //                   src={HeroImage}
-// // // // // //                   alt="Premium Beauty Products"
-// // // // // //                   className="w-full h-auto object-cover"
-// // // // // //                 />
-
-// // // // // //                 {/* Floating Elements */}
-// // // // // //                 <motion.div
-// // // // // //                   animate={floatLoop}
-// // // // // //                   className="absolute top-6 left-6 flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-md shadow-xl border border-white/20"
-// // // // // //                 >
-// // // // // //                   <div className="p-2 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10">
-// // // // // //                     <FaLeaf className="text-green-600 dark:text-green-400" />
-// // // // // //                   </div>
-// // // // // //                   <div>
-// // // // // //                     <div className="font-semibold text-slate-800 dark:text-white">
-// // // // // //                       100% Natural
-// // // // // //                     </div>
-// // // // // //                     <div className="text-xs text-slate-600 dark:text-slate-400">
-// // // // // //                       Organic Ingredients
-// // // // // //                     </div>
-// // // // // //                   </div>
-// // // // // //                 </motion.div>
-
-// // // // // //                 <motion.div
-// // // // // //                   animate={floatLoop}
-// // // // // //                   transition={{ duration: 8, delay: 1, repeat: Infinity }}
-// // // // // //                   className="absolute top-6 right-6 flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-md shadow-xl border border-white/20"
-// // // // // //                 >
-// // // // // //                   <div className="p-2 rounded-xl bg-gradient-to-br from-amber-500/10 to-yellow-500/10">
-// // // // // //                     <FaStar className="text-amber-600 dark:text-amber-400" />
-// // // // // //                   </div>
-// // // // // //                   <div>
-// // // // // //                     <div className="font-semibold text-slate-800 dark:text-white">
-// // // // // //                       Premium Quality
-// // // // // //                     </div>
-// // // // // //                     <div className="text-xs text-slate-600 dark:text-slate-400">
-// // // // // //                       Luxury Standards
-// // // // // //                     </div>
-// // // // // //                   </div>
-// // // // // //                 </motion.div>
-
-// // // // // //                 <motion.div
-// // // // // //                   animate={floatLoop}
-// // // // // //                   transition={{ duration: 8, delay: 2, repeat: Infinity }}
-// // // // // //                   className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-md shadow-xl border border-white/20"
-// // // // // //                 >
-// // // // // //                   <div className="p-2 rounded-xl bg-gradient-to-br from-rose-500/10 to-pink-500/10">
-// // // // // //                     <FaHeart className="text-rose-600 dark:text-rose-400" />
-// // // // // //                   </div>
-// // // // // //                   <div>
-// // // // // //                     <div className="font-semibold text-slate-800 dark:text-white">
-// // // // // //                       Loved by Users
-// // // // // //                     </div>
-// // // // // //                     <div className="text-xs text-slate-600 dark:text-slate-400">
-// // // // // //                       10K+ Reviews
-// // // // // //                     </div>
-// // // // // //                   </div>
-// // // // // //                 </motion.div>
-// // // // // //               </motion.div>
-
-// // // // // //               {/* Floating Icon Decorations */}
-// // // // // //               <motion.div
-// // // // // //                 animate={floatLoop}
-// // // // // //                 transition={{ duration: 10, repeat: Infinity }}
-// // // // // //                 className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-gradient-to-br from-amber-500/10 to-rose-500/10 border border-amber-500/20 flex items-center justify-center"
-// // // // // //               >
-// // // // // //                 <IoSparkles className="text-amber-500 text-3xl" />
-// // // // // //               </motion.div>
-
-// // // // // //               <motion.div
-// // // // // //                 animate={floatLoop}
-// // // // // //                 transition={{ duration: 10, delay: 1, repeat: Infinity }}
-// // // // // //                 className="absolute -bottom-6 -left-6 w-20 h-20 rounded-full bg-gradient-to-br from-rose-500/10 to-pink-500/10 border border-rose-500/20 flex items-center justify-center"
-// // // // // //               >
-// // // // // //                 <GiSparkles className="text-rose-500 text-2xl" />
-// // // // // //               </motion.div>
-// // // // // //             </div>
-
-// // // // // //             {/* Trust Badges */}
-// // // // // //             <motion.div
-// // // // // //               initial={{ opacity: 0, y: 20 }}
-// // // // // //               animate={{ opacity: 1, y: 0 }}
-// // // // // //               transition={{ duration: 0.8, delay: 0.6 }}
-// // // // // //               className="mt-8 flex flex-wrap gap-4 justify-center"
-// // // // // //             >
-// // // // // //               <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200 dark:border-slate-700">
-// // // // // //                 <FaTruck className="text-green-600 dark:text-green-400" />
-// // // // // //                 <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-// // // // // //                   Free Shipping
-// // // // // //                 </span>
-// // // // // //               </div>
-// // // // // //               <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200 dark:border-slate-700">
-// // // // // //                 <FaShieldAlt className="text-blue-600 dark:text-blue-400" />
-// // // // // //                 <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-// // // // // //                   30-Day Returns
-// // // // // //                 </span>
-// // // // // //               </div>
-// // // // // //             </motion.div>
-// // // // // //           </motion.div>
-// // // // // //         </div>
-
-// // // // // //         {/* Scroll Indicator */}
-// // // // // //         <motion.div
-// // // // // //           animate={{ y: [0, 10, 0] }}
-// // // // // //           transition={{ duration: 2, repeat: Infinity }}
-// // // // // //           className="absolute bottom-8 left-1/2 transform -translate-x-1/2 hidden lg:flex items-center gap-2 text-slate-500 dark:text-slate-400"
-// // // // // //         >
-// // // // // //           <span className="text-sm">Scroll to explore</span>
-// // // // // //           <div className="w-6 h-10 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-start justify-center p-1">
-// // // // // //             <motion.div
-// // // // // //               animate={{ y: [0, 12, 0] }}
-// // // // // //               transition={{ duration: 1.5, repeat: Infinity }}
-// // // // // //               className="w-1 h-3 rounded-full bg-amber-500"
-// // // // // //             />
-// // // // // //           </div>
-// // // // // //         </motion.div>
-// // // // // //       </div>
-
-// // // // // //       {/* Decorative Bottom Wave */}
-// // // // // //       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white dark:from-slate-900 to-transparent" />
-// // // // // //     </motion.div>
-// // // // // //   );
-// // // // // // };
-
-// // // // // // export default Home;
-// // // // // import React, { useEffect, useState } from "react";
-// // // // // import { motion } from "framer-motion";
-// // // // // import {
-// // // // //   FaLeaf,
-// // // // //   FaStar,
-// // // // //   FaHeart,
-// // // // //   FaShoppingBag,
-// // // // //   FaShieldAlt,
-// // // // //   FaArrowRight,
-// // // // // } from "react-icons/fa";
-// // // // // import { GiSparkles } from "react-icons/gi";
-// // // // // import DefaultHero from "/src/assets/home_img5.png";
-// // // // // import { fetchWithAuth } from "../utils/auth";
-// // // // // import bgImage from "../assets/homebd_3.jpg";
-// // // // // const BACKEND_URL = import.meta.env.VITE_API_URL;
-
-// // // // // /* ================== Smooth Animations ================== */
-// // // // // const imageReveal = {
-// // // // //   hidden: {
-// // // // //     opacity: 0,
-// // // // //     x: -100,
-// // // // //     scale: 0.5,
-// // // // //     filter: "blur(20px)",
-// // // // //   },
-// // // // //   visible: {
-// // // // //     opacity: 1,
-// // // // //     x: 0,
-// // // // //     scale: 1,
-// // // // //     filter: "blur(0px)",
-// // // // //     transition: {
-// // // // //       type: "spring",
-// // // // //       stiffness: 60,
-// // // // //       damping: 15,
-// // // // //       mass: 1,
-// // // // //       duration: 1.2,
-// // // // //     },
-// // // // //   },
-// // // // // };
-
-// // // // // const contentReveal = {
-// // // // //   hidden: {
-// // // // //     opacity: 0,
-// // // // //     y: 30,
-// // // // //   },
-// // // // //   visible: {
-// // // // //     opacity: 1,
-// // // // //     y: 0,
-// // // // //     transition: {
-// // // // //       duration: 0.6,
-// // // // //       ease: "easeOut",
-// // // // //     },
-// // // // //   },
-// // // // // };
-
-// // // // // const fadeInOnly = {
-// // // // //   hidden: {
-// // // // //     opacity: 0,
-// // // // //   },
-// // // // //   visible: {
-// // // // //     opacity: 1,
-// // // // //     transition: {
-// // // // //       duration: 0.8,
-// // // // //       ease: "easeOut",
-// // // // //     },
-// // // // //   },
-// // // // // };
-
-// // // // // const staggerContent = {
-// // // // //   hidden: { opacity: 0 },
-// // // // //   visible: {
-// // // // //     opacity: 1,
-// // // // //     transition: {
-// // // // //       staggerChildren: 0.08,
-// // // // //       delayChildren: 0.3,
-// // // // //     },
-// // // // //   },
-// // // // // };
-
-// // // // // const buttonReveal = {
-// // // // //   hidden: {
-// // // // //     opacity: 0,
-// // // // //     scale: 0.9,
-// // // // //     y: 10,
-// // // // //   },
-// // // // //   visible: {
-// // // // //     opacity: 1,
-// // // // //     scale: 1,
-// // // // //     y: 0,
-// // // // //     transition: {
-// // // // //       type: "spring",
-// // // // //       stiffness: 200,
-// // // // //       damping: 12,
-// // // // //       delay: 0.5,
-// // // // //     },
-// // // // //   },
-// // // // // };
-
-// // // // // const statReveal = {
-// // // // //   hidden: {
-// // // // //     opacity: 0,
-// // // // //     scale: 0.8,
-// // // // //   },
-// // // // //   visible: {
-// // // // //     opacity: 1,
-// // // // //     scale: 1,
-// // // // //     transition: {
-// // // // //       type: "spring",
-// // // // //       stiffness: 180,
-// // // // //       damping: 12,
-// // // // //     },
-// // // // //   },
-// // // // // };
-
-// // // // // const floatAnimation = {
-// // // // //   float: {
-// // // // //     y: [0, -15, 0],
-// // // // //     transition: {
-// // // // //       duration: 6,
-// // // // //       repeat: Infinity,
-// // // // //       ease: "easeInOut",
-// // // // //     },
-// // // // //   },
-// // // // // };
-
-// // // // // const imageButtonReveal = {
-// // // // //   hidden: {
-// // // // //     opacity: 0,
-// // // // //     y: 15,
-// // // // //   },
-// // // // //   visible: {
-// // // // //     opacity: 1,
-// // // // //     y: 0,
-// // // // //     transition: {
-// // // // //       duration: 0.7,
-// // // // //       delay: 0.8, // Appears after the image
-// // // // //       ease: "easeOut",
-// // // // //     },
-// // // // //   },
-// // // // // };
-
-// // // // // /* ================== Component ================== */
-// // // // // const Home = () => {
-// // // // //   const [heroImage, setHeroImage] = useState();
-// // // // //   const [loading, setLoading] = useState(true);
-// // // // //   const [isLoaded, setIsLoaded] = useState(false);
-// // // // //   const [imageInView, setImageInView] = useState(false);
-
-// // // // //   // Fetch hero image from backend
-// // // // //   const fetchHeroImage = async () => {
-// // // // //     try {
-// // // // //       const res = await fetchWithAuth(
-// // // // //         `${BACKEND_URL}/api/admin/uploadHero`,
-// // // // //         {}
-// // // // //       );
-// // // // //       const data = await res.json();
-// // // // //       if (data.success && data.url) {
-// // // // //         const img = new Image();
-// // // // //         img.src = data.url;
-// // // // //         img.onload = () => {
-// // // // //           setHeroImage(data.url);
-// // // // //           setLoading(false);
-// // // // //           setIsLoaded(true);
-// // // // //         };
-// // // // //       } else {
-// // // // //         setLoading(false);
-// // // // //         setIsLoaded(true);
-// // // // //       }
-// // // // //     } catch (err) {
-// // // // //       console.error("Failed to fetch hero image:", err);
-// // // // //       setLoading(false);
-// // // // //       setIsLoaded(true);
-// // // // //     }
-// // // // //   };
-
-// // // // //   useEffect(() => {
-// // // // //     fetchHeroImage();
-// // // // //   }, []);
-
-// // // // //   const features = [
-// // // // //     { icon: <FaLeaf />, title: "100% Natural", desc: "Organic ingredients" },
-// // // // //     { icon: <FaStar />, title: "Premium Quality", desc: "Luxury standards" },
-// // // // //     { icon: <FaHeart />, title: "Cruelty Free", desc: "Ethically sourced" },
-// // // // //     {
-// // // // //       icon: <FaShieldAlt />,
-// // // // //       title: "Safe & Tested",
-// // // // //       desc: "Dermatologist approved",
-// // // // //     },
-// // // // //   ];
-
-// // // // //   const stats = [
-// // // // //     { value: "10k+", label: "Happy Customers" },
-// // // // //     { value: "4.9", label: "Average Rating" },
-// // // // //     { value: "100+", label: "Products" },
-// // // // //     { value: "24/7", label: "Support" },
-// // // // //   ];
-
-// // // // //   return (
-// // // // //     <motion.div
-// // // // //       className="min-h-screen w-full relative overflow-hidden bg-cover bg-center"
-// // // // //       style={{
-// // // // //         backgroundImage: `url(${bgImage})`,
-// // // // //         backgroundSize: "cover", // image covers the div
-// // // // //         backgroundPosition: "center", // image is centered
-// // // // //         backgroundRepeat: "no-repeat", // no tiling
-// // // // //         backgroundAttachment: "fixed", // optional parallax effect
-// // // // //       }}
-// // // // //       initial={{ opacity: 0 }}
-// // // // //       animate={{ opacity: 1 }}
-// // // // //       transition={{ duration: 0.5 }}
-// // // // //     >
-// // // // //       {/* Single Color Background - No Gradient */}
-// // // // //       <div className="absolute inset-0  dark:bg-gray-900" />
-
-// // // // //       {/* Main Content */}
-// // // // //       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
-// // // // //         <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
-// // // // //           {/* Left Column - Hero Image with Shop Now Button */}
-// // // // //           <div className="relative">
-// // // // //             <motion.div
-// // // // //               variants={imageReveal}
-// // // // //               initial="hidden"
-// // // // //               animate={isLoaded ? "visible" : "hidden"}
-// // // // //               onAnimationComplete={() => setImageInView(true)}
-// // // // //               className="relative"
-// // // // //             >
-// // // // //               <motion.div
-// // // // //                 variants={floatAnimation}
-// // // // //                 animate="float"
-// // // // //                 className="relative overflow-hidden"
-// // // // //               >
-// // // // //                 {loading ? (
-// // // // //                   <div className="w-full h-[500px] bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 animate-pulse rounded-2xl" />
-// // // // //                 ) : (
-// // // // //                   <motion.img
-// // // // //                     src={heroImage}
-// // // // //                     alt="Premium Beauty Products"
-// // // // //                     className="w-full h-auto object-cover rounded-2xl"
-// // // // //                     initial={{ opacity: 0 }}
-// // // // //                     animate={{ opacity: 1 }}
-// // // // //                     transition={{ duration: 0.3 }}
-// // // // //                     loading="eager"
-// // // // //                     decoding="async"
-// // // // //                   />
-// // // // //                 )}
-// // // // //               </motion.div>
-// // // // //             </motion.div>
-
-// // // // //             {/* Shop Now Button on Bottom Left of Image */}
-// // // // //             <motion.div
-// // // // //               initial="hidden"
-// // // // //               animate={imageInView ? "visible" : "hidden"}
-// // // // //               variants={imageButtonReveal}
-// // // // //               className="absolute -bottom-6 left-6 z-20"
-// // // // //             >
-// // // // //               <motion.button
-// // // // //                 whileHover={{
-// // // // //                   scale: 1.05,
-// // // // //                   transition: { duration: 0.2 },
-// // // // //                 }}
-// // // // //                 whileTap={{ scale: 0.95 }}
-// // // // //                 className="group px-8 py-3 rounded-xl bg-[#E0D9D9] text-gray-500 font-semibold flex items-center gap-3 hover:shadow-lg shadow-xl shadow-amber-500/30 dark:shadow-amber-600/20 transition-all duration-300"
-// // // // //               >
-// // // // //                 <FaShoppingBag className="text-lg" />
-// // // // //                 <span>Shop Now</span>
-// // // // //                 <FaArrowRight className="group-hover:translate-x-1 transition-transform duration-300" />
-// // // // //               </motion.button>
-// // // // //             </motion.div>
-// // // // //           </div>
-
-// // // // //           {/* Right Column - Text Content */}
-// // // // //           <motion.div
-// // // // //             variants={staggerContent}
-// // // // //             initial="hidden"
-// // // // //             animate={isLoaded ? "visible" : "hidden"}
-// // // // //             className="space-y-8"
-// // // // //           >
-// // // // //             {/* Badge */}
-// // // // //             <motion.div
-// // // // //               variants={contentReveal}
-// // // // //               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800"
-// // // // //             >
-// // // // //               <GiSparkles className="text-amber-600 dark:text-amber-400" />
-// // // // //               <span className="text-sm font-medium text-amber-800 dark:text-amber-300">
-// // // // //                 Premium Beauty Collection
-// // // // //               </span>
-// // // // //             </motion.div>
-
-// // // // //             {/* Main Heading */}
-// // // // //             <div className="space-y-6">
-// // // // //               <motion.h1
-// // // // //                 variants={contentReveal}
-// // // // //                 className="text-5xl lg:text-6xl font-bold leading-tight"
-// // // // //               >
-// // // // //                 <span className="text-gray-900 dark:text-white">
-// // // // //                   Radiant Beauty
-// // // // //                 </span>
-// // // // //                 <br />
-// // // // //                 <span className="text-[#E0D9D9] dark:text-amber-400">
-// // // // //                   Starts Within
-// // // // //                 </span>
-// // // // //               </motion.h1>
-
-// // // // //               <motion.div
-// // // // //                 initial={{ width: 0 }}
-// // // // //                 animate={{ width: "80px" }}
-// // // // //                 transition={{ delay: 0.6, duration: 0.5 }}
-// // // // //                 className="h-1 bg-amber-500 dark:bg-amber-600 rounded-full"
-// // // // //               />
-// // // // //             </div>
-
-// // // // //             {/* Description */}
-// // // // //             <motion.p
-// // // // //               variants={contentReveal}
-// // // // //               className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-xl"
-// // // // //             >
-// // // // //               Discover our premium collection of skincare, haircare, and
-// // // // //               wellness products—meticulously crafted with natural ingredients
-// // // // //               for your everyday glow.
-// // // // //             </motion.p>
-
-// // // // //             {/* Features Grid - Only opacity animation with different delays */}
-// // // // //             <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
-// // // // //               {features.map((feature, i) => (
-// // // // //                 <motion.div
-// // // // //                   key={i}
-// // // // //                   initial={{ opacity: 0 }}
-// // // // //                   animate={{ opacity: 1 }}
-// // // // //                   transition={{
-// // // // //                     duration: 0.6,
-// // // // //                     delay: 0.8 + i * 0.1,
-// // // // //                     ease: "easeOut",
-// // // // //                   }}
-// // // // //                   className="flex items-center gap-3 p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-amber-300 dark:hover:border-amber-700 transition-all duration-300"
-// // // // //                 >
-// // // // //                   <div className="p-2.5 rounded-lg bg-amber-50 dark:bg-amber-900/20">
-// // // // //                     <span className="text-amber-600 dark:text-amber-400 text-lg">
-// // // // //                       {feature.icon}
-// // // // //                     </span>
-// // // // //                   </div>
-// // // // //                   <div>
-// // // // //                     <h3 className="font-semibold text-gray-900 dark:text-white">
-// // // // //                       {feature.title}
-// // // // //                     </h3>
-// // // // //                     <p className="text-sm text-gray-600 dark:text-gray-400">
-// // // // //                       {feature.desc}
-// // // // //                     </p>
-// // // // //                   </div>
-// // // // //                 </motion.div>
-// // // // //               ))}
-// // // // //             </div>
-
-// // // // //             {/* Stats */}
-// // // // //             <motion.div
-// // // // //               variants={staggerContent}
-// // // // //               className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8"
-// // // // //             >
-// // // // //               {stats.map((stat, i) => (
-// // // // //                 <motion.div
-// // // // //                   key={i}
-// // // // //                   variants={statReveal}
-// // // // //                   custom={i}
-// // // // //                   className="text-center p-4"
-// // // // //                 >
-// // // // //                   <div className="text-3xl font-bold text-amber-600 dark:text-amber-400">
-// // // // //                     {stat.value}
-// // // // //                   </div>
-// // // // //                   <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-// // // // //                     {stat.label}
-// // // // //                   </div>
-// // // // //                 </motion.div>
-// // // // //               ))}
-// // // // //             </motion.div>
-// // // // //           </motion.div>
-// // // // //         </div>
-// // // // //       </div>
-// // // // //     </motion.div>
-// // // // //   );
-// // // // // };
-
-// // // // // export default Home;
-// // // // import React, { useEffect, useState } from "react";
-// // // // import { motion, AnimatePresence } from "framer-motion";
-// // // // import {
-// // // //   FaLeaf,
-// // // //   FaStar,
-// // // //   FaHeart,
-// // // //   FaShoppingBag,
-// // // //   FaShieldAlt,
-// // // //   FaArrowRight,
-// // // //   FaChevronLeft,
-// // // //   FaChevronRight,
-// // // // } from "react-icons/fa";
-// // // // import { GiSparkles } from "react-icons/gi";
-// // // // import { fetchWithAuth } from "../utils/auth";
-// // // // import bgImage from "../assets/homebd_3.jpg";
-// // // // const BACKEND_URL = import.meta.env.VITE_API_URL;
-
-// // // // /* ================== Animations ================== */
-// // // // const heroImageVariants = {
-// // // //   enter: {
-// // // //     x: 300,
-// // // //     opacity: 0,
-// // // //     scale: 0.9,
-// // // //     filter: "blur(10px)",
-// // // //   },
-// // // //   center: {
-// // // //     x: 0,
-// // // //     opacity: 1,
-// // // //     scale: 1,
-// // // //     filter: "blur(0px)",
-// // // //     transition: {
-// // // //       x: { type: "spring", stiffness: 300, damping: 30 },
-// // // //       opacity: { duration: 0.6 },
-// // // //       scale: { duration: 0.5 },
-// // // //     },
-// // // //   },
-// // // //   exit: {
-// // // //     x: -300,
-// // // //     opacity: 0,
-// // // //     scale: 0.9,
-// // // //     filter: "blur(10px)",
-// // // //     transition: {
-// // // //       x: { type: "spring", stiffness: 300, damping: 30 },
-// // // //       opacity: { duration: 0.4 },
-// // // //     },
-// // // //   },
-// // // // };
-
-// // // // const contentReveal = {
-// // // //   hidden: {
-// // // //     opacity: 0,
-// // // //     y: 30,
-// // // //   },
-// // // //   visible: {
-// // // //     opacity: 1,
-// // // //     y: 0,
-// // // //     transition: {
-// // // //       duration: 0.6,
-// // // //       ease: "easeOut",
-// // // //     },
-// // // //   },
-// // // // };
-
-// // // // const fadeInOnly = {
-// // // //   hidden: {
-// // // //     opacity: 0,
-// // // //   },
-// // // //   visible: {
-// // // //     opacity: 1,
-// // // //     transition: {
-// // // //       duration: 0.8,
-// // // //       ease: "easeOut",
-// // // //     },
-// // // //   },
-// // // // };
-
-// // // // const staggerContent = {
-// // // //   hidden: { opacity: 0 },
-// // // //   visible: {
-// // // //     opacity: 1,
-// // // //     transition: {
-// // // //       staggerChildren: 0.08,
-// // // //       delayChildren: 0.3,
-// // // //     },
-// // // //   },
-// // // // };
-
-// // // // const floatAnimation = {
-// // // //   float: {
-// // // //     y: [0, -15, 0],
-// // // //     transition: {
-// // // //       duration: 6,
-// // // //       repeat: Infinity,
-// // // //       ease: "easeInOut",
-// // // //     },
-// // // //   },
-// // // // };
-
-// // // // /* ================== Component ================== */
-// // // // const Home = () => {
-// // // //   const [heroImages, setHeroImages] = useState([]);
-// // // //   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-// // // //   const [loading, setLoading] = useState(true);
-// // // //   const [isLoaded, setIsLoaded] = useState(false);
-// // // //   const [imageInView, setImageInView] = useState(false);
-// // // //   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-
-// // // //   // Fetch hero images from backend
-// // // //   const fetchHeroImages = async () => {
-// // // //     try {
-// // // //       const res = await fetchWithAuth(
-// // // //         `${BACKEND_URL}/api/admin/uploadHero`,
-// // // //         {}
-// // // //       );
-// // // //       const data = await res.json();
-
-// // // //       if (data.success && data.images && Array.isArray(data.images)) {
-// // // //         // Filter out any invalid URLs and ensure they're fully loaded
-// // // //         const validImages = [];
-// // // //         const imagePromises = data.images.map((url, index) => {
-// // // //           return new Promise((resolve) => {
-// // // //             const img = new Image();
-// // // //             img.src = url;
-// // // //             img.onload = () => {
-// // // //               validImages.push(url);
-// // // //               resolve();
-// // // //             };
-// // // //             img.onerror = () => {
-// // // //               console.warn(`Failed to load hero image: ${url}`);
-// // // //               resolve();
-// // // //             };
-// // // //           });
-// // // //         });
-
-// // // //         // Wait for all images to load
-// // // //         await Promise.all(imagePromises);
-
-// // // //         if (validImages.length > 0) {
-// // // //           setHeroImages(validImages);
-// // // //         } else {
-// // // //           // Fallback to default images if no valid ones
-// // // //           setHeroImages([
-// // // //             "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop",
-// // // //             "https://images.unsplash.com/photo-1556228578-9c360e1d458f?w=1200&h=800&fit=crop",
-// // // //             "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop",
-// // // //           ]);
-// // // //         }
-// // // //       } else {
-// // // //         // Use default images if API fails
-// // // //         setHeroImages([
-// // // //           "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop",
-// // // //           "https://images.unsplash.com/photo-1556228578-9c360e1d458f?w=1200&h=800&fit=crop",
-// // // //           "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop",
-// // // //         ]);
-// // // //       }
-// // // //       setLoading(false);
-// // // //       setIsLoaded(true);
-// // // //     } catch (err) {
-// // // //       console.error("Failed to fetch hero images:", err);
-// // // //       // Use default images on error
-// // // //       setHeroImages([
-// // // //         "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop",
-// // // //         "https://images.unsplash.com/photo-1556228578-9c360e1d458f?w=1200&h=800&fit=crop",
-// // // //         "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop",
-// // // //       ]);
-// // // //       setLoading(false);
-// // // //       setIsLoaded(true);
-// // // //     }
-// // // //   };
-
-// // // //   useEffect(() => {
-// // // //     fetchHeroImages();
-// // // //   }, []);
-
-// // // //   // Auto-rotation interval
-// // // //   useEffect(() => {
-// // // //     if (!isAutoPlaying || heroImages.length <= 1) return;
-
-// // // //     const interval = setInterval(() => {
-// // // //       setCurrentImageIndex((prevIndex) =>
-// // // //         prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
-// // // //       );
-// // // //     }, 5000); // Change image every 5 seconds
-
-// // // //     return () => clearInterval(interval);
-// // // //   }, [isAutoPlaying, heroImages.length]);
-
-// // // //   const nextImage = () => {
-// // // //     setCurrentImageIndex((prevIndex) =>
-// // // //       prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
-// // // //     );
-// // // //   };
-
-// // // //   const prevImage = () => {
-// // // //     setCurrentImageIndex((prevIndex) =>
-// // // //       prevIndex === 0 ? heroImages.length - 1 : prevIndex - 1
-// // // //     );
-// // // //   };
-
-// // // //   const goToImage = (index) => {
-// // // //     setCurrentImageIndex(index);
-// // // //   };
-
-// // // //   const features = [
-// // // //     { icon: <FaLeaf />, title: "100% Natural", desc: "Organic ingredients" },
-// // // //     { icon: <FaStar />, title: "Premium Quality", desc: "Luxury standards" },
-// // // //     { icon: <FaHeart />, title: "Cruelty Free", desc: "Ethically sourced" },
-// // // //     {
-// // // //       icon: <FaShieldAlt />,
-// // // //       title: "Safe & Tested",
-// // // //       desc: "Dermatologist approved",
-// // // //     },
-// // // //   ];
-
-// // // //   const stats = [
-// // // //     { value: "10k+", label: "Happy Customers" },
-// // // //     { value: "4.9", label: "Average Rating" },
-// // // //     { value: "100+", label: "Products" },
-// // // //     { value: "24/7", label: "Support" },
-// // // //   ];
-
-// // // //   return (
-// // // //     <motion.div
-// // // //       className="min-h-screen w-full relative overflow-hidden bg-cover bg-center"
-// // // //       style={{
-// // // //         backgroundImage: `url(${bgImage})`,
-// // // //         backgroundSize: "cover",
-// // // //         backgroundPosition: "center",
-// // // //         backgroundRepeat: "no-repeat",
-// // // //         backgroundAttachment: "fixed",
-// // // //       }}
-// // // //       initial={{ opacity: 0 }}
-// // // //       animate={{ opacity: 1 }}
-// // // //       transition={{ duration: 0.5 }}
-// // // //     >
-// // // //       {/* Single Color Background - No Gradient */}
-// // // //       <div className="absolute inset-0 dark:bg-gray-900" />
-
-// // // //       {/* Main Content */}
-// // // //       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
-// // // //         <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
-// // // //           {/* Left Column - Hero Image Carousel */}
-// // // //           <div className="relative">
-// // // //             <div
-// // // //               className="relative overflow-hidden rounded-2xl"
-// // // //               onMouseEnter={() => setIsAutoPlaying(false)}
-// // // //               onMouseLeave={() => setIsAutoPlaying(true)}
-// // // //             >
-// // // //               {loading ? (
-// // // //                 <div className="w-full h-[500px] bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 animate-pulse rounded-2xl" />
-// // // //               ) : (
-// // // //                 <AnimatePresence mode="wait">
-// // // //                   <motion.div
-// // // //                     key={currentImageIndex}
-// // // //                     variants={heroImageVariants}
-// // // //                     initial="enter"
-// // // //                     animate="center"
-// // // //                     exit="exit"
-// // // //                     className="relative overflow-hidden rounded-2xl"
-// // // //                   >
-// // // //                     <motion.img
-// // // //                       src={heroImages[currentImageIndex]}
-// // // //                       alt={`Premium Beauty Products - Slide ${currentImageIndex + 1}`}
-// // // //                       className="w-full h-[500px] object-cover"
-// // // //                       loading="eager"
-// // // //                       decoding="async"
-// // // //                     />
-
-// // // //                     {/* Image Overlay Gradient */}
-// // // //                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-// // // //                   </motion.div>
-// // // //                 </AnimatePresence>
-// // // //               )}
-
-// // // //               {/* Navigation Arrows */}
-// // // //               {heroImages.length > 1 && (
-// // // //                 <>
-// // // //                   <motion.button
-// // // //                     whileHover={{ scale: 1.1 }}
-// // // //                     whileTap={{ scale: 0.9 }}
-// // // //                     onClick={prevImage}
-// // // //                     className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/90 dark:bg-gray-800/90 flex items-center justify-center shadow-lg"
-// // // //                     aria-label="Previous image"
-// // // //                   >
-// // // //                     <FaChevronLeft className="text-gray-700 dark:text-gray-300" />
-// // // //                   </motion.button>
-
-// // // //                   <motion.button
-// // // //                     whileHover={{ scale: 1.1 }}
-// // // //                     whileTap={{ scale: 0.9 }}
-// // // //                     onClick={nextImage}
-// // // //                     className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/90 dark:bg-gray-800/90 flex items-center justify-center shadow-lg"
-// // // //                     aria-label="Next image"
-// // // //                   >
-// // // //                     <FaChevronRight className="text-gray-700 dark:text-gray-300" />
-// // // //                   </motion.button>
-// // // //                 </>
-// // // //               )}
-
-// // // //               {/* Dots Indicator */}
-// // // //               {heroImages.length > 1 && (
-// // // //                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex gap-2">
-// // // //                   {heroImages.map((_, index) => (
-// // // //                     <motion.button
-// // // //                       key={index}
-// // // //                       whileHover={{ scale: 1.2 }}
-// // // //                       whileTap={{ scale: 0.9 }}
-// // // //                       onClick={() => goToImage(index)}
-// // // //                       className={`w-2 h-2 rounded-full transition-all duration-300 ${
-// // // //                         index === currentImageIndex
-// // // //                           ? "bg-[#D7C097] w-8"
-// // // //                           : "bg-white/70 hover:bg-white"
-// // // //                       }`}
-// // // //                       aria-label={`Go to slide ${index + 1}`}
-// // // //                     />
-// // // //                   ))}
-// // // //                 </div>
-// // // //               )}
-// // // //             </div>
-
-// // // //             {/* Shop Now Button */}
-// // // //             <motion.div
-// // // //               initial={{ opacity: 0, y: 20 }}
-// // // //               animate={{ opacity: 1, y: 0 }}
-// // // //               transition={{ delay: 1 }}
-// // // //               className="absolute -bottom-6 left-6 z-20"
-// // // //             >
-// // // //               <motion.button
-// // // //                 whileHover={{
-// // // //                   scale: 1.05,
-// // // //                   transition: { duration: 0.2 },
-// // // //                 }}
-// // // //                 whileTap={{ scale: 0.95 }}
-// // // //                 className="group px-8 py-3 rounded-xl bg-gradient-to-r from-[#D8C9A7] to-[#D7C097] text-gray-900 font-semibold flex items-center gap-3 hover:shadow-lg shadow-xl transition-all duration-300"
-// // // //               >
-// // // //                 <FaShoppingBag className="text-lg" />
-// // // //                 <span>Shop Now</span>
-// // // //                 <FaArrowRight className="group-hover:translate-x-1 transition-transform duration-300" />
-// // // //               </motion.button>
-// // // //             </motion.div>
-
-// // // //             {/* Slide Counter */}
-// // // //             {heroImages.length > 1 && (
-// // // //               <motion.div
-// // // //                 initial={{ opacity: 0 }}
-// // // //                 animate={{ opacity: 1 }}
-// // // //                 transition={{ delay: 0.5 }}
-// // // //                 className="absolute -top-3 -right-3 z-30 px-3 py-1.5 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full"
-// // // //               >
-// // // //                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-// // // //                   {currentImageIndex + 1} / {heroImages.length}
-// // // //                 </span>
-// // // //               </motion.div>
-// // // //             )}
-// // // //           </div>
-
-// // // //           {/* Right Column - Text Content */}
-// // // //           <motion.div
-// // // //             variants={staggerContent}
-// // // //             initial="hidden"
-// // // //             animate={isLoaded ? "visible" : "hidden"}
-// // // //             className="space-y-8"
-// // // //           >
-// // // //             {/* Badge */}
-// // // //             <motion.div
-// // // //               variants={contentReveal}
-// // // //               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#D8C9A7] dark:bg-[#D7C097]/30 border border-[#D7C097] dark:border-[#D8C9A7]"
-// // // //             >
-// // // //               <GiSparkles className="text-gray-900 dark:text-gray-900" />
-// // // //               <span className="text-sm font-medium text-gray-900 dark:text-gray-900">
-// // // //                 Premium Beauty Collection
-// // // //               </span>
-// // // //             </motion.div>
-
-// // // //             {/* Main Heading */}
-// // // //             <div className="space-y-6">
-// // // //               <motion.h1
-// // // //                 variants={contentReveal}
-// // // //                 className="text-5xl lg:text-6xl font-bold leading-tight"
-// // // //               >
-// // // //                 <span className="text-gray-900 dark:text-white">
-// // // //                   Radiant Beauty
-// // // //                 </span>
-// // // //                 <br />
-// // // //                 <span className="text-[#D7C097] dark:text-[#D8C9A7]">
-// // // //                   Starts Within
-// // // //                 </span>
-// // // //               </motion.h1>
-
-// // // //               <motion.div
-// // // //                 initial={{ width: 0 }}
-// // // //                 animate={{ width: "80px" }}
-// // // //                 transition={{ delay: 0.6, duration: 0.5 }}
-// // // //                 className="h-1 bg-[#D7C097] dark:bg-[#D8C9A7] rounded-full"
-// // // //               />
-// // // //             </div>
-
-// // // //             {/* Description */}
-// // // //             <motion.p
-// // // //               variants={contentReveal}
-// // // //               className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-xl"
-// // // //             >
-// // // //               Discover our premium collection of skincare, haircare, and
-// // // //               wellness products—meticulously crafted with natural ingredients
-// // // //               for your everyday glow.
-// // // //             </motion.p>
-
-// // // //             {/* Features Grid */}
-// // // //             <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
-// // // //               {features.map((feature, i) => (
-// // // //                 <motion.div
-// // // //                   key={i}
-// // // //                   initial={{ opacity: 0, y: 20 }}
-// // // //                   animate={{ opacity: 1, y: 0 }}
-// // // //                   transition={{
-// // // //                     duration: 0.6,
-// // // //                     delay: 0.8 + i * 0.1,
-// // // //                     ease: "easeOut",
-// // // //                   }}
-// // // //                   className="flex items-center gap-3 p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-[#D7C097] dark:hover:border-[#D8C9A7] transition-all duration-300"
-// // // //                 >
-// // // //                   <div className="p-2.5 rounded-lg bg-[#D8C9A7]/20 dark:bg-[#D7C097]/20">
-// // // //                     <span className="text-[#D7C097] dark:text-[#D8C9A7] text-lg">
-// // // //                       {feature.icon}
-// // // //                     </span>
-// // // //                   </div>
-// // // //                   <div>
-// // // //                     <h3 className="font-semibold text-gray-900 dark:text-white">
-// // // //                       {feature.title}
-// // // //                     </h3>
-// // // //                     <p className="text-sm text-gray-600 dark:text-gray-400">
-// // // //                       {feature.desc}
-// // // //                     </p>
-// // // //                   </div>
-// // // //                 </motion.div>
-// // // //               ))}
-// // // //             </div>
-
-// // // //             {/* Stats */}
-// // // //             <motion.div
-// // // //               variants={staggerContent}
-// // // //               className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8"
-// // // //             >
-// // // //               {stats.map((stat, i) => (
-// // // //                 <motion.div
-// // // //                   key={i}
-// // // //                   initial={{ opacity: 0, scale: 0.8 }}
-// // // //                   animate={{ opacity: 1, scale: 1 }}
-// // // //                   transition={{
-// // // //                     type: "spring",
-// // // //                     stiffness: 180,
-// // // //                     damping: 12,
-// // // //                     delay: 1 + i * 0.1,
-// // // //                   }}
-// // // //                   className="text-center p-4"
-// // // //                 >
-// // // //                   <div className="text-3xl font-bold text-[#D7C097] dark:text-[#D8C9A7]">
-// // // //                     {stat.value}
-// // // //                   </div>
-// // // //                   <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-// // // //                     {stat.label}
-// // // //                   </div>
-// // // //                 </motion.div>
-// // // //               ))}
-// // // //             </motion.div>
-// // // //           </motion.div>
-// // // //         </div>
-// // // //       </div>
-
-// // // //       {/* Auto-Play Control (Hidden visually but for screen readers) */}
-// // // //       <button
-// // // //         className="sr-only"
-// // // //         onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-// // // //       >
-// // // //         {isAutoPlaying ? "Pause slideshow" : "Play slideshow"}
-// // // //       </button>
-// // // //     </motion.div>
-// // // //   );
-// // // // };
-
-// // // // export default Home;
-// // // import React, { useEffect, useState } from "react";
+// // // import React, { useState, useEffect } from "react";
 // // // import { motion, AnimatePresence } from "framer-motion";
 // // // import {
 // // //   FaLeaf,
 // // //   FaStar,
 // // //   FaHeart,
 // // //   FaShoppingBag,
-// // //   FaShieldAlt,
 // // //   FaArrowRight,
 // // // } from "react-icons/fa";
-// // // import { GiSparkles } from "react-icons/gi";
-// // // import { fetchWithAuth } from "../utils/auth";
 // // // import bgImage from "../assets/homebd_3.jpg";
+// // // import { fetchWithAuth } from "../utils/auth";
+
 // // // const BACKEND_URL = import.meta.env.VITE_API_URL;
 
-// // // /* ================== Animations ================== */
-// // // const heroImageVariants = {
-// // //   enter: {
-// // //     opacity: 0,
-// // //     scale: 0.9,
-// // //   },
-// // //   center: {
-// // //     opacity: 1,
-// // //     scale: 1,
-// // //     transition: {
-// // //       opacity: { duration: 0.8 },
-// // //       scale: { duration: 0.7 },
-// // //     },
-// // //   },
-// // //   exit: {
-// // //     opacity: 0,
-// // //     scale: 0.9,
-// // //     transition: {
-// // //       opacity: { duration: 0.4 },
-// // //     },
-// // //   },
+// // // /* ================== PAGE ================== */
+// // // const pageTransition = {
+// // //   initial: { opacity: 0 },
+// // //   animate: { opacity: 1, transition: { duration: 0.6 } },
 // // // };
 
-// // // const contentReveal = {
-// // //   hidden: {
-// // //     opacity: 0,
-// // //     y: 30,
-// // //   },
-// // //   visible: {
-// // //     opacity: 1,
-// // //     y: 0,
-// // //     transition: {
-// // //       duration: 0.6,
-// // //       ease: "easeOut",
-// // //     },
-// // //   },
-// // // };
-
-// // // const staggerContent = {
+// // // /* ================== LEFT CONTENT ================== */
+// // // const leftContainer = {
 // // //   hidden: { opacity: 0 },
 // // //   visible: {
 // // //     opacity: 1,
+// // //     transition: { staggerChildren: 0.18, delayChildren: 0.3 },
+// // //   },
+// // // };
+
+// // // const fadeUp = {
+// // //   hidden: { opacity: 0, y: 24 },
+// // //   visible: {
+// // //     opacity: 1,
+// // //     y: 0,
+// // //     transition: { duration: 0.8, ease: "easeOut" },
+// // //   },
+// // // };
+
+// // // /* ================== HERO IMAGE ================== */
+// // // const heroImageMotion = {
+// // //   hidden: { opacity: 0, x: 80, scale: 1.05 },
+// // //   visible: {
+// // //     opacity: 1,
+// // //     x: 0,
+// // //     scale: 1,
 // // //     transition: {
-// // //       staggerChildren: 0.08,
-// // //       delayChildren: 0.3,
+// // //       duration: 1.1,
+// // //       ease: [0.22, 1, 0.36, 1],
 // // //     },
 // // //   },
 // // // };
 
-// // // const floatAnimation = {
-// // //   float: {
-// // //     y: [0, -15, 0],
-// // //     transition: {
-// // //       duration: 6,
-// // //       repeat: Infinity,
-// // //       ease: "easeInOut",
-// // //     },
-// // //   },
-// // // };
-
-// // // /* ================== Component ================== */
 // // // const Home = () => {
-// // //   const [heroImages, setHeroImages] = useState([]);
-// // //   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-// // //   const [loading, setLoading] = useState(true);
-// // //   const [isLoaded, setIsLoaded] = useState(false);
-// // //   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+// // //   const [heroImage, setHeroImage] = useState(null);
+// // //   const [imagesLoaded, setImagesLoaded] = useState(false);
 
-// // //   // Fetch hero images from backend
-// // //   const fetchHeroImages = async () => {
-// // //     try {
-// // //       const res = await fetchWithAuth(
-// // //         `${BACKEND_URL}/api/admin/uploadHero`,
-// // //         {}
-// // //       );
-// // //       const data = await res.json();
-
-// // //       if (data.success && data.images && Array.isArray(data.images)) {
-// // //         // Filter out any invalid URLs and ensure they're fully loaded
-// // //         const validImages = [];
-// // //         const imagePromises = data.images.map((url, index) => {
-// // //           return new Promise((resolve) => {
-// // //             const img = new Image();
-// // //             img.src = url;
-// // //             img.onload = () => {
-// // //               validImages.push(url);
-// // //               resolve();
-// // //             };
-// // //             img.onerror = () => {
-// // //               console.warn(`Failed to load hero image: ${url}`);
-// // //               resolve();
-// // //             };
-// // //           });
-// // //         });
-
-// // //         // Wait for all images to load
-// // //         await Promise.all(imagePromises);
-
-// // //         if (validImages.length > 0) {
-// // //           setHeroImages(validImages);
-// // //         } else {
-// // //           // Fallback to default images if no valid ones
-// // //           setHeroImages([
-// // //             "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop",
-// // //             "https://images.unsplash.com/photo-1556228578-9c360e1d458f?w=1200&h=800&fit=crop",
-// // //             "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop",
-// // //           ]);
-// // //         }
-// // //       } else {
-// // //         // Use default images if API fails
-// // //         setHeroImages([
-// // //           "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop",
-// // //           "https://images.unsplash.com/photo-1556228578-9c360e1d458f?w=1200&h=800&fit=crop",
-// // //           "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop",
-// // //         ]);
+// // //   useEffect(() => {
+// // //     const fetchHeroImage = async () => {
+// // //       try {
+// // //         const res = await fetchWithAuth(`${BACKEND_URL}/api/admin/uploadHero`);
+// // //         const data = await res.json();
+// // //         setHeroImage(
+// // //           data?.images?.[0] ||
+// // //             "https://res.cloudinary.com/demo/image/upload/v1/samples/beauty-products"
+// // //         );
+// // //         setImagesLoaded(true);
+// // //       } catch {
+// // //         setHeroImage(
+// // //           "https://res.cloudinary.com/demo/image/upload/v1/samples/beauty-products"
+// // //         );
+// // //         setImagesLoaded(true);
 // // //       }
-// // //       setLoading(false);
-// // //       setIsLoaded(true);
-// // //     } catch (err) {
-// // //       console.error("Failed to fetch hero images:", err);
-// // //       // Use default images on error
-// // //       setHeroImages([
-// // //         "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop",
-// // //         "https://images.unsplash.com/photo-1556228578-9c360e1d458f?w=1200&h=800&fit=crop",
-// // //         "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop",
-// // //       ]);
-// // //       setLoading(false);
-// // //       setIsLoaded(true);
-// // //     }
-// // //   };
-
-// // //   useEffect(() => {
-// // //     fetchHeroImages();
+// // //     };
+// // //     fetchHeroImage();
 // // //   }, []);
-
-// // //   // Auto-rotation interval
-// // //   useEffect(() => {
-// // //     if (!isAutoPlaying || heroImages.length <= 1) return;
-
-// // //     const interval = setInterval(() => {
-// // //       setCurrentImageIndex((prevIndex) =>
-// // //         prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
-// // //       );
-// // //     }, 5000); // Change image every 5 seconds
-
-// // //     return () => clearInterval(interval);
-// // //   }, [isAutoPlaying, heroImages.length]);
-
-// // //   const features = [
-// // //     { icon: <FaLeaf />, title: "100% Natural", desc: "Organic ingredients" },
-// // //     { icon: <FaStar />, title: "Premium Quality", desc: "Luxury standards" },
-// // //     { icon: <FaHeart />, title: "Cruelty Free", desc: "Ethically sourced" },
-// // //     {
-// // //       icon: <FaShieldAlt />,
-// // //       title: "Safe & Tested",
-// // //       desc: "Dermatologist approved",
-// // //     },
-// // //   ];
 
 // // //   const stats = [
 // // //     { value: "10k+", label: "Happy Customers" },
@@ -2034,435 +83,200 @@
 
 // // //   return (
 // // //     <motion.div
-// // //       className="min-h-screen w-full relative overflow-hidden"
-// // //       style={{
-// // //         backgroundImage: `url(${bgImage})`,
-// // //         backgroundSize: "cover",
-// // //         backgroundPosition: "center",
-// // //         backgroundRepeat: "no-repeat",
-// // //         backgroundAttachment: "fixed",
-// // //       }}
-// // //       initial={{ opacity: 0 }}
-// // //       animate={{ opacity: 1 }}
-// // //       transition={{ duration: 0.5 }}
+// // //       variants={pageTransition}
+// // //       initial="initial"
+// // //       animate="animate"
+// // //       className="relative min-h-screen bg-cover bg-center"
+// // //       style={{ backgroundImage: `url(${bgImage})` }}
 // // //     >
-// // //       {/* Single Color Background - No Gradient */}
-// // //       <div className="absolute inset-0 dark:bg-gray-900" />
+// // //       {/* lighter overlay to show beauty */}
+// // //       <div className="absolute inset-0 bg-gradient-to-r from-white/70 via-white/40 to-transparent" />
 
-// // //       {/* Main Content */}
-// // //       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24  bg-red-800">
-// // //         <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
-// // //           {/* Left Column - Hero Image Carousel */}
-// // //           <div className="relative">
-// // //             <div
-// // //               className="relative"
-// // //               onMouseEnter={() => setIsAutoPlaying(false)}
-// // //               onMouseLeave={() => setIsAutoPlaying(true)}
+// // //       <div className="relative z-10 min-h-screen  lg:flex-row-reverse flex">
+// // //         {/* HERO IMAGE */}
+// // //         <motion.div
+// // //           variants={heroImageMotion}
+// // //           initial="hidden"
+// // //           animate="visible"
+// // //           className="
+// // //             absolute inset-y-0 right-0
+// // //             w-full sm:w-[65%]
+// // //             lg:relative lg:w-1/2
+// // //             h-full
+// // //             translate-x-6 sm:translate-x-10 lg:translate-x-0
+// // //           "
+// // //         >
+// // //           {heroImage && imagesLoaded ? (
+// // //             <img
+// // //               src={heroImage}
+// // //               alt="Beauty Products"
+// // //               className="w-full h-full object-cover"
+// // //               loading="eager"
+// // //             />
+// // //           ) : (
+// // //             <div className="w-full h-full bg-gray-200 animate-pulse" />
+// // //           )}
+// // //         </motion.div>
+
+// // //         {/* LEFT CONTENT */}
+// // //         <motion.div
+// // //           variants={leftContainer}
+// // //           initial="hidden"
+// // //           animate="visible"
+// // //           className="
+// // //             relative z-20
+// // //             flex items-center
+// // //             min-h-screen
+// // //             px-4 sm:px-6 lg:px-12 xl:px-16
+// // //             w-full sm:w-[55%]
+// // //             lg:w-1/2
+// // //           "
+// // //         >
+// // //           <div className="max-w-xl space-y-8">
+// // //             {/* HEADING */}
+// // //             <motion.h1
+// // //               variants={fadeUp}
+// // //               className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight"
 // // //             >
-// // //               {loading ? (
-// // //                 <div className="w-full h-[500px] dark:from-gray-800 dark:to-gray-700 animate-pulse" />
-// // //               ) : (
-// // //                 <AnimatePresence mode="wait">
-// // //                   <motion.div
-// // //                     key={currentImageIndex}
-// // //                     variants={heroImageVariants}
-// // //                     initial="enter"
-// // //                     animate="center"
-// // //                     exit="exit"
-// // //                     className="relative"
-// // //                   >
-// // //                     <motion.img
-// // //                       src={heroImages[currentImageIndex]}
-// // //                       alt={`Premium Beauty Products - Slide ${currentImageIndex + 1}`}
-// // //                       className="w-full h-[500px] object-cover"
-// // //                       loading="eager"
-// // //                       decoding="async"
-// // //                     />
+// // //               Radiant Beauty
+// // //               <br />
+// // //               <span className="text-[#D7C097]">Starts Within</span>
+// // //             </motion.h1>
 
-// // //                     {/* Removed Image Overlay Gradient */}
-// // //                   </motion.div>
-// // //                 </AnimatePresence>
-// // //               )}
-
-// // //               {/* Removed Navigation Arrows */}
-
-// // //               {/* Removed Dots Indicator */}
-
-// // //               {/* Removed Slide Counter */}
-// // //             </div>
-
-// // //             {/* Shop Now Button */}
-// // //             <motion.div
-// // //               initial={{ opacity: 0, y: 20 }}
-// // //               animate={{ opacity: 1, y: 0 }}
-// // //               transition={{ delay: 1 }}
-// // //               className="absolute -bottom-6 left-6 z-20"
-// // //             >
-// // //               <motion.button
-// // //                 whileHover={{
-// // //                   scale: 1.05,
-// // //                   transition: { duration: 0.2 },
-// // //                 }}
-// // //                 whileTap={{ scale: 0.95 }}
-// // //                 className="group px-8 py-3 rounded-xl bg-gradient-to-r from-[#D8C9A7] to-[#D7C097] text-gray-900 font-semibold flex items-center gap-3 hover:shadow-lg shadow-xl transition-all duration-300"
-// // //               >
-// // //                 <FaShoppingBag className="text-lg" />
-// // //                 <span>Shop Now</span>
-// // //                 <FaArrowRight className="group-hover:translate-x-1 transition-transform duration-300" />
-// // //               </motion.button>
-// // //             </motion.div>
-// // //           </div>
-
-// // //           {/* Right Column - Text Content */}
-// // //           <motion.div
-// // //             variants={staggerContent}
-// // //             initial="hidden"
-// // //             animate={isLoaded ? "visible" : "hidden"}
-// // //             className="space-y-8"
-// // //           >
-// // //             {/* Badge */}
-// // //             <motion.div
-// // //               variants={contentReveal}
-// // //               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#D8C9A7] dark:bg-[#D7C097]/30 border border-[#D7C097] dark:border-[#D8C9A7]"
-// // //             >
-// // //               <GiSparkles className="text-gray-900 dark:text-gray-900" />
-// // //               <span className="text-sm font-medium text-gray-900 dark:text-gray-900">
-// // //                 Premium Beauty Collection
-// // //               </span>
-// // //             </motion.div>
-
-// // //             {/* Main Heading */}
-// // //             <div className="space-y-6">
-// // //               <motion.h1
-// // //                 variants={contentReveal}
-// // //                 className="text-5xl lg:text-6xl font-bold leading-tight"
-// // //               >
-// // //                 <span className="text-gray-900 dark:text-white">
-// // //                   Radiant Beauty
-// // //                 </span>
-// // //                 <br />
-// // //                 <span className="text-[#D7C097] dark:text-[#D8C9A7]">
-// // //                   Starts Within
-// // //                 </span>
-// // //               </motion.h1>
-
-// // //               <motion.div
-// // //                 initial={{ width: 0 }}
-// // //                 animate={{ width: "80px" }}
-// // //                 transition={{ delay: 0.6, duration: 0.5 }}
-// // //                 className="h-1 bg-[#D7C097] dark:bg-[#D8C9A7] rounded-full"
-// // //               />
-// // //             </div>
-
-// // //             {/* Description */}
+// // //             {/* PARAGRAPH */}
 // // //             <motion.p
-// // //               variants={contentReveal}
-// // //               className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-xl"
+// // //               variants={fadeUp}
+// // //               className="text-xl text-gray-700 leading-relaxed"
 // // //             >
 // // //               Discover our premium collection of skincare, haircare, and
 // // //               wellness products—meticulously crafted with natural ingredients
 // // //               for your everyday glow.
 // // //             </motion.p>
 
-// // //             {/* Features Grid */}
-// // //             <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
-// // //               {features.map((feature, i) => (
-// // //                 <motion.div
-// // //                   key={i}
-// // //                   initial={{ opacity: 0, y: 20 }}
-// // //                   animate={{ opacity: 1, y: 0 }}
-// // //                   transition={{
-// // //                     duration: 0.6,
-// // //                     delay: 0.8 + i * 0.1,
-// // //                     ease: "easeOut",
-// // //                   }}
-// // //                   className="flex items-center gap-3 p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-[#D7C097] dark:hover:border-[#D8C9A7] transition-all duration-300"
-// // //                 >
-// // //                   <div className="p-2.5 rounded-lg bg-[#D8C9A7]/20 dark:bg-[#D7C097]/20">
-// // //                     <span className="text-[#D7C097] dark:text-[#D8C9A7] text-lg">
-// // //                       {feature.icon}
-// // //                     </span>
-// // //                   </div>
-// // //                   <div>
-// // //                     <h3 className="font-semibold text-gray-900 dark:text-white">
-// // //                       {feature.title}
-// // //                     </h3>
-// // //                     <p className="text-sm text-gray-600 dark:text-gray-400">
-// // //                       {feature.desc}
-// // //                     </p>
-// // //                   </div>
-// // //                 </motion.div>
-// // //               ))}
-// // //             </div>
-
-// // //             {/* Stats */}
+// // //             {/* STATS */}
 // // //             <motion.div
-// // //               variants={staggerContent}
-// // //               className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8"
+// // //               variants={fadeUp}
+// // //               className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-4"
 // // //             >
 // // //               {stats.map((stat, i) => (
 // // //                 <motion.div
 // // //                   key={i}
-// // //                   initial={{ opacity: 0, scale: 0.8 }}
-// // //                   animate={{ opacity: 1, scale: 1 }}
-// // //                   transition={{
-// // //                     type: "spring",
-// // //                     stiffness: 180,
-// // //                     damping: 12,
-// // //                     delay: 1 + i * 0.1,
-// // //                   }}
-// // //                   className="text-center p-4"
+// // //                   initial={{ opacity: 0, y: 16 }}
+// // //                   animate={{ opacity: 1, y: 0 }}
+// // //                   transition={{ delay: 0.5 + i * 0.1 }}
 // // //                 >
-// // //                   <div className="text-3xl font-bold text-[#D7C097] dark:text-[#D8C9A7]">
+// // //                   <div className="text-3xl font-bold text-[#D7C097]">
 // // //                     {stat.value}
 // // //                   </div>
-// // //                   <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-// // //                     {stat.label}
-// // //                   </div>
+// // //                   <div className="text-base text-gray-700">{stat.label}</div>
 // // //                 </motion.div>
 // // //               ))}
 // // //             </motion.div>
-// // //           </motion.div>
-// // //         </div>
+
+// // //             {/* BUTTON */}
+// // //             <motion.div variants={fadeUp}>
+// // //               <motion.button
+// // //                 whileHover={{ scale: 1.04 }}
+// // //                 whileTap={{ scale: 0.96 }}
+// // //                 className="
+// // //                   mt-4
+// // //                   px-9 py-4
+// // //                   rounded-xl
+// // //                   bg-gradient-to-r from-[#D8C9A7] to-[#D7C097]
+// // //                   text-gray-900
+// // //                   font-semibold
+// // //                   flex items-center gap-3
+// // //                   text-lg
+// // //                 "
+// // //               >
+// // //                 <FaShoppingBag />
+// // //                 Shop Now
+// // //                 <FaArrowRight />
+// // //               </motion.button>
+// // //             </motion.div>
+// // //           </div>
+// // //         </motion.div>
 // // //       </div>
 // // //     </motion.div>
 // // //   );
 // // // };
 
 // // // export default Home;
-// // import React, { useEffect, useState } from "react";
+// // import React, { useState, useEffect } from "react";
 // // import { motion, AnimatePresence } from "framer-motion";
 // // import {
 // //   FaLeaf,
 // //   FaStar,
 // //   FaHeart,
 // //   FaShoppingBag,
-// //   FaShieldAlt,
 // //   FaArrowRight,
 // // } from "react-icons/fa";
-// // import { GiSparkles } from "react-icons/gi";
-// // import { fetchWithAuth } from "../utils/auth";
 // // import bgImage from "../assets/homebd_3.jpg";
+// // import { fetchWithAuth } from "../utils/auth";
+
 // // const BACKEND_URL = import.meta.env.VITE_API_URL;
 
-// // /* ================== Animations ================== */
-// // const heroImageVariants = {
-// //   enter: {
-// //     opacity: 0,
-// //     scale: 0.9,
-// //   },
-// //   center: {
-// //     opacity: 1,
-// //     scale: 1,
-// //     transition: {
-// //       opacity: { duration: 0.8 },
-// //       scale: { duration: 0.7 },
-// //     },
-// //   },
-// //   exit: {
-// //     opacity: 0,
-// //     scale: 0.9,
-// //     transition: {
-// //       opacity: { duration: 0.4 },
-// //     },
-// //   },
+// // /* ================== PAGE ================== */
+// // const pageTransition = {
+// //   initial: { opacity: 0 },
+// //   animate: { opacity: 1, transition: { duration: 0.6 } },
 // // };
 
-// // // New animations for overlay images
-// // const overlayImageLeft = {
-// //   hidden: {
-// //     opacity: 0,
-// //     x: -100,
-// //     y: -100,
-// //     scale: 0.8,
-// //   },
-// //   visible: {
-// //     opacity: 1,
-// //     x: -20,
-// //     y: -20,
-// //     scale: 1,
-// //     transition: {
-// //       delay: 0.5, // Delay after main image appears
-// //       duration: 0.8,
-// //       ease: "easeOut",
-// //     },
-// //   },
-// // };
-
-// // const overlayImageRight = {
-// //   hidden: {
-// //     opacity: 0,
-// //     x: 100,
-// //     y: -100,
-// //     scale: 0.8,
-// //   },
-// //   visible: {
-// //     opacity: 1,
-// //     x: 20,
-// //     y: -20,
-// //     scale: 1,
-// //     transition: {
-// //       delay: 0.7, // Slightly delayed after left image
-// //       duration: 0.8,
-// //       ease: "easeOut",
-// //     },
-// //   },
-// // };
-
-// // const contentReveal = {
-// //   hidden: {
-// //     opacity: 0,
-// //     y: 30,
-// //   },
-// //   visible: {
-// //     opacity: 1,
-// //     y: 0,
-// //     transition: {
-// //       duration: 0.6,
-// //       ease: "easeOut",
-// //     },
-// //   },
-// // };
-
-// // const staggerContent = {
+// // /* ================== LEFT CONTENT ================== */
+// // const leftContainer = {
 // //   hidden: { opacity: 0 },
 // //   visible: {
 // //     opacity: 1,
+// //     transition: { staggerChildren: 0.18, delayChildren: 0.3 },
+// //   },
+// // };
+
+// // const fadeUp = {
+// //   hidden: { opacity: 0, y: 24 },
+// //   visible: {
+// //     opacity: 1,
+// //     y: 0,
+// //     transition: { duration: 0.8, ease: "easeOut" },
+// //   },
+// // };
+
+// // /* ================== HERO IMAGE ================== */
+// // const heroImageMotion = {
+// //   hidden: { opacity: 0, x: 80, scale: 1.05 },
+// //   visible: {
+// //     opacity: 1,
+// //     x: 0,
+// //     scale: 1,
 // //     transition: {
-// //       staggerChildren: 0.08,
-// //       delayChildren: 0.3,
+// //       duration: 1.1,
+// //       ease: [0.22, 1, 0.36, 1],
 // //     },
 // //   },
 // // };
 
-// // const floatAnimation = {
-// //   float: {
-// //     y: [0, -15, 0],
-// //     transition: {
-// //       duration: 6,
-// //       repeat: Infinity,
-// //       ease: "easeInOut",
-// //     },
-// //   },
-// // };
-
-// // /* ================== Component ================== */
 // // const Home = () => {
-// //   const [heroImages, setHeroImages] = useState([]);
-// //   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-// //   const [loading, setLoading] = useState(true);
-// //   const [isLoaded, setIsLoaded] = useState(false);
-// //   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-// //   const [showOverlayImages, setShowOverlayImages] = useState(false);
+// //   const [heroImage, setHeroImage] = useState(null);
+// //   const [imagesLoaded, setImagesLoaded] = useState(false);
 
-// //   // Fetch hero images from backend
-// //   const fetchHeroImages = async () => {
-// //     try {
-// //       const res = await fetchWithAuth(
-// //         `${BACKEND_URL}/api/admin/uploadHero`,
-// //         {}
-// //       );
-// //       const data = await res.json();
-
-// //       if (data.success && data.images && Array.isArray(data.images)) {
-// //         // Filter out any invalid URLs and ensure they're fully loaded
-// //         const validImages = [];
-// //         const imagePromises = data.images.map((url, index) => {
-// //           return new Promise((resolve) => {
-// //             const img = new Image();
-// //             img.src = url;
-// //             img.onload = () => {
-// //               validImages.push(url);
-// //               resolve();
-// //             };
-// //             img.onerror = () => {
-// //               console.warn(`Failed to load hero image: ${url}`);
-// //               resolve();
-// //             };
-// //           });
-// //         });
-
-// //         // Wait for all images to load
-// //         await Promise.all(imagePromises);
-
-// //         if (validImages.length > 0) {
-// //           setHeroImages(validImages);
-// //         } else {
-// //           // Fallback to default images if no valid ones
-// //           setHeroImages([
-// //             "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop",
-// //             "https://images.unsplash.com/photo-1556228578-9c360e1d458f?w=1200&h=800&fit=crop",
-// //             "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop",
-// //           ]);
-// //         }
-// //       } else {
-// //         // Use default images if API fails
-// //         setHeroImages([
-// //           "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop",
-// //           "https://images.unsplash.com/photo-1556228578-9c360e1d458f?w=1200&h=800&fit=crop",
-// //           "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop",
-// //         ]);
+// //   useEffect(() => {
+// //     const fetchHeroImage = async () => {
+// //       try {
+// //         const res = await fetchWithAuth(`${BACKEND_URL}/api/admin/uploadHero`);
+// //         const data = await res.json();
+// //         setHeroImage(
+// //           data?.images?.[0] ||
+// //             "https://res.cloudinary.com/demo/image/upload/v1/samples/beauty-products"
+// //         );
+// //         setImagesLoaded(true);
+// //       } catch {
+// //         setHeroImage(
+// //           "https://res.cloudinary.com/demo/image/upload/v1/samples/beauty-products"
+// //         );
+// //         setImagesLoaded(true);
 // //       }
-// //       setLoading(false);
-// //       setIsLoaded(true);
-
-// //       // Show overlay images after a short delay
-// //       setTimeout(() => {
-// //         setShowOverlayImages(true);
-// //       }, 500);
-// //     } catch (err) {
-// //       console.error("Failed to fetch hero images:", err);
-// //       // Use default images on error
-// //       setHeroImages([
-// //         "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop",
-// //         "https://images.unsplash.com/photo-1556228578-9c360e1d458f?w=1200&h=800&fit=crop",
-// //         "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop",
-// //       ]);
-// //       setLoading(false);
-// //       setIsLoaded(true);
-
-// //       // Show overlay images after a short delay
-// //       setTimeout(() => {
-// //         setShowOverlayImages(true);
-// //       }, 500);
-// //     }
-// //   };
-
-// //   useEffect(() => {
-// //     fetchHeroImages();
+// //     };
+// //     fetchHeroImage();
 // //   }, []);
-
-// //   // Reset overlay animation when main image changes
-// //   useEffect(() => {
-// //     setShowOverlayImages(false);
-// //     setTimeout(() => {
-// //       setShowOverlayImages(true);
-// //     }, 300);
-// //   }, [currentImageIndex]);
-
-// //   // Auto-rotation interval
-// //   useEffect(() => {
-// //     if (!isAutoPlaying || heroImages.length <= 1) return;
-
-// //     const interval = setInterval(() => {
-// //       setCurrentImageIndex((prevIndex) =>
-// //         prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
-// //       );
-// //     }, 5000); // Change image every 5 seconds
-
-// //     return () => clearInterval(interval);
-// //   }, [isAutoPlaying, heroImages.length]);
-
-// //   const features = [
-// //     { icon: <FaLeaf />, title: "100% Natural", desc: "Organic ingredients" },
-// //     { icon: <FaStar />, title: "Premium Quality", desc: "Luxury standards" },
-// //     { icon: <FaHeart />, title: "Cruelty Free", desc: "Ethically sourced" },
-// //     {
-// //       icon: <FaShieldAlt />,
-// //       title: "Safe & Tested",
-// //       desc: "Dermatologist approved",
-// //     },
-// //   ];
 
 // //   const stats = [
 // //     { value: "10k+", label: "Happy Customers" },
@@ -2473,1236 +287,1097 @@
 
 // //   return (
 // //     <motion.div
-// //       className="min-h-screen w-full relative overflow-hidden"
+// //       variants={pageTransition}
+// //       initial="initial"
+// //       animate="animate"
+// //       className="relative min-h-screen bg-cover bg-center"
 // //       style={{
 // //         backgroundImage: `url(${bgImage})`,
-// //         backgroundSize: "cover",
-// //         backgroundPosition: "center",
-// //         backgroundRepeat: "no-repeat",
 // //         backgroundAttachment: "fixed",
 // //       }}
-// //       initial={{ opacity: 0 }}
-// //       animate={{ opacity: 1 }}
-// //       transition={{ duration: 0.5 }}
 // //     >
-// //       {/* Single Color Background - No Gradient */}
-// //       <div className="absolute inset-0 dark:bg-gray-900" />
+// //       {/* lighter overlay to show beauty */}
+// //       <div className="absolute inset-0 bg-gradient-to-r from-white/70 via-white/40 to-transparent" />
 
-// //       {/* Main Content */}
-// //       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
-// //         <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
-// //           {/* Left Column - Hero Image Carousel */}
-// //           <div className="relative">
-// //             <div
-// //               className="relative"
-// //               onMouseEnter={() => setIsAutoPlaying(false)}
-// //               onMouseLeave={() => setIsAutoPlaying(true)}
+// //       <div className="relative z-10 min-h-screen overflow-hidden md:flex-row-reverse flex">
+// //         {/* HERO IMAGE */}
+// //         <motion.div
+// //           variants={heroImageMotion}
+// //           initial="hidden"
+// //           animate="visible"
+// //           className="
+// //             absolute inset-y-0 right-0
+// //             w-full sm:w-[65%]
+// //             md:relative lg:w-1/2
+// //             min-h-screen
+// //             -translate-x-20 sm:translate-x-10 lg:translate-x-0
+// //           "
+// //         >
+// //           {heroImage && imagesLoaded ? (
+// //             <img
+// //               src={heroImage}
+// //               alt="Beauty Products"
+// //               className="w-full h-full object-cover"
+// //               loading="eager"
+// //             />
+// //           ) : (
+// //             <div className="w-full h-full bg-gray-200 animate-pulse" />
+// //           )}
+// //         </motion.div>
+
+// //         {/* LEFT CONTENT */}
+// //         <motion.div
+// //           variants={leftContainer}
+// //           initial="hidden"
+// //           animate="visible"
+// //           className="
+// //             relative z-20
+// //             flex items-center
+// //             min-h-screen
+// //             px-4 sm:px-6 lg:px-12 xl:px-16
+// //             w-full sm:w-[55%]
+// //             lg:w-1/2
+// //           "
+// //         >
+// //           <div className="max-w-xl space-y-8">
+// //             {/* HEADING */}
+// //             <motion.h1
+// //               variants={fadeUp}
+// //               className="text-6xl sm:text-5xl lg:text-6xl font-bold text-[#6E2222] leading-tight"
 // //             >
-// //               {loading ? (
-// //                 <div className="w-full h-[500px] dark:from-gray-800 dark:to-gray-700 animate-pulse" />
-// //               ) : (
-// //                 <AnimatePresence mode="wait">
-// //                   <motion.div
-// //                     key={currentImageIndex}
-// //                     variants={heroImageVariants}
-// //                     initial="enter"
-// //                     animate="center"
-// //                     exit="exit"
-// //                     className="relative"
-// //                   >
-// //                     {/* Main Image */}
-// //                     <motion.img
-// //                       src={heroImages[currentImageIndex]}
-// //                       alt={`Premium Beauty Products - Slide ${currentImageIndex + 1}`}
-// //                       className="w-full h-[800px] object-cover"
-// //                       loading="eager"
-// //                       decoding="async"
-// //                       onLoad={() => {
-// //                         // Ensure overlay images appear after main image loads
-// //                         setTimeout(() => setShowOverlayImages(true), 300);
-// //                       }}
-// //                     />
+// //               Radiant Beauty
+// //               <br />
+// //               <span className="text-[#D7C097]">Starts Within</span>
+// //             </motion.h1>
 
-// //                     {/* Overlay Image - Top Left */}
-// //                     {heroImages.length > 1 && showOverlayImages && (
-// //                       <motion.div
-// //                         variants={overlayImageLeft}
-// //                         initial="hidden"
-// //                         animate="visible"
-// //                         className="absolute top-0 left-0 z-10"
-// //                       >
-// //                         <img
-// //                           src={heroImages[1 % heroImages.length]} // Use second image or wrap around
-// //                           alt="Decorative overlay left"
-// //                           className="w-40 h-40 object-cover"
-// //                           style={{
-// //                             clipPath: "polygon(0 0, 100% 0, 80% 100%, 0% 100%)",
-// //                           }}
-// //                         />
-// //                       </motion.div>
-// //                     )}
-
-// //                     {/* Overlay Image - Top Right */}
-// //                     {heroImages.length > 2 && showOverlayImages && (
-// //                       <motion.div
-// //                         variants={overlayImageRight}
-// //                         initial="hidden"
-// //                         animate="visible"
-// //                         className="absolute top-0 right-0 z-10"
-// //                       >
-// //                         <img
-// //                           src={heroImages[2 % heroImages.length]} // Use third image or wrap around
-// //                           alt="Decorative overlay right"
-// //                           className="w-40 h-40 object-cover  "
-// //                           style={{
-// //                             clipPath:
-// //                               "polygon(20% 0, 100% 0, 100% 100%, 0% 100%)",
-// //                           }}
-// //                         />
-// //                       </motion.div>
-// //                     )}
-
-// //                     {/* Optional: If you want the overlay images to float gently after appearing */}
-// //                     {heroImages.length > 1 && showOverlayImages && (
-// //                       <>
-// //                         <motion.div
-// //                           animate={{
-// //                             y: [0, -5, 0],
-// //                             rotate: [-1, 1, -1],
-// //                           }}
-// //                           transition={{
-// //                             duration: 4,
-// //                             repeat: Infinity,
-// //                             ease: "easeInOut",
-// //                             delay: 1.5,
-// //                           }}
-// //                           className="absolute top-0 left-0 z-10"
-// //                         >
-// //                           <img
-// //                             src={heroImages[1 % heroImages.length]}
-// //                             alt="Decorative overlay left"
-// //                             className="w-40 h-40 object-cover rounded-xl shadow-lg border-4 border-white dark:border-gray-800"
-// //                             style={{
-// //                               clipPath:
-// //                                 "polygon(0 0, 100% 0, 80% 100%, 0% 100%)",
-// //                             }}
-// //                           />
-// //                         </motion.div>
-
-// //                         <motion.div
-// //                           animate={{
-// //                             y: [0, -5, 0],
-// //                             rotate: [1, -1, 1],
-// //                           }}
-// //                           transition={{
-// //                             duration: 4,
-// //                             repeat: Infinity,
-// //                             ease: "easeInOut",
-// //                             delay: 1.7,
-// //                           }}
-// //                           className="absolute top-0 right-0 z-10"
-// //                         >
-// //                           <img
-// //                             src={heroImages[2 % heroImages.length]}
-// //                             alt="Decorative overlay right"
-// //                             className="w-40 h-40 object-cover rounded-xl shadow-lg border-4 border-white dark:border-gray-800"
-// //                             style={{
-// //                               clipPath:
-// //                                 "polygon(20% 0, 100% 0, 100% 100%, 0% 100%)",
-// //                             }}
-// //                           />
-// //                         </motion.div>
-// //                       </>
-// //                     )}
-
-// //                     {/* Decorative elements for visual appeal */}
-// //                     {showOverlayImages && (
-// //                       <>
-// //                         <motion.div
-// //                           initial={{ opacity: 0, scale: 0 }}
-// //                           animate={{ opacity: 1, scale: 1 }}
-// //                           transition={{ delay: 1.2, duration: 0.5 }}
-// //                           className="absolute -top-2 -left-2 w-6 h-6 bg-[#D7C097] rounded-full"
-// //                         />
-// //                         <motion.div
-// //                           initial={{ opacity: 0, scale: 0 }}
-// //                           animate={{ opacity: 1, scale: 1 }}
-// //                           transition={{ delay: 1.4, duration: 0.5 }}
-// //                           className="absolute -top-2 -right-2 w-6 h-6 bg-[#D7C097] rounded-full"
-// //                         />
-// //                       </>
-// //                     )}
-// //                   </motion.div>
-// //                 </AnimatePresence>
-// //               )}
-
-// //               {/* Removed Image Overlay Gradient */}
-// //             </div>
-
-// //             {/* Shop Now Button */}
-// //             <motion.div
-// //               initial={{ opacity: 0, y: 20 }}
-// //               animate={{ opacity: 1, y: 0 }}
-// //               transition={{ delay: 2 }} // Delayed to appear after images
-// //               className="absolute -bottom-6 left-6 z-20"
-// //             >
-// //               <motion.button
-// //                 whileHover={{
-// //                   scale: 1.05,
-// //                   transition: { duration: 0.2 },
-// //                 }}
-// //                 whileTap={{ scale: 0.95 }}
-// //                 className="group px-8 py-3 rounded-xl bg-gradient-to-r from-[#D8C9A7] to-[#D7C097] text-gray-900 font-semibold flex items-center gap-3 hover:shadow-lg shadow-xl transition-all duration-300"
-// //               >
-// //                 <FaShoppingBag className="text-lg" />
-// //                 <span>Shop Now</span>
-// //                 <FaArrowRight className="group-hover:translate-x-1 transition-transform duration-300" />
-// //               </motion.button>
-// //             </motion.div>
-// //           </div>
-
-// //           {/* Right Column - Text Content */}
-// //           <motion.div
-// //             variants={staggerContent}
-// //             initial="hidden"
-// //             animate={isLoaded ? "visible" : "hidden"}
-// //             className="space-y-8"
-// //           >
-// //             {/* Badge */}
-// //             <motion.div
-// //               variants={contentReveal}
-// //               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#D8C9A7] dark:bg-[#D7C097]/30 border border-[#D7C097] dark:border-[#D8C9A7]"
-// //             >
-// //               <GiSparkles className="text-gray-900 dark:text-gray-900" />
-// //               <span className="text-sm font-medium text-gray-900 dark:text-gray-900">
-// //                 Premium Beauty Collection
-// //               </span>
-// //             </motion.div>
-
-// //             {/* Main Heading */}
-// //             <div className="space-y-6">
-// //               <motion.h1
-// //                 variants={contentReveal}
-// //                 className="text-5xl lg:text-6xl font-bold leading-tight"
-// //               >
-// //                 <span className="text-gray-900 dark:text-white">
-// //                   Radiant Beauty
-// //                 </span>
-// //                 <br />
-// //                 <span className="text-[#D7C097] dark:text-[#D8C9A7]">
-// //                   Starts Within
-// //                 </span>
-// //               </motion.h1>
-
-// //               <motion.div
-// //                 initial={{ width: 0 }}
-// //                 animate={{ width: "80px" }}
-// //                 transition={{ delay: 0.6, duration: 0.5 }}
-// //                 className="h-1 bg-[#D7C097] dark:bg-[#D8C9A7] rounded-full"
-// //               />
-// //             </div>
-
-// //             {/* Description */}
+// //             {/* PARAGRAPH */}
 // //             <motion.p
-// //               variants={contentReveal}
-// //               className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-xl"
+// //               variants={fadeUp}
+// //               className="text-xl max-md:text-gray-50 text-gray-700 leading-relaxed"
 // //             >
-// //               Discover our premium collection of skincare, haircare, and
-// //               wellness products—meticulously crafted with natural ingredients
-// //               for your everyday glow.
+// //               Discover our premium collection of perfumes,skin, hair, and body
+// //               care products-meticulously crafted with natural ingredients for
+// //               your everyday glow.
 // //             </motion.p>
 
-// //             {/* Features Grid */}
-// //             <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
-// //               {features.map((feature, i) => (
-// //                 <motion.div
-// //                   key={i}
-// //                   initial={{ opacity: 0, y: 20 }}
-// //                   animate={{ opacity: 1, y: 0 }}
-// //                   transition={{
-// //                     duration: 0.6,
-// //                     delay: 0.8 + i * 0.1,
-// //                     ease: "easeOut",
-// //                   }}
-// //                   className="flex items-center gap-3 p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-[#D7C097] dark:hover:border-[#D8C9A7] transition-all duration-300"
-// //                 >
-// //                   <div className="p-2.5 rounded-lg bg-[#D8C9A7]/20 dark:bg-[#D7C097]/20">
-// //                     <span className="text-[#D7C097] dark:text-[#D8C9A7] text-lg">
-// //                       {feature.icon}
-// //                     </span>
-// //                   </div>
-// //                   <div>
-// //                     <h3 className="font-semibold text-gray-900 dark:text-white">
-// //                       {feature.title}
-// //                     </h3>
-// //                     <p className="text-sm text-gray-600 dark:text-gray-400">
-// //                       {feature.desc}
-// //                     </p>
-// //                   </div>
-// //                 </motion.div>
-// //               ))}
-// //             </div>
-
-// //             {/* Stats */}
+// //             {/* STATS */}
 // //             <motion.div
-// //               variants={staggerContent}
-// //               className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8"
+// //               variants={fadeUp}
+// //               className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-4"
 // //             >
 // //               {stats.map((stat, i) => (
 // //                 <motion.div
 // //                   key={i}
-// //                   initial={{ opacity: 0, scale: 0.8 }}
-// //                   animate={{ opacity: 1, scale: 1 }}
-// //                   transition={{
-// //                     type: "spring",
-// //                     stiffness: 180,
-// //                     damping: 12,
-// //                     delay: 1 + i * 0.1,
-// //                   }}
-// //                   className="text-center p-4"
+// //                   initial={{ opacity: 0, y: 16 }}
+// //                   animate={{ opacity: 1, y: 0 }}
+// //                   transition={{ delay: 0.5 + i * 0.1 }}
 // //                 >
-// //                   <div className="text-3xl font-bold text-[#D7C097] dark:text-[#D8C9A7]">
+// //                   <div className="text-3xl font-bold text-[#D7C097]">
 // //                     {stat.value}
 // //                   </div>
-// //                   <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+// //                   <div className="text-base max-md:text-gray-50 text-gray-700">
 // //                     {stat.label}
 // //                   </div>
 // //                 </motion.div>
 // //               ))}
 // //             </motion.div>
-// //           </motion.div>
-// //         </div>
+
+// //             {/* BUTTON */}
+// //             <motion.div variants={fadeUp}>
+// //               <motion.button
+// //                 whileHover={{ scale: 1.04 }}
+// //                 whileTap={{ scale: 0.96 }}
+// //                 className="
+// //                   mt-4
+// //                   px-9 py-4
+// //                   rounded-xl
+// //                   bg-gradient-to-r from-[#D8C9A7] to-[#D7C097]
+// //                   text-gray-900
+// //                   font-semibold
+// //                   flex items-center gap-3
+// //                   text-lg
+// //                 "
+// //               >
+// //                 <FaShoppingBag />
+// //                 Shop Now
+// //                 <FaArrowRight />
+// //               </motion.button>
+// //             </motion.div>
+// //           </div>
+// //         </motion.div>
 // //       </div>
 // //     </motion.div>
 // //   );
 // // };
 
 // // export default Home;
-// import React, { useEffect, useState } from "react";
+// import React, { useState, useEffect } from "react";
+// import { Link, useNavigate } from "react-router-dom";
 // import { motion, AnimatePresence } from "framer-motion";
 // import {
 //   FaLeaf,
 //   FaStar,
 //   FaHeart,
 //   FaShoppingBag,
-//   FaShieldAlt,
 //   FaArrowRight,
+//   FaGem,
+//   FaCrown,
+//   FaSparkles,
+//   FaSpinner,
 // } from "react-icons/fa";
-// import { GiSparkles } from "react-icons/gi";
-// import { fetchWithAuth } from "../utils/auth";
 // import bgImage from "../assets/homebd_3.jpg";
+// import { fetchWithAuth } from "../utils/auth";
+
 // const BACKEND_URL = import.meta.env.VITE_API_URL;
 
-// /* ================== Animations ================== */
-// const mainImageVariants = {
-//   hidden: {
-//     opacity: 0,
-//     scale: 0.9,
-//   },
+// /* ================== PAGE ================== */
+// const pageTransition = {
+//   initial: { opacity: 0 },
+//   animate: { opacity: 1, transition: { duration: 0.6 } },
+//   exit: { opacity: 0, transition: { duration: 0.4 } },
+// };
+
+// /* ================== LEFT CONTENT ================== */
+// const leftContainer = {
+//   hidden: { opacity: 0 },
 //   visible: {
 //     opacity: 1,
-//     scale: 1,
-//     transition: {
-//       duration: 0.8,
-//       ease: "easeOut",
-//     },
+//     transition: { staggerChildren: 0.18, delayChildren: 0.3 },
 //   },
 // };
 
-// // Animations for overlay images
-// const leftImageVariants = {
-//   hidden: {
-//     opacity: 0,
-//     x: -150,
-//     y: -150,
-//     rotate: -45,
-//     scale: 0.5,
-//   },
-//   visible: {
-//     opacity: 1,
-//     x: -50,
-//     y: -30,
-//     rotate: 0,
-//     scale: 1,
-//     transition: {
-//       type: "spring",
-//       stiffness: 100,
-//       damping: 15,
-//       duration: 0.8,
-//     },
-//   },
-// };
-
-// const rightImageVariants = {
-//   hidden: {
-//     opacity: 0,
-//     x: 150,
-//     y: -150,
-//     rotate: 45,
-//     scale: 0.5,
-//   },
-//   visible: {
-//     opacity: 1,
-//     x: 50,
-//     y: -30,
-//     rotate: 0,
-//     scale: 1,
-//     transition: {
-//       type: "spring",
-//       stiffness: 100,
-//       damping: 15,
-//       duration: 0.8,
-//     },
-//   },
-// };
-
-// const contentReveal = {
-//   hidden: {
-//     opacity: 0,
-//     y: 30,
-//   },
+// const fadeUp = {
+//   hidden: { opacity: 0, y: 24 },
 //   visible: {
 //     opacity: 1,
 //     y: 0,
 //     transition: {
-//       duration: 0.6,
+//       duration: 0.8,
 //       ease: "easeOut",
+//       type: "spring",
+//       stiffness: 100,
+//       damping: 15,
 //     },
 //   },
 // };
 
-// const staggerContent = {
-//   hidden: { opacity: 0 },
+// /* ================== HERO IMAGE ================== */
+// const heroImageMotion = {
+//   hidden: { opacity: 0, x: 80, scale: 1.05, rotateY: 15 },
 //   visible: {
 //     opacity: 1,
+//     x: 0,
+//     scale: 1,
+//     rotateY: 0,
 //     transition: {
-//       staggerChildren: 0.08,
-//       delayChildren: 0.3,
+//       duration: 1.1,
+//       ease: [0.22, 1, 0.36, 1],
+//       delay: 0.2,
 //     },
 //   },
 // };
 
-// /* ================== Component ================== */
+// // Loading animation variants
+// const shimmerVariants = {
+//   initial: { backgroundPosition: "-200% 0" },
+//   animate: {
+//     backgroundPosition: "200% 0",
+//     transition: {
+//       duration: 1.5,
+//       ease: "linear",
+//       repeat: Infinity,
+//       repeatType: "loop",
+//     },
+//   },
+// };
+
+// // Floating animation for decorative elements
+// const floatAnimation = {
+//   y: [0, -10, 0],
+//   transition: {
+//     duration: 3,
+//     repeat: Infinity,
+//     ease: "easeInOut",
+//   },
+// };
+
 // const Home = () => {
-//   const [heroImages, setHeroImages] = useState([]);
+//   const [heroImage, setHeroImage] = useState(null);
+//   const [imagesLoaded, setImagesLoaded] = useState(false);
 //   const [loading, setLoading] = useState(true);
-//   const [isLoaded, setIsLoaded] = useState(false);
-//   const [showOverlayImages, setShowOverlayImages] = useState(false);
-
-//   // Fetch hero images from backend
-//   const fetchHeroImages = async () => {
-//     try {
-//       const res = await fetchWithAuth(
-//         `${BACKEND_URL}/api/admin/uploadHero`,
-//         {}
-//       );
-//       const data = await res.json();
-
-//       if (data.success && data.images && Array.isArray(data.images)) {
-//         // We need at least 3 images for this layout
-//         if (data.images.length >= 3) {
-//           // Filter out any invalid URLs
-//           const validImages = [];
-//           const imagePromises = data.images.slice(0, 3).map((url, index) => {
-//             return new Promise((resolve) => {
-//               const img = new Image();
-//               img.src = url;
-//               img.onload = () => {
-//                 validImages.push(url);
-//                 resolve();
-//               };
-//               img.onerror = () => {
-//                 console.warn(`Failed to load hero image: ${url}`);
-//                 resolve();
-//               };
-//             });
-//           });
-
-//           // Wait for all images to load
-//           await Promise.all(imagePromises);
-
-//           if (validImages.length >= 3) {
-//             setHeroImages(validImages.slice(0, 3));
-//           } else {
-//             // Fallback to default images
-//             setDefaultImages();
-//           }
-//         } else {
-//           // Not enough images, use defaults
-//           setDefaultImages();
-//         }
-//       } else {
-//         // Use default images if API fails
-//         setDefaultImages();
-//       }
-//       setLoading(false);
-//       setIsLoaded(true);
-
-//       // Show overlay images after main image has loaded
-//       // This will be triggered by the onLoad event of the main image
-//     } catch (err) {
-//       console.error("Failed to fetch hero images:", err);
-//       setDefaultImages();
-//       setLoading(false);
-//       setIsLoaded(true);
-//     }
-//   };
-
-//   const setDefaultImages = () => {
-//     setHeroImages([
-//       "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop",
-//       "https://images.unsplash.com/photo-1556228578-9c360e1d458f?w=600&h=400&fit=crop",
-//       "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&h=400&fit=crop",
-//     ]);
-//   };
+//   const navigate = useNavigate();
 
 //   useEffect(() => {
-//     fetchHeroImages();
+//     const fetchHeroImage = async () => {
+//       try {
+//         setLoading(true);
+//         const res = await fetchWithAuth(`${BACKEND_URL}/api/admin/uploadHero`);
+//         const data = await res.json();
+//         setHeroImage(
+//           data?.images?.[0] ||
+//             "https://res.cloudinary.com/demo/image/upload/v1/samples/beauty-products"
+//         );
+
+//         // Simulate minimum loading time for better UX
+//         setTimeout(() => {
+//           setImagesLoaded(true);
+//           setLoading(false);
+//         }, 800);
+//       } catch {
+//         setHeroImage(
+//           "https://res.cloudinary.com/demo/image/upload/v1/samples/beauty-products"
+//         );
+//         setTimeout(() => {
+//           setImagesLoaded(true);
+//           setLoading(false);
+//         }, 800);
+//       }
+//     };
+//     fetchHeroImage();
 //   }, []);
 
-//   const handleMainImageLoad = () => {
-//     // Show overlay images 300ms after main image loads
-//     setTimeout(() => {
-//       setShowOverlayImages(true);
-//     }, 300);
-//   };
-
-//   const features = [
-//     { icon: <FaLeaf />, title: "100% Natural", desc: "Organic ingredients" },
-//     { icon: <FaStar />, title: "Premium Quality", desc: "Luxury standards" },
-//     { icon: <FaHeart />, title: "Cruelty Free", desc: "Ethically sourced" },
+//   const stats = [
 //     {
-//       icon: <FaShieldAlt />,
-//       title: "Safe & Tested",
-//       desc: "Dermatologist approved",
+//       value: "10k+",
+//       label: "Happy Customers",
+//       icon: <FaHeart className="text-[#D7C097]" />,
+//     },
+//     {
+//       value: "4.9",
+//       label: "Average Rating",
+//       icon: <FaStar className="text-[#D7C097]" />,
+//     },
+//     {
+//       value: "100+",
+//       label: "Products",
+//       icon: <FaGem className="text-[#D7C097]" />,
+//     },
+//     {
+//       value: "24/7",
+//       label: "Support",
+//       icon: <FaCrown className="text-[#D7C097]" />,
 //     },
 //   ];
 
-//   const stats = [
-//     { value: "10k+", label: "Happy Customers" },
-//     { value: "4.9", label: "Average Rating" },
-//     { value: "100+", label: "Products" },
-//     { value: "24/7", label: "Support" },
-//   ];
+//   // Handle Shop Now button click
+//   const handleShopNow = () => {
+//     navigate("/#products");
+//   };
 
 //   return (
 //     <motion.div
-//       className="min-h-screen w-full relative overflow-hidden"
+//       variants={pageTransition}
+//       initial="initial"
+//       animate="animate"
+//       exit="exit"
+//       className="relative min-h-screen bg-cover bg-center overflow-hidden"
 //       style={{
 //         backgroundImage: `url(${bgImage})`,
-//         backgroundSize: "cover",
-//         backgroundPosition: "center",
-//         backgroundRepeat: "no-repeat",
 //         backgroundAttachment: "fixed",
 //       }}
-//       initial={{ opacity: 0 }}
-//       animate={{ opacity: 1 }}
-//       transition={{ duration: 0.5 }}
 //     >
-//       {/* Single Color Background - No Gradient */}
-//       <div className="absolute inset-0 dark:bg-gray-900" />
+//       {/* Animated background overlay with gradient */}
+//       <motion.div
+//         className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/50 to-transparent"
+//         initial={{ opacity: 0 }}
+//         animate={{ opacity: 1 }}
+//         transition={{ duration: 1 }}
+//       />
 
-//       {/* Main Content */}
-//       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
-//         <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center h-full">
-//           {/* Left Column - Hero Image Container */}
-//           <div className="relative">
-//             <div className="relative">
-//               {loading ? (
-//                 <div className="w-full h-[500px] dark:from-gray-800 dark:to-gray-700 animate-pulse" />
-//               ) : (
-//                 <div className="relative">
-//                   {/* Main Image (first image in array) */}
-//                   {heroImages[0] && (
-//                     <motion.div
-//                       variants={mainImageVariants}
-//                       initial="hidden"
-//                       animate="visible"
-//                       className="relative"
-//                     >
-//                       <motion.img
-//                         src={heroImages[0]}
-//                         alt="Premium Beauty Products"
-//                         className="w-full max-sm:h-[600px] h-[700px] object-contain"
-//                         loading="eager"
-//                         decoding="async"
-//                         onLoad={handleMainImageLoad}
-//                       />
-
-//                       {/* Decorative frame for main image */}
-//                     </motion.div>
-//                   )}
-
-//                   {/* Left Overlay Image (second image in array) */}
-//                   {heroImages[1] && showOverlayImages && (
-//                     <motion.div
-//                       variants={leftImageVariants}
-//                       initial="hidden"
-//                       animate="visible"
-//                       className="absolute top-0 left-0 z-20"
-//                     >
-//                       <div className="relative">
-//                         <div className="w-40 h-40">
-//                           <img
-//                             src={heroImages[1]}
-//                             alt="Beauty Product Left"
-//                             className="w-full h-full object-cover"
-//                           />
-//                         </div>
-//                         {/* Decorative corner accent */}
-//                       </div>
-//                     </motion.div>
-//                   )}
-
-//                   {/* Right Overlay Image (third image in array) */}
-//                   {heroImages[2] && showOverlayImages && (
-//                     <motion.div
-//                       variants={rightImageVariants}
-//                       initial="hidden"
-//                       animate="visible"
-//                       className="absolute top-0 right-0 z-20"
-//                     >
-//                       <div className="relative">
-//                         <div className="w-40 h-40 rounded-xl overflow-hidden">
-//                           <img
-//                             src={heroImages[2]}
-//                             alt="Beauty Product Right"
-//                             className="w-full h-full object-cover"
-//                           />
-//                         </div>
-//                         {/* Decorative corner accent */}
-//                       </div>
-//                     </motion.div>
-//                   )}
-
-//                   {/* Subtle glow effects */}
-//                   {showOverlayImages && (
-//                     <>
-//                       <motion.div
-//                         initial={{ opacity: 0 }}
-//                         animate={{ opacity: 1 }}
-//                         transition={{ delay: 0.5 }}
-//                         className="absolute -top-4 -left-4 w-56 h-56 bg-gradient-to-br from-[#D7C097]/20 to-transparent rounded-full blur-xl pointer-events-none"
-//                       />
-//                       <motion.div
-//                         initial={{ opacity: 0 }}
-//                         animate={{ opacity: 1 }}
-//                         transition={{ delay: 0.6 }}
-//                         className="absolute -top-4 -right-4 w-56 h-56 bg-gradient-to-bl from-[#D7C097]/20 to-transparent rounded-full blur-xl pointer-events-none"
-//                       />
-//                     </>
-//                   )}
-//                 </div>
-//               )}
-//             </div>
-
-//             {/* Shop Now Button */}
-//             <motion.div
-//               initial={{ opacity: 0, y: 20 }}
-//               animate={{ opacity: 1, y: 0 }}
-//               transition={{ delay: 1.5 }} // Appears after all images
-//               className="absolute -bottom-6 left-6 z-20"
-//             >
-//               <motion.button
-//                 whileHover={{
-//                   scale: 1.05,
-//                   transition: { duration: 0.2 },
-//                 }}
-//                 whileTap={{ scale: 0.95 }}
-//                 className="group px-8 py-3 rounded-xl bg-gradient-to-r from-[#D8C9A7] to-[#D7C097] text-gray-900 font-semibold flex items-center gap-3 hover:shadow-lg shadow-xl transition-all duration-300"
-//               >
-//                 <FaShoppingBag className="text-lg" />
-//                 <span>Shop Now</span>
-//                 <FaArrowRight className="group-hover:translate-x-1 transition-transform duration-300" />
-//               </motion.button>
-//             </motion.div>
-//           </div>
-
-//           {/* Right Column - Text Content */}
+//       {/* Floating decorative elements */}
+//       <div className="absolute inset-0 pointer-events-none">
+//         {[...Array(15)].map((_, i) => (
 //           <motion.div
-//             variants={staggerContent}
-//             initial="hidden"
-//             animate={isLoaded ? "visible" : "hidden"}
-//             className="space-y-8"
+//             key={i}
+//             className="absolute w-2 h-2 rounded-full bg-gradient-to-r from-[#D7C097]/20 to-[#B8A075]/20"
+//             style={{
+//               left: `${Math.random() * 100}%`,
+//               top: `${Math.random() * 100}%`,
+//             }}
+//             animate={{
+//               y: [0, Math.random() * 30 - 15],
+//               x: [0, Math.random() * 20 - 10],
+//               opacity: [0, 0.7, 0],
+//               scale: [0, 1, 0],
+//             }}
+//             transition={{
+//               duration: Math.random() * 3 + 2,
+//               repeat: Infinity,
+//               delay: i * 0.2,
+//             }}
+//           />
+//         ))}
+//       </div>
+
+//       {/* Loading overlay */}
+//       <AnimatePresence>
+//         {loading && (
+//           <motion.div
+//             initial={{ opacity: 1 }}
+//             exit={{ opacity: 0 }}
+//             transition={{ duration: 0.5 }}
+//             className="absolute inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white to-gray-100"
 //           >
-//             {/* Badge */}
-//             <motion.div
-//               variants={contentReveal}
-//               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#D8C9A7] dark:bg-[#D7C097]/30 border border-[#D7C097] dark:border-[#D8C9A7]"
-//             >
-//               <GiSparkles className="text-gray-900 dark:text-gray-900" />
-//               <span className="text-sm font-medium text-gray-900 dark:text-gray-900">
-//                 Premium Beauty Collection
-//               </span>
-//             </motion.div>
-
-//             {/* Main Heading */}
-//             <div className="space-y-6">
-//               <motion.h1
-//                 variants={contentReveal}
-//                 className="text-5xl lg:text-6xl font-bold leading-tight"
-//               >
-//                 <span className="text-gray-900 dark:text-white">
-//                   Radiant Beauty
-//                 </span>
-//                 <br />
-//                 <span className="text-[#D7C097] dark:text-[#D8C9A7]">
-//                   Starts Within
-//                 </span>
-//               </motion.h1>
-
+//             <div className="text-center">
 //               <motion.div
-//                 initial={{ width: 0 }}
-//                 animate={{ width: "80px" }}
-//                 transition={{ delay: 0.6, duration: 0.5 }}
-//                 className="h-1 bg-[#D7C097] dark:bg-[#D8C9A7] rounded-full"
+//                 animate={{ rotate: 360 }}
+//                 transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+//                 className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-[#D7C097] to-[#B8A075] flex items-center justify-center"
+//               >
+//                 <FaSparkles className="text-white text-2xl" />
+//               </motion.div>
+//               <motion.div
+//                 variants={shimmerVariants}
+//                 initial="initial"
+//                 animate="animate"
+//                 className="h-2 w-48 mx-auto rounded-full bg-gradient-to-r from-transparent via-[#D7C097]/50 to-transparent"
 //               />
 //             </div>
+//           </motion.div>
+//         )}
+//       </AnimatePresence>
 
-//             {/* Description */}
-//             <motion.p
-//               variants={contentReveal}
-//               className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-xl"
+//       <div className="relative z-10 min-h-screen overflow-hidden md:flex-row-reverse flex">
+//         {/* HERO IMAGE */}
+//         <motion.div
+//           variants={heroImageMotion}
+//           initial="hidden"
+//           animate={imagesLoaded ? "visible" : "hidden"}
+//           className="
+//             absolute inset-y-0 right-0
+//             w-full sm:w-[65%]
+//             md:relative lg:w-1/2
+//             min-h-screen
+//             -translate-x-20 sm:translate-x-10 lg:translate-x-0
+//           "
+//         >
+//           {heroImage ? (
+//             <motion.div
+//               initial={{ opacity: 0, scale: 0.95 }}
+//               animate={{ opacity: 1, scale: 1 }}
+//               transition={{ duration: 0.8, delay: 0.3 }}
+//               className="relative w-full h-full"
 //             >
-//               Discover our premium collection of skincare, haircare, and
-//               wellness products—meticulously crafted with natural ingredients
-//               for your everyday glow.
-//             </motion.p>
+//               {/* Shimmer effect */}
+//               <motion.div
+//                 variants={shimmerVariants}
+//                 initial="initial"
+//                 animate="animate"
+//                 className="absolute inset-0 z-10 rounded-2xl bg-gradient-to-r from-transparent via-white/20 to-transparent"
+//               />
 
-//             {/* Features Grid */}
-//             <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
-//               {features.map((feature, i) => (
-//                 <motion.div
-//                   key={i}
-//                   initial={{ opacity: 0, y: 20 }}
-//                   animate={{ opacity: 1, y: 0 }}
-//                   transition={{
-//                     duration: 0.6,
-//                     delay: 0.8 + i * 0.1,
-//                     ease: "easeOut",
-//                   }}
-//                   className="flex items-center gap-3 p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-[#D7C097] dark:hover:border-[#D8C9A7] transition-all duration-300"
+//               <img
+//                 src={heroImage}
+//                 alt="Beauty Products"
+//                 className="w-full h-full object-cover rounded-2xl shadow-2xl"
+//                 loading="eager"
+//                 onLoad={() => setImagesLoaded(true)}
+//               />
+
+//               {/* Image glow effect */}
+//               <motion.div
+//                 initial={{ opacity: 0 }}
+//                 animate={{ opacity: 0.3 }}
+//                 transition={{ delay: 0.5 }}
+//                 className="absolute inset-0 bg-gradient-to-r from-[#D7C097]/30 to-transparent rounded-2xl blur-xl"
+//               />
+//             </motion.div>
+//           ) : (
+//             <motion.div
+//               variants={shimmerVariants}
+//               initial="initial"
+//               animate="animate"
+//               className="w-full h-full rounded-2xl bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200"
+//             />
+//           )}
+//         </motion.div>
+
+//         {/* LEFT CONTENT */}
+//         <motion.div
+//           variants={leftContainer}
+//           initial="hidden"
+//           animate={!loading ? "visible" : "hidden"}
+//           className="
+//             relative z-20
+//             flex items-center
+//             min-h-screen
+//             px-4 sm:px-6 lg:px-12 xl:px-16
+//             w-full sm:w-[55%]
+//             lg:w-1/2
+//           "
+//         >
+//           <div className="max-w-xl space-y-8">
+//             {/* HEADING with staggered letters animation */}
+//             <div className="overflow-hidden">
+//               <motion.div
+//                 initial={{ y: "100%" }}
+//                 animate={{ y: 0 }}
+//                 transition={{ duration: 0.8, ease: "easeOut" }}
+//                 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight"
+//               >
+//                 <motion.span
+//                   className="text-[#6E2222] block"
+//                   initial={{ opacity: 0 }}
+//                   animate={{ opacity: 1 }}
+//                   transition={{ delay: 0.3 }}
 //                 >
-//                   <div className="p-2.5 rounded-lg bg-[#D8C9A7]/20 dark:bg-[#D7C097]/20">
-//                     <span className="text-[#D7C097] dark:text-[#D8C9A7] text-lg">
-//                       {feature.icon}
-//                     </span>
-//                   </div>
-//                   <div>
-//                     <h3 className="font-semibold text-gray-900 dark:text-white">
-//                       {feature.title}
-//                     </h3>
-//                     <p className="text-sm text-gray-600 dark:text-gray-400">
-//                       {feature.desc}
-//                     </p>
-//                   </div>
-//                 </motion.div>
-//               ))}
+//                   Radiant Beauty
+//                 </motion.span>
+//                 <motion.span
+//                   className="text-[#D7C097] block mt-4"
+//                   initial={{ opacity: 0, x: -20 }}
+//                   animate={{ opacity: 1, x: 0 }}
+//                   transition={{ delay: 0.5 }}
+//                 >
+//                   Starts Within
+//                 </motion.span>
+//               </motion.div>
 //             </div>
 
-//             {/* Stats */}
+//             {/* PARAGRAPH */}
+//             <motion.div variants={fadeUp} className="relative">
+//               {/* Animated underline */}
+//               <motion.div
+//                 initial={{ scaleX: 0 }}
+//                 animate={{ scaleX: 1 }}
+//                 transition={{ delay: 0.7, duration: 0.8 }}
+//                 className="absolute -bottom-2 left-0 w-20 h-0.5 bg-gradient-to-r from-[#D7C097] to-[#B8A075] rounded-full"
+//               />
+
+//               <motion.p
+//                 initial={{ opacity: 0 }}
+//                 animate={{ opacity: 1 }}
+//                 transition={{ delay: 0.8 }}
+//                 className="text-xl max-md:text-gray-50 text-gray-700 leading-relaxed pt-4"
+//               >
+//                 Discover our premium collection of perfumes, skin, hair, and
+//                 body care products—meticulously crafted with natural ingredients
+//                 for your everyday glow.
+//               </motion.p>
+//             </motion.div>
+
+//             {/* STATS with animated counters */}
 //             <motion.div
-//               variants={staggerContent}
-//               className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8"
+//               variants={fadeUp}
+//               className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-4"
 //             >
 //               {stats.map((stat, i) => (
 //                 <motion.div
 //                   key={i}
-//                   initial={{ opacity: 0, scale: 0.8 }}
-//                   animate={{ opacity: 1, scale: 1 }}
+//                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
+//                   animate={{ opacity: 1, y: 0, scale: 1 }}
 //                   transition={{
+//                     delay: 0.9 + i * 0.1,
 //                     type: "spring",
-//                     stiffness: 180,
+//                     stiffness: 100,
 //                     damping: 12,
-//                     delay: 1 + i * 0.1,
 //                   }}
-//                   className="text-center p-4"
+//                   whileHover={{ scale: 1.05, y: -5 }}
+//                   className="text-center p-4 rounded-2xl bg-white/30 backdrop-blur-sm border border-white/20"
 //                 >
-//                   <div className="text-3xl font-bold text-[#D7C097] dark:text-[#D8C9A7]">
+//                   <motion.div
+//                     animate={floatAnimation}
+//                     className="flex justify-center mb-2"
+//                   >
+//                     {stat.icon}
+//                   </motion.div>
+//                   <motion.div
+//                     initial={{ scale: 0 }}
+//                     animate={{ scale: 1 }}
+//                     transition={{ delay: 1 + i * 0.1, type: "spring" }}
+//                     className="text-3xl font-bold text-[#6E2222] mb-1"
+//                   >
 //                     {stat.value}
-//                   </div>
-//                   <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+//                   </motion.div>
+//                   <div className="text-sm max-md:text-gray-50 text-gray-700">
 //                     {stat.label}
 //                   </div>
 //                 </motion.div>
 //               ))}
 //             </motion.div>
-//           </motion.div>
-//         </div>
+
+//             {/* BUTTON with advanced animation */}
+//             <motion.div variants={fadeUp}>
+//               <motion.button
+//                 onClick={handleShopNow}
+//                 whileHover={{
+//                   scale: 1.05,
+//                   boxShadow: "0 20px 40px rgba(215, 192, 151, 0.3)",
+//                 }}
+//                 whileTap={{ scale: 0.95 }}
+//                 initial={{ opacity: 0, y: 20 }}
+//                 animate={{ opacity: 1, y: 0 }}
+//                 transition={{ delay: 1.4 }}
+//                 className="
+//                   mt-4
+//                   px-9 py-4
+//                   rounded-xl
+//                   bg-gradient-to-r from-[#D8C9A7] to-[#D7C097]
+//                   text-gray-900
+//                   font-semibold
+//                   flex items-center gap-3
+//                   text-lg
+//                   relative
+//                   overflow-hidden
+//                   group
+//                   shadow-lg
+//                 "
+//               >
+//                 {/* Button shine effect */}
+//                 <motion.div
+//                   className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full"
+//                   initial={{ x: "-100%" }}
+//                   whileHover={{ x: "200%" }}
+//                   transition={{ duration: 0.7 }}
+//                 />
+
+//                 <motion.div
+//                   animate={{ rotate: 360 }}
+//                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+//                 >
+//                   <FaShoppingBag />
+//                 </motion.div>
+
+//                 <span className="relative">Shop Now</span>
+
+//                 <motion.div
+//                   animate={{ x: [0, 5, 0] }}
+//                   transition={{ duration: 1, repeat: Infinity }}
+//                 >
+//                   <FaArrowRight />
+//                 </motion.div>
+//               </motion.button>
+
+//               {/* Subtext */}
+//               <motion.p
+//                 initial={{ opacity: 0 }}
+//                 animate={{ opacity: 1 }}
+//                 transition={{ delay: 1.5 }}
+//                 className="text-sm text-gray-600 dark:text-gray-400 mt-3 flex items-center gap-2"
+//               >
+//                 <FaLeaf className="text-[#D7C097]" />
+//                 Discover 100+ natural products
+//               </motion.p>
+//             </motion.div>
+//           </div>
+//         </motion.div>
 //       </div>
+
+//       {/* Scroll indicator */}
+//       <motion.div
+//         initial={{ opacity: 0 }}
+//         animate={{ opacity: 1 }}
+//         transition={{ delay: 2 }}
+//         className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+//       >
+//         <motion.div
+//           animate={{ y: [0, 10, 0] }}
+//           transition={{ duration: 1.5, repeat: Infinity }}
+//           className="flex flex-col items-center gap-2"
+//         >
+//           <span className="text-sm text-gray-600 dark:text-gray-400">
+//             Explore More
+//           </span>
+//           <motion.div
+//             animate={{ scale: [1, 1.2, 1] }}
+//             transition={{ duration: 2, repeat: Infinity }}
+//             className="w-6 h-10 border-2 border-[#D7C097]/30 rounded-full flex justify-center"
+//           >
+//             <motion.div
+//               className="w-1 h-3 bg-[#D7C097] rounded-full mt-2"
+//               animate={{ y: [0, 12, 0] }}
+//               transition={{ duration: 1.5, repeat: Infinity }}
+//             />
+//           </motion.div>
+//         </motion.div>
+//       </motion.div>
 //     </motion.div>
 //   );
 // };
 
 // export default Home;
-import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   FaLeaf,
   FaStar,
   FaHeart,
   FaShoppingBag,
-  FaShieldAlt,
   FaArrowRight,
+  FaGem,
+  FaCrown,
+  FaSpinner,
+  FaMagic,
+  FaRegStar,
 } from "react-icons/fa";
-import { GiSparkles } from "react-icons/gi";
-import { fetchWithAuth } from "../utils/auth";
 import bgImage from "../assets/homebd_3.jpg";
+import { fetchWithAuth } from "../utils/auth";
+
 const BACKEND_URL = import.meta.env.VITE_API_URL;
 
-/* ================== Animations ================== */
-const mainImageVariants = {
-  hidden: {
-    opacity: 0,
-    scale: 0.9,
-  },
+/* ================== PAGE ================== */
+const pageTransition = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.6 } },
+  exit: { opacity: 0, transition: { duration: 0.4 } },
+};
+
+/* ================== LEFT CONTENT ================== */
+const leftContainer = {
+  hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    scale: 1,
-    transition: {
-      duration: 0.8,
-      ease: "easeOut",
-    },
+    transition: { staggerChildren: 0.18, delayChildren: 0.3 },
   },
 };
 
-// Animations for overlay images
-const leftImageVariants = {
-  hidden: {
-    opacity: 0,
-    x: -150,
-    y: -150,
-    rotate: -45,
-    scale: 0.5,
-  },
-  visible: {
-    opacity: 1,
-    x: -50,
-    y: -30,
-    rotate: 0,
-    scale: 1,
-    transition: {
-      type: "spring",
-      stiffness: 100,
-      damping: 15,
-      duration: 0.8,
-    },
-  },
-};
-
-const rightImageVariants = {
-  hidden: {
-    opacity: 0,
-    x: 150,
-    y: -150,
-    rotate: 45,
-    scale: 0.5,
-  },
-  visible: {
-    opacity: 1,
-    x: 50,
-    y: -30,
-    rotate: 0,
-    scale: 1,
-    transition: {
-      type: "spring",
-      stiffness: 100,
-      damping: 15,
-      duration: 0.8,
-    },
-  },
-};
-
-const contentReveal = {
-  hidden: {
-    opacity: 0,
-    y: 30,
-  },
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.6,
+      duration: 0.8,
       ease: "easeOut",
+      type: "spring",
+      stiffness: 100,
+      damping: 15,
     },
   },
 };
 
-const staggerContent = {
-  hidden: { opacity: 0 },
+/* ================== HERO IMAGE ================== */
+const heroImageMotion = {
+  hidden: { opacity: 0, x: 80, scale: 1.05, rotateY: 15 },
   visible: {
     opacity: 1,
+    x: 0,
+    scale: 1,
+    rotateY: 0,
     transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.3,
+      duration: 1.1,
+      ease: [0.22, 1, 0.36, 1],
+      delay: 0.2,
     },
   },
 };
 
-/* ================== Component ================== */
+// Loading animation variants
+const shimmerVariants = {
+  initial: { backgroundPosition: "-200% 0" },
+  animate: {
+    backgroundPosition: "200% 0",
+    transition: {
+      duration: 1.5,
+      ease: "linear",
+      repeat: Infinity,
+      repeatType: "loop",
+    },
+  },
+};
+
+// Floating animation for decorative elements
+const floatAnimation = {
+  y: [0, -10, 0],
+  transition: {
+    duration: 3,
+    repeat: Infinity,
+    ease: "easeInOut",
+  },
+};
+
 const Home = () => {
-  const [heroImages, setHeroImages] = useState([]);
+  const [heroImage, setHeroImage] = useState(null);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [showOverlayImages, setShowOverlayImages] = useState(false);
-
-  // Fetch hero images from backend
-  const fetchHeroImages = async () => {
-    try {
-      const res = await fetchWithAuth(
-        `${BACKEND_URL}/api/admin/uploadHero`,
-        {}
-      );
-      const data = await res.json();
-
-      if (data.success && data.images && Array.isArray(data.images)) {
-        // We need at least 3 images for this layout
-        if (data.images.length >= 3) {
-          // Filter out any invalid URLs
-          const validImages = [];
-
-          // First, identify which image is the person/main image
-          // This assumes the first image in the array should always be the person image
-          // If the API returns them in random order, you need to implement a way to identify the person image
-          // For example: by filename, or by metadata, or by ensuring the backend always returns them in the correct order
-
-          // For now, we'll assume the first image in the array is the person image
-          // If your backend returns them randomly, you need to fix the backend to always return in this order:
-          // 1. Person/main image
-          // 2. Left overlay image
-          // 3. Right overlay image
-
-          const imagePromises = data.images.slice(0, 3).map((url, index) => {
-            return new Promise((resolve) => {
-              const img = new Image();
-              img.src = url;
-              img.onload = () => {
-                validImages.push(url);
-                resolve();
-              };
-              img.onerror = () => {
-                console.warn(`Failed to load hero image: ${url}`);
-                resolve();
-              };
-            });
-          });
-
-          // Wait for all images to load
-          await Promise.all(imagePromises);
-
-          if (validImages.length >= 3) {
-            // Ensure we always use the first 3 images in the order they come from backend
-            // If images are changing order on refresh, the backend needs to be fixed
-            setHeroImages(validImages.slice(0, 3));
-          } else {
-            // Fallback to default images with person as first image
-            setHeroImages([
-              "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop", // Person image
-              "https://images.unsplash.com/photo-1556228578-9c360e1d458f?w=600&h=400&fit=crop", // Product 1
-              "https://images.unsplash.com/photo-1585231493662-2d41dc8c7e77?w=600&h=400&fit=crop", // Product 2
-            ]);
-          }
-        } else {
-          // Not enough images, use defaults with person first
-          setHeroImages([
-            "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop", // Person image
-            "https://images.unsplash.com/photo-1556228578-9c360e1d458f?w=600&h=400&fit=crop", // Product 1
-            "https://images.unsplash.com/photo-1585231493662-2d41dc8c7e77?w=600&h=400&fit=crop", // Product 2
-          ]);
-        }
-      } else {
-        // Use default images if API fails with person first
-        setHeroImages([
-          "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop", // Person image
-          "https://images.unsplash.com/photo-1556228578-9c360e1d458f?w=600&h=400&fit=crop", // Product 1
-          "https://images.unsplash.com/photo-1585231493662-2d41dc8c7e77?w=600&h=400&fit=crop", // Product 2
-        ]);
-      }
-      setLoading(false);
-      setIsLoaded(true);
-    } catch (err) {
-      console.error("Failed to fetch hero images:", err);
-      // Use default images on error with person first
-      setHeroImages([
-        "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=800&fit=crop", // Person image
-        "https://images.unsplash.com/photo-1556228578-9c360e1d458f?w=600&h=400&fit=crop", // Product 1
-        "https://images.unsplash.com/photo-1585231493662-2d41dc8c7e77?w=600&h=400&fit=crop", // Product 2
-      ]);
-      setLoading(false);
-      setIsLoaded(true);
-    }
-  };
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchHeroImages();
+    const fetchHeroImage = async () => {
+      try {
+        setLoading(true);
+        const res = await fetchWithAuth(`${BACKEND_URL}/api/admin/uploadHero`);
+        const data = await res.json();
+        setHeroImage(
+          data?.images?.[0] ||
+            "https://res.cloudinary.com/demo/image/upload/v1/samples/beauty-products"
+        );
+
+        // Simulate minimum loading time for better UX
+        setTimeout(() => {
+          setImagesLoaded(true);
+          setLoading(false);
+        }, 800);
+      } catch {
+        setHeroImage(
+          "https://res.cloudinary.com/demo/image/upload/v1/samples/beauty-products"
+        );
+        setTimeout(() => {
+          setImagesLoaded(true);
+          setLoading(false);
+        }, 800);
+      }
+    };
+    fetchHeroImage();
   }, []);
 
-  const handleMainImageLoad = () => {
-    // Show overlay images 300ms after main image loads
-    setTimeout(() => {
-      setShowOverlayImages(true);
-    }, 300);
-  };
-
-  const features = [
-    { icon: <FaLeaf />, title: "100% Natural", desc: "Organic ingredients" },
-    { icon: <FaStar />, title: "Premium Quality", desc: "Luxury standards" },
-    { icon: <FaHeart />, title: "Cruelty Free", desc: "Ethically sourced" },
+  const stats = [
     {
-      icon: <FaShieldAlt />,
-      title: "Safe & Tested",
-      desc: "Dermatologist approved",
+      value: "10k+",
+      label: "Happy Customers",
+      icon: <FaHeart className="text-[#D7C097]" />,
+    },
+    {
+      value: "4.9",
+      label: "Average Rating",
+      icon: <FaStar className="text-[#D7C097]" />,
+    },
+    {
+      value: "100+",
+      label: "Products",
+      icon: <FaGem className="text-[#D7C097]" />,
+    },
+    {
+      value: "24/7",
+      label: "Support",
+      icon: <FaCrown className="text-[#D7C097]" />,
     },
   ];
 
-  const stats = [
-    { value: "10k+", label: "Happy Customers" },
-    { value: "4.9", label: "Average Rating" },
-    { value: "100+", label: "Products" },
-    { value: "24/7", label: "Support" },
-  ];
+  // Handle Shop Now button click
+  const handleShopNow = () => {
+    navigate("/#products");
+  };
 
   return (
     <motion.div
-      className="min-h-screen w-full relative overflow-hidden"
+      variants={pageTransition}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="relative min-h-screen bg-cover bg-center overflow-hidden"
       style={{
         backgroundImage: `url(${bgImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
         backgroundAttachment: "fixed",
       }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
     >
-      {/* Single Color Background - No Gradient */}
-      <div className="absolute inset-0 dark:bg-gray-900" />
+      {/* Animated background overlay with gradient */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/50 to-transparent"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+      />
 
-      {/* Main Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
-        <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center h-full">
-          {/* Left Column - Hero Image Container */}
-          <div className="relative">
-            <div className="relative">
-              {loading ? (
-                <div className="w-full h-[500px] dark:from-gray-800 dark:to-gray-700 animate-pulse" />
-              ) : (
-                <div className="relative">
-                  {/* Main Image (first image in array - should be person image) */}
-                  {heroImages[0] && (
-                    <motion.div
-                      variants={mainImageVariants}
-                      initial="hidden"
-                      animate="visible"
-                      className="relative"
-                    >
-                      <motion.img
-                        src={heroImages[0]}
-                        alt="Premium Beauty Products"
-                        className="w-full max-sm:h-[600px] h-[700px] object-contain"
-                        loading="eager"
-                        decoding="async"
-                        onLoad={handleMainImageLoad}
-                      />
-                    </motion.div>
-                  )}
-
-                  {/* Left Overlay Image (second image in array) */}
-                  {heroImages[1] && showOverlayImages && (
-                    <motion.div
-                      variants={leftImageVariants}
-                      initial="hidden"
-                      animate="visible"
-                      className="absolute top-0 left-0 z-20"
-                    >
-                      <div className="relative">
-                        <div className="w-40 h-40">
-                          <img
-                            src={heroImages[1]}
-                            alt="Beauty Product Left"
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {/* Right Overlay Image (third image in array) */}
-                  {heroImages[2] && showOverlayImages && (
-                    <motion.div
-                      variants={rightImageVariants}
-                      initial="hidden"
-                      animate="visible"
-                      className="absolute top-0 right-0 z-20"
-                    >
-                      <div className="relative">
-                        <div className="w-40 h-40 rounded-xl overflow-hidden">
-                          <img
-                            src={heroImages[2]}
-                            alt="Beauty Product Right"
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {/* Subtle glow effects */}
-                  {showOverlayImages && (
-                    <>
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.5 }}
-                        className="absolute -top-4 -left-4 w-56 h-56 bg-gradient-to-br from-[#D7C097]/20 to-transparent rounded-full blur-xl pointer-events-none"
-                      />
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.6 }}
-                        className="absolute -top-4 -right-4 w-56 h-56 bg-gradient-to-bl from-[#D7C097]/20 to-transparent rounded-full blur-xl pointer-events-none"
-                      />
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Shop Now Button */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.5 }} // Appears after all images
-              className="absolute -bottom-6 left-6 z-20"
-            >
-              <motion.button
-                whileHover={{
-                  scale: 1.05,
-                  transition: { duration: 0.2 },
-                }}
-                whileTap={{ scale: 0.95 }}
-                className="group px-8 py-3 rounded-xl bg-gradient-to-r from-[#D8C9A7] to-[#D7C097] text-gray-900 font-semibold flex items-center gap-3 hover:shadow-lg shadow-xl transition-all duration-300"
-              >
-                <FaShoppingBag className="text-lg" />
-                <span>Shop Now</span>
-                <FaArrowRight className="group-hover:translate-x-1 transition-transform duration-300" />
-              </motion.button>
-            </motion.div>
-          </div>
-
-          {/* Right Column - Text Content */}
+      {/* Floating decorative elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        {[...Array(15)].map((_, i) => (
           <motion.div
-            variants={staggerContent}
-            initial="hidden"
-            animate={isLoaded ? "visible" : "hidden"}
-            className="space-y-8"
+            key={i}
+            className="absolute w-2 h-2 rounded-full bg-gradient-to-r from-[#D7C097]/20 to-[#B8A075]/20"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, Math.random() * 30 - 15],
+              x: [0, Math.random() * 20 - 10],
+              opacity: [0, 0.7, 0],
+              scale: [0, 1, 0],
+            }}
+            transition={{
+              duration: Math.random() * 3 + 2,
+              repeat: Infinity,
+              delay: i * 0.2,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Loading overlay */}
+      <AnimatePresence>
+        {loading && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="absolute inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white to-gray-100"
           >
-            {/* Badge */}
-            <motion.div
-              variants={contentReveal}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#D8C9A7] dark:bg-[#D7C097]/30 border border-[#D7C097] dark:border-[#D8C9A7]"
-            >
-              <GiSparkles className="text-gray-900 dark:text-gray-900" />
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-900">
-                Premium Beauty Collection
-              </span>
-            </motion.div>
-
-            {/* Main Heading */}
-            <div className="space-y-6">
-              <motion.h1
-                variants={contentReveal}
-                className="text-5xl lg:text-6xl font-bold leading-tight"
-              >
-                <span className="text-gray-900 dark:text-white">
-                  Radiant Beauty
-                </span>
-                <br />
-                <span className="text-[#D7C097] dark:text-[#D8C9A7]">
-                  Starts Within
-                </span>
-              </motion.h1>
-
+            <div className="text-center">
               <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: "80px" }}
-                transition={{ delay: 0.6, duration: 0.5 }}
-                className="h-1 bg-[#D7C097] dark:bg-[#D8C9A7] rounded-full"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-[#D7C097] to-[#B8A075] flex items-center justify-center"
+              >
+                {/* Use FaMagic instead of FaSparkles */}
+                <FaMagic className="text-white text-2xl" />
+              </motion.div>
+              <motion.div
+                variants={shimmerVariants}
+                initial="initial"
+                animate="animate"
+                className="h-2 w-48 mx-auto rounded-full bg-gradient-to-r from-transparent via-[#D7C097]/50 to-transparent"
               />
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-            {/* Description */}
-            <motion.p
-              variants={contentReveal}
-              className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-xl"
+      <div className="relative z-10 min-h-screen overflow-hidden md:flex-row-reverse flex">
+        {/* HERO IMAGE */}
+        <motion.div
+          variants={heroImageMotion}
+          initial="hidden"
+          animate={imagesLoaded ? "visible" : "hidden"}
+          className="
+            absolute inset-y-0 right-0
+            w-full sm:w-[65%]
+            md:relative lg:w-1/2
+            min-h-screen
+            -translate-x-20 sm:translate-x-10 lg:translate-x-0 
+          "
+        >
+          {heroImage ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="relative w-full h-full"
             >
-              Discover our premium collection of skincare, haircare, and
-              wellness products—meticulously crafted with natural ingredients
-              for your everyday glow.
-            </motion.p>
+              {/* Shimmer effect */}
+              <motion.div
+                variants={shimmerVariants}
+                initial="initial"
+                animate="animate"
+                className="absolute inset-0 z-10 rounded-2xl bg-gradient-to-r from-transparent via-white/20 to-transparent"
+              />
 
-            {/* Features Grid */}
-            <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
-              {features.map((feature, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.6,
-                    delay: 0.8 + i * 0.1,
-                    ease: "easeOut",
-                  }}
-                  className="flex items-center gap-3 p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-[#D7C097] dark:hover:border-[#D8C9A7] transition-all duration-300"
+              <img
+                src={heroImage}
+                alt="Beauty Products"
+                className="w-full h-full object-cover rounded-2xl shadow-2xl"
+                loading="eager"
+                onLoad={() => setImagesLoaded(true)}
+              />
+
+              {/* Image glow effect */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.3 }}
+                transition={{ delay: 0.5 }}
+                className="absolute inset-0 bg-gradient-to-r from-[#D7C097]/30 to-transparent rounded-2xl blur-xl"
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              variants={shimmerVariants}
+              initial="initial"
+              animate="animate"
+              className="w-full h-full rounded-2xl bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200"
+            />
+          )}
+        </motion.div>
+
+        {/* LEFT CONTENT */}
+        <motion.div
+          variants={leftContainer}
+          initial="hidden"
+          animate={!loading ? "visible" : "hidden"}
+          className="
+            relative z-20
+            flex items-center
+            min-h-screen
+            px-4 sm:px-6 lg:px-12 xl:px-16
+            w-full sm:w-[55%]
+            lg:w-1/2
+          "
+        >
+          <div className="max-w-xl space-y-8">
+            {/* HEADING with staggered letters animation */}
+            <div className="overflow-hidden">
+              <motion.div
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight"
+              >
+                <motion.span
+                  className="text-[#6E2222] block"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
                 >
-                  <div className="p-2.5 rounded-lg bg-[#D8C9A7]/20 dark:bg-[#D7C097]/20">
-                    <span className="text-[#D7C097] dark:text-[#D8C9A7] text-lg">
-                      {feature.icon}
-                    </span>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">
-                      {feature.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {feature.desc}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
+                  Radiant Beauty
+                </motion.span>
+                <motion.span
+                  className="text-[#D7C097] block mt-4"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  Starts Within
+                </motion.span>
+              </motion.div>
             </div>
 
-            {/* Stats */}
+            {/* PARAGRAPH */}
+            <motion.div variants={fadeUp} className="relative">
+              {/* Animated underline */}
+              <motion.div
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ delay: 0.7, duration: 0.8 }}
+                className="absolute -bottom-2 left-0 w-20 h-0.5 bg-gradient-to-r from-[#D7C097] to-[#B8A075] rounded-full"
+              />
+
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+                className="text-xl max-md:text-gray-50 text-gray-700 leading-relaxed pt-4"
+              >
+                Discover our premium collection of perfumes, skin, hair, and
+                body care products—meticulously crafted with natural ingredients
+                for your everyday glow.
+              </motion.p>
+            </motion.div>
+
+            {/* STATS with animated counters */}
             <motion.div
-              variants={staggerContent}
-              className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8"
+              variants={fadeUp}
+              className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-4"
             >
               {stats.map((stat, i) => (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
+                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{
+                    delay: 0.9 + i * 0.1,
                     type: "spring",
-                    stiffness: 180,
+                    stiffness: 100,
                     damping: 12,
-                    delay: 1 + i * 0.1,
                   }}
-                  className="text-center p-4"
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className=""
                 >
-                  <div className="text-3xl font-bold text-[#D7C097] dark:text-[#D8C9A7]">
+                  <motion.div
+                    animate={floatAnimation}
+                    className="flex justify-center mb-2"
+                  >
+                    {stat.icon}
+                  </motion.div>
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 1 + i * 0.1, type: "spring" }}
+                    className="text-3xl font-bold text-[#6E2222] mb-1"
+                  >
                     {stat.value}
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  </motion.div>
+                  <div className="text-sm max-md:text-gray-50 text-gray-700">
                     {stat.label}
                   </div>
                 </motion.div>
               ))}
             </motion.div>
-          </motion.div>
-        </div>
+
+            {/* BUTTON with advanced animation */}
+            <motion.div variants={fadeUp}>
+              <motion.button
+                onClick={handleShopNow}
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: "0 20px 40px rgba(215, 192, 151, 0.3)",
+                }}
+                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.4 }}
+                className="
+                  mt-4
+                  px-9 py-4
+                  rounded-xl
+                  bg-gradient-to-r from-[#D8C9A7] to-[#D7C097]
+                  text-gray-900
+                  font-semibold
+                  flex items-center gap-3
+                  text-lg
+                  relative
+                  overflow-hidden
+                  group
+                  shadow-lg
+                "
+              >
+                {/* Button shine effect */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full"
+                  initial={{ x: "-100%" }}
+                  whileHover={{ x: "200%" }}
+                  transition={{ duration: 0.7 }}
+                />
+
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                >
+                  <FaShoppingBag />
+                </motion.div>
+
+                <span className="relative">Shop Now</span>
+
+                <motion.div
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                >
+                  <FaArrowRight />
+                </motion.div>
+              </motion.button>
+
+              {/* Subtext */}
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.5 }}
+                className="text-sm text-gray-600 dark:text-gray-400 mt-3 flex items-center gap-2"
+              >
+                <FaLeaf className="text-[#D7C097]" />
+                Discover 100+ natural products
+              </motion.p>
+            </motion.div>
+          </div>
+        </motion.div>
       </div>
+
+      {/* Scroll indicator */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 2 }}
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+      >
+        <motion.div
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          className="flex flex-col items-center gap-2"
+        >
+          <span className="text-sm text-gray-600 dark:text-gray-400">
+            Explore More
+          </span>
+          <motion.div
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="w-6 h-10 border-2 border-[#D7C097]/30 rounded-full flex justify-center"
+          >
+            <motion.div
+              className="w-1 h-3 bg-[#D7C097] rounded-full mt-2"
+              animate={{ y: [0, 12, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            />
+          </motion.div>
+        </motion.div>
+      </motion.div>
     </motion.div>
   );
 };

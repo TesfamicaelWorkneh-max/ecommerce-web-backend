@@ -15,6 +15,7 @@
 // import FAQPage from "./Pages/FAQpage.jsx";
 // import ContactPage from "./Pages/Contact.jsx";
 // import Navigation from "./Pages/Navigation";
+// import Categories from "./Pages/Categories.jsx";
 // import Footer from "./Pages/Footer";
 // import Login from "./Pages/Login";
 // import Register from "./Pages/Register";
@@ -143,7 +144,22 @@
 //             <ProtectedRoute>
 //               <>
 //                 <Home />
+//                 <Categories />
 //                 <ProductsPage />
+//                 <AboutPage />
+//                 <ShippingInfoPage />
+//                 <ReturnPolicyPage />
+//                 <ContactPage />
+//               </>
+//             </ProtectedRoute>
+//           }
+//         />
+//         <Route
+//           path="/categories"
+//           element={
+//             <ProtectedRoute>
+//               <>
+//                 <Categories />
 //               </>
 //             </ProtectedRoute>
 //           }
@@ -304,12 +320,10 @@ import ShippingInfoPage from "./Pages/ShippingInfoPage.jsx";
 import ReturnPolicyPage from "./Pages/ReturnPolicyPage.jsx";
 import SearchResultsPage from "./Pages/SearchResultPage.jsx";
 import ProductDetailPage from "./Components/ProductDetailPage";
-import Categories from "./Pages/Categories";
-import LandingPage from "./Pages/LandingPage";
-
 import FAQPage from "./Pages/FAQpage.jsx";
 import ContactPage from "./Pages/Contact.jsx";
 import Navigation from "./Pages/Navigation";
+import Categories from "./Pages/Categories.jsx";
 import Footer from "./Pages/Footer";
 import Login from "./Pages/Login";
 import Register from "./Pages/Register";
@@ -321,8 +335,9 @@ import CheckoutPage from "./Pages/CheckoutPage.jsx";
 import OrderHistoryPage from "./Pages/OrderHistoryPage.jsx";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import MyNotifications from "./Pages/MyNotifications.jsx";
+import MainPage from "./Pages/MainPage.jsx";
 
-// Payment Pages
+// Payment Pages (NEW)
 import PaymentSuccess from "./Pages/PaymentSuccess.jsx";
 import PaymentFailed from "./Pages/PaymentFailed.jsx";
 
@@ -355,7 +370,7 @@ function App() {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith("/admin");
   const isBlogPage = location.pathname.startsWith("/blog");
-  const isPaymentPage = location.pathname.startsWith("/payment");
+  const isPaymentPage = location.pathname.startsWith("/payment-");
 
   // Request notification permission
   useEffect(() => {
@@ -363,35 +378,12 @@ function App() {
       Notification.requestPermission();
     }
   }, []);
-  // Add this to your App.jsx or main.jsx
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker
-        .register("/service-worker.js")
-        .then((registration) => {
-          console.log("✅ Service Worker registered:", registration);
 
-          // Check for updates
-          registration.addEventListener("updatefound", () => {
-            const newWorker = registration.installing;
-            console.log("🔄 Service Worker update found:", newWorker);
-          });
-        })
-        .catch((error) => {
-          console.error("❌ Service Worker registration failed:", error);
-        });
-    });
-
-    // Listen for controller change
-    navigator.serviceWorker.addEventListener("controllerchange", () => {
-      console.log("🔄 Service Worker controller changed");
-    });
-  }
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-amber-50/30 via-white to-rose-50/20 dark:from-slate-950/95 dark:via-slate-900 dark:to-slate-950/95">
-        <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mb-4" />
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900">
+        <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
         <p className="text-gray-400">Loading...</p>
       </div>
     );
@@ -405,20 +397,15 @@ function App() {
     "/verify/",
     "/reset-password/",
     "/blog",
-    "/payment-success", // Payment success is public
-    "/payment-failed", // Payment failed is public
+    "/payment-success",
+    "/payment-failed",
   ];
 
-  // Check if current route is public
-  const isPublicRoute = publicRoutes.some((route) => {
-    // Handle routes with dynamic segments
-    if (route.endsWith("/")) {
-      return location.pathname.startsWith(route);
-    }
-    return location.pathname === route;
-  });
+  const isPublicRoute = publicRoutes.some((route) =>
+    location.pathname.startsWith(route)
+  );
 
-  // If user is not logged in and trying to access a protected route (except public routes, blog, and payment pages)
+  // Redirect unauthenticated users from protected pages (except blog and payment pages)
   if (!user && !isPublicRoute && !isBlogPage && !isPaymentPage) {
     return <Navigate to="/login" replace />;
   }
@@ -438,47 +425,45 @@ function App() {
   return (
     <>
       <Toaster />
-      {/* Show navigation for non-admin, non-payment pages */}
-      {!isAdminPage && user && !isPaymentPage && <Navigation />}
+      {/* Show navigation for all non-admin pages except auth pages and payment pages */}
+      {!isAdminPage &&
+        user &&
+        !location.pathname.includes("/blog") &&
+        !isPaymentPage && <Navigation />}
       {!isAdminPage && isBlogPage && <Navigation />}
-
       <Routes>
-        {/* ================= PUBLIC ROUTES ================= */}
+        {/* ================= PUBLIC ================= */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/verify/:token" element={<VerifyEmail />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-
         {/* ================= PAYMENT PAGES (Public) ================= */}
         <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="/payment-failed" element={<PaymentFailed />} />
-
         {/* ================= BLOG (Public) ================= */}
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/blog/:slug" element={<BlogPostPage />} />
 
-        {/* ================= USER ROUTES (Protected) ================= */}
-        {/* <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <>
-                <Home />
-                <ProductsPage />
-              </>
-            </ProtectedRoute>
-          }
-        /> */}
+        {/* ================= MAIN PAGE (All sections in one page) ================= */}
         <Route
           path="/"
           element={
             <ProtectedRoute>
-              <LandingPage />
+              <MainPage />
             </ProtectedRoute>
           }
         />
 
+        {/* ================= INDIVIDUAL PAGES (for direct navigation) ================= */}
+        <Route
+          path="/categories"
+          element={
+            <ProtectedRoute>
+              <Categories />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/about"
           element={
@@ -575,8 +560,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-
-        {/* ================= ADMIN ROUTES ================= */}
+        {/* ================= ADMIN ================= */}
         <Route
           path="/admin"
           element={
@@ -597,22 +581,25 @@ function App() {
           <Route path="categories/add" element={<AdminAddCategory />} />
           <Route path="categories/edit/:id" element={<AdminEditCategory />} />
           <Route path="return-requests" element={<ReturnRequestsAdminPage />} />
+
+          {/* Admin Blog Routes */}
           <Route path="blog" element={<AdminBlogPosts />} />
           <Route path="blog/create" element={<AdminCreateBlogPost />} />
           <Route path="blog/edit/:id" element={<AdminEditBlogPost />} />
           <Route path="blog/analytics" element={<AdminBlogAnalytics />} />
         </Route>
-
         {/* ================= FALLBACK ================= */}
         <Route
           path="*"
           element={<Navigate to={user ? "/" : "/login"} replace />}
         />
       </Routes>
-
-      {/* Show footer for non-admin, non-payment pages */}
-      {!isAdminPage && user && !isPaymentPage && <Footer />}
-      {!isAdminPage && isBlogPage && <Footer />}
+      {/* Show footer for all non-admin pages except auth pages and payment pages */}
+      {!isAdminPage &&
+        user &&
+        !location.pathname.includes("/blog") &&
+        !isPaymentPage && <Footer />}
+      {/* {!isAdminPage && isBlogPage && <Footer />} */}
     </>
   );
 }

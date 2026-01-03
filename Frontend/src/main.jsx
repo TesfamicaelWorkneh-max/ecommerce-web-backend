@@ -8,6 +8,12 @@ import { ThemeProvider } from "./Context/ThemeContext.jsx";
 import { AuthProvider } from "./Context/authContext.jsx";
 import { CartProvider } from "./Context/cartContext.jsx";
 import { ProductProvider } from "./Context/ProductContext";
+import { initScrollUtilities } from "./utils/scrollUtils";
+
+// Initialize scroll utilities
+if (typeof window !== "undefined") {
+  initScrollUtilities();
+}
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <ProductProvider>
