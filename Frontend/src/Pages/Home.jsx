@@ -997,7 +997,7 @@ const Home = () => {
     const fetchHeroImage = async () => {
       try {
         setLoading(true);
-        const res = await fetchWithAuth(`${BACKEND_URL}/api/admin/uploadHero`);
+        const res = await fetchWithAuth(`${BACKEND_URL}/api/admin/uploadHero/`);
         const data = await res.json();
         setHeroImage(
           data?.images?.[0] ||

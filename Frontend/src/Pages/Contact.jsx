@@ -2321,7 +2321,7 @@ const ContactPage = () => {
             {/* Image Container */}
             <div className="relative h-[500px] overflow-hidden rounded-3xl">
               <motion.img
-                src="/photoshoot1.png"
+                src="/photoshoot1.jpg"
                 alt="AdesCart Studio - Premium Beauty Experience"
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 whileHover={{ scale: 1.05 }}
