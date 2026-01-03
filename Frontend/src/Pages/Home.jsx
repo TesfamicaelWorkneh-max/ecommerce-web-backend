@@ -1154,7 +1154,7 @@ const Home = () => {
               />
 
               <img
-                src={heroImage}
+                src={getCategoryImage(heroImage)} // fallback will now work
                 alt="Beauty Products"
                 className="w-full h-full object-cover rounded-2xl shadow-2xl"
                 loading="eager"

@@ -196,4 +196,20 @@ export const isCloudinaryUrl = (url) =>
   typeof url === "string" &&
   url.startsWith("https://res.cloudinary.com");
 
+// Get hero image safely
+export const getHeroImage = (hero) => {
+  if (!hero) return getImageUrl(null);
+  // Use imageUrl field
+  return getImageUrl(hero.imageUrl);
+};
+
+// Get category image safely
+// Returns a safe URL for hero or category images
+export const getCategoryImage = (image) => {
+  return (
+    getImageUrl(image) ||
+    "https://res.cloudinary.com/demo/image/upload/v1/samples/beauty-products"
+  );
+};
+
 export default getImageUrl;

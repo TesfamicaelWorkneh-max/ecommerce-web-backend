@@ -481,10 +481,7 @@ const Categories = () => {
                       {/* Image with Magic Overlay */}
                       <motion.img
                         variants={imageVariants}
-                        src={getImageUrl(cat.image, {
-                          width: 600,
-                          height: 400,
-                        })}
+                        src={getCategoryImage(cat.image)}
                         alt={cat.name}
                         className="w-full h-full object-contain relative z-10"
                       />
