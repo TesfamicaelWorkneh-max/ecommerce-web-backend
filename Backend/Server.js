@@ -146,7 +146,7 @@ const app = express();
 // );
 const allowedOrigins = [
   "http://localhost:5173", // local dev
-  "https://ades-shop.vercel.app",
+  "https://ecommerce-web-backend-nine.vercel.app",
 ];
 
 app.use(
