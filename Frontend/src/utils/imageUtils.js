@@ -105,6 +105,9 @@
 // const BACKEND_URL = import.meta.env.VITE_API_URL;
 
 // Optimize Cloudinary URL with transformations
+const BACKEND_URL = import.meta.env.VITE_API_URL;
+
+// Optimize Cloudinary URL with transformations
 const optimizeCloudinaryUrl = (url, options = {}) => {
   if (!url || !url.includes("cloudinary.com")) return url;
 
@@ -133,67 +136,64 @@ const optimizeCloudinaryUrl = (url, options = {}) => {
   if (quality) transformations += `q_${quality},`;
   if (format) transformations += `f_${format},`;
 
-  if (transformations.endsWith(",")) {
+  if (transformations.endsWith(","))
     transformations = transformations.slice(0, -1);
-  }
 
-  if (transformations) {
-    transformations += "/";
-  }
+  if (transformations) transformations += "/";
 
   return `${baseUrl}${transformations}${imagePath}`;
 };
 
-// ✅ SAFE fallback
+// ✅ Safe fallback
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9";
 
 // Main function to get image URL
 export const getImageUrl = (image, options = {}) => {
-  if (!image) {
-    return FALLBACK_IMAGE;
-  }
+  if (!image) return FALLBACK_IMAGE;
 
-  // 🔥 FIX IS HERE
+  // 🔥 Handle objects with any common field
   if (typeof image === "object") {
-    image = image.imageUrl || image.url || image.path || "";
+    image = image.imageUrl || image.image || image.url || image.path || "";
   }
 
-  if (typeof image !== "string") {
-    return FALLBACK_IMAGE;
-  }
+  if (typeof image !== "string" || !image) return FALLBACK_IMAGE;
 
+  // Cloudinary image
   if (image.startsWith("https://res.cloudinary.com")) {
     return optimizeCloudinaryUrl(image, options);
   }
 
-  return FALLBACK_IMAGE;
+  // Full HTTP URL (non-Cloudinary)
+  if (image.startsWith("http")) return image;
+
+  // Local path (legacy)
+  const cleanPath = image.replace(/\\/g, "/").startsWith("/")
+    ? image.replace(/\\/g, "/")
+    : `/${image.replace(/\\/g, "/")}`;
+
+  return `${BACKEND_URL}${cleanPath}`;
 };
 
-// Get different sizes (unchanged)
-export const getImageSizes = (image) => {
-  return {
-    original: getImageUrl(image),
-    thumbnail: getImageUrl(image, { width: 150, height: 150, crop: "fill" }),
-    medium: getImageUrl(image, { width: 400, height: 400, crop: "limit" }),
-    large: getImageUrl(image, { width: 800, height: 800, crop: "limit" }),
-  };
-};
+// Get different sizes
+export const getImageSizes = (image) => ({
+  original: getImageUrl(image),
+  thumbnail: getImageUrl(image, { width: 150, height: 150, crop: "fill" }),
+  medium: getImageUrl(image, { width: 400, height: 400, crop: "limit" }),
+  large: getImageUrl(image, { width: 800, height: 800, crop: "limit" }),
+});
 
-// Get product image (unchanged)
+// Get product image
 export const getProductImage = (product) => {
   if (!product) return getImageUrl(null);
-  const imagePath = product.images?.[0] || product.image;
+  const imagePath = product.images?.[0] || product.image || product.imageUrl;
   return getImageUrl(imagePath);
 };
 
 // Check if URL is Cloudinary
-export const isCloudinaryUrl = (url) => {
-  return (
-    url &&
-    typeof url === "string" &&
-    url.startsWith("https://res.cloudinary.com")
-  );
-};
+export const isCloudinaryUrl = (url) =>
+  url &&
+  typeof url === "string" &&
+  url.startsWith("https://res.cloudinary.com");
 
 export default getImageUrl;
