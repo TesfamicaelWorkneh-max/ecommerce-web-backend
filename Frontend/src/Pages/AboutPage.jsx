@@ -818,7 +818,7 @@ import {
   FaChevronUp,
 } from "react-icons/fa";
 import { IoDiamond, IoRocket } from "react-icons/io5";
-import AboutImage from "../assets/About.jpg";
+// import AboutImage from "../assets/About.jpg";
 
 const AboutPage = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -1338,7 +1338,7 @@ const AboutPage = () => {
                       initial={{ scale: 1.1, opacity: 0 }}
                       whileInView={{ scale: 1, opacity: 1 }}
                       transition={{ delay: 0.6, duration: 0.8 }}
-                      src={AboutImage}
+                      src="/About.jpg"
                       alt="Our Team"
                       className="h-full object-cover w-full rounded-2xl"
                     />

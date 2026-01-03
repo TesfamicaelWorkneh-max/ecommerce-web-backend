@@ -654,7 +654,7 @@ const ProductsPage = () => {
           <div
             className="absolute inset-0 z-0"
             style={{
-              backgroundImage: `url(${photoshoot1})`,
+              backgroundImage: `url("/photoshoot1.jpg")`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundAttachment: "fixed",

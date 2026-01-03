@@ -26,7 +26,7 @@ import {
 } from "react-icons/fa";
 
 // Import the image
-import photoshoot2 from "../assets/photoshoot2.jpg";
+// import photoshoot2 from "../assets/photoshoot2.jpg";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL;
 
@@ -218,7 +218,7 @@ const Categories = () => {
           <div
             className="absolute inset-0"
             style={{
-              backgroundImage: `url(${photoshoot2})`,
+              backgroundImage: `url("/photoshoot2.jpg")`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundAttachment: "fixed",

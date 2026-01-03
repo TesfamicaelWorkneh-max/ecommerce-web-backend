@@ -1162,7 +1162,7 @@ import {
 import { IoChatbubbleEllipses, IoLogoWhatsapp } from "react-icons/io5";
 import { MdSupportAgent } from "react-icons/md";
 import { fetchWithAuth } from "../utils/auth";
-import photoshoot1 from "../assets/photoshoot1.jpg"; // Add this import
+// import photoshoot1 from "../assets/photoshoot1.jpg"; // Add this import
 
 const BACKEND_URL = import.meta.env.VITE_API_URL;
 
@@ -2321,7 +2321,7 @@ const ContactPage = () => {
             {/* Image Container */}
             <div className="relative h-[500px] overflow-hidden rounded-3xl">
               <motion.img
-                src={photoshoot1}
+                src="/photoshoot1.png"
                 alt="AdesCart Studio - Premium Beauty Experience"
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 whileHover={{ scale: 1.05 }}
