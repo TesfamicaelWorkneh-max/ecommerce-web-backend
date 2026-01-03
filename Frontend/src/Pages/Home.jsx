@@ -911,7 +911,7 @@ import {
   FaMagic,
   FaRegStar,
 } from "react-icons/fa";
-import bgImage from "../assets/homebd_3.jpg";
+import bgImage from "../assets/homebd_3.JPG";
 import { fetchWithAuth } from "../utils/auth";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL;
