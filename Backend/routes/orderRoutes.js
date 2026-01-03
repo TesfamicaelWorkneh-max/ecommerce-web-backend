@@ -178,7 +178,7 @@ import {
   createOrder,
   getMyOrders,
   getAllOrders,
-  getOrderDetails,
+  // getOrderDetails,
   updateOrderStatus,
   getDeliveredOrders,
   getActiveOrders,
@@ -194,12 +194,12 @@ router.post("/create", protect, createOrder);
 router.get("/my-orders", protect, getMyOrders);
 router.get("/delivered", protect, getDeliveredOrders);
 router.get("/active", protect, getActiveOrders);
-router.get("/:id", protect, getOrderDetails);
+// router.get("/:id", protect, getOrderDetails);
 
 // Admin routes
 router.get("/admin/stats", protect, adminOnly, getOrderStats);
 router.get("/admin/all", protect, adminOnly, getAllOrders);
 router.put("/admin/:id/status", protect, adminOnly, updateOrderStatus);
-router.get("/admin/:id", protect, adminOnly, getOrderDetails);
+// router.get("/admin/:id", protect, adminOnly, getOrderDetails);
 
 export default router;
