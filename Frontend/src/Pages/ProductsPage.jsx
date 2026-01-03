@@ -424,7 +424,7 @@ import { Link } from "react-router-dom";
 import { fetchWithAuth } from "../utils/auth";
 
 // Import the image (adjust the path based on your project structure)
-import photoshoot1 from "../assets/photoshoot1.jpg"; // If it's in assets folder at src level
+// import photoshoot1 from "../assets/photoshoot1.jpg"; // If it's in assets folder at src level
 
 const BACKEND_URL = import.meta.env.VITE_API_URL;
 
