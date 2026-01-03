@@ -911,7 +911,7 @@ import {
   FaMagic,
   FaRegStar,
 } from "react-icons/fa";
-import bgImage from "../assets/homebd_3.JPG";
+// import bgImage from "../assets/homebd_3.JPG";
 import { fetchWithAuth } from "../utils/auth";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL;
@@ -1058,7 +1058,7 @@ const Home = () => {
       exit="exit"
       className="relative min-h-screen bg-cover bg-center overflow-hidden"
       style={{
-        backgroundImage: `url(${bgImage})`,
+        backgroundImage: `url("/homebd_3.jpg")`,
         backgroundAttachment: "fixed",
       }}
     >
