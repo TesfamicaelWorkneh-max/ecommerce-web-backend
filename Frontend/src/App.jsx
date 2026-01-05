@@ -358,7 +358,7 @@ import ReturnRequestsAdminPage from "./Admin/ReturnRequestsAdminPage.jsx";
 // Blog Pages
 import BlogPage from "./Pages/BlogPage.jsx";
 import BlogPostPage from "./Pages/BlogPostPage.jsx";
-
+import ScrollToTop from "./Components/scrollToTop.jsx";
 // Admin Blog Pages
 import AdminBlogPosts from "./Admin/AdminBlogPosts.jsx";
 import AdminCreateBlogPost from "./Admin/AdminCreateBlogPost.jsx";
@@ -425,6 +425,8 @@ function App() {
   return (
     <>
       <Toaster />
+
+      <ScrollToTop />
       {/* Show navigation for all non-admin pages except auth pages and payment pages */}
       {!isAdminPage &&
         user &&
@@ -461,6 +463,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Categories />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/products"
+          element={
+            <ProtectedRoute>
+              <ProductsPage />
             </ProtectedRoute>
           }
         />

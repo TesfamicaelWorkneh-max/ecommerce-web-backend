@@ -1,178 +1,83 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  motion,
-  useInView,
-  AnimatePresence,
-  useScroll,
-  useTransform,
-} from "framer-motion";
-import { getImageUrl } from "../utils/imageUtils";
+import { motion } from "framer-motion";
+import { getCategoryImage } from "../utils/imageUtils";
 import { fetchWithAuth } from "../utils/auth";
 import {
   FaChevronDown,
   FaChevronUp,
   FaStar,
-  FaShoppingBag,
-  FaLeaf,
-  FaHeart,
-  FaTag,
-  FaArrowUp,
-  FaMagic,
-  FaCrown,
-  FaSun,
-  FaMoon,
   FaFeather,
+  FaGem,
+  FaCrown,
+  FaEye,
+  FaShoppingBag,
 } from "react-icons/fa";
-
-// Import the image
-// import photoshoot2 from "../assets/photoshoot2.jpg";
+import { IoSparkles } from "react-icons/io5";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL;
 
-// Magic Animation variants
-const containerVariants = {
+/* =======================
+   ENHANCED ANIMATION VARIANTS
+======================= */
+const container = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.2,
-      delayChildren: 0.4,
+      staggerChildren: 0.15,
+      delayChildren: 0.1,
     },
   },
 };
 
-const cardVariants = {
+const fromBottom = {
+  hidden: { opacity: 0, y: 60 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.9,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+};
+
+const cardAnim = {
   hidden: {
     opacity: 0,
     y: 80,
-    scale: 0.8,
-    rotateX: -20,
-    rotateY: -10,
+    scale: 0.95,
   },
   visible: {
     opacity: 1,
     y: 0,
     scale: 1,
-    rotateX: 0,
-    rotateY: 0,
     transition: {
-      type: "spring",
-      stiffness: 60,
-      damping: 12,
-      mass: 0.8,
       duration: 1,
+      ease: [0.22, 1, 0.36, 1],
     },
   },
 };
 
-const hoverVariants = {
-  rest: {
-    scale: 1,
-    y: 0,
-    rotateX: 0,
-    rotateY: 0,
-    boxShadow: "0 15px 40px rgba(0,0,0,0.12)",
-  },
-  hover: {
-    scale: 1.08,
-    y: -16,
-    rotateX: 5,
-    rotateY: 3,
-    boxShadow: "0 35px 70px rgba(215, 192, 151, 0.4)",
-    transition: {
-      type: "spring",
-      stiffness: 400,
-      damping: 20,
-      duration: 0.4,
-    },
-  },
-};
-
-const imageVariants = {
-  rest: {
-    scale: 1,
-    filter: "brightness(1) saturate(1) contrast(1)",
-    rotate: 0,
-  },
-  hover: {
-    scale: 1.15,
-    filter: "brightness(1.2) saturate(1.3) contrast(1.1)",
-    rotate: 0.3,
-    transition: {
-      duration: 0.6,
-      ease: [0.43, 0.13, 0.23, 0.96],
-    },
-  },
-};
-
-const glowVariants = {
-  rest: {
-    opacity: 0.5,
-    scale: 1,
-  },
-  hover: {
+const shimmerEffect = {
+  hidden: { opacity: 0, x: -100 },
+  visible: {
     opacity: 1,
-    scale: 1.1,
+    x: "100%",
     transition: {
-      duration: 0.4,
-      ease: "easeOut",
+      duration: 1.5,
+      ease: "easeInOut",
+      repeat: Infinity,
+      repeatDelay: 0.5,
     },
   },
-};
-
-// Magic particle effects
-const Particles = ({ count = 8 }) => {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {[...Array(count)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute rounded-full bg-gradient-to-r from-yellow-400 to-amber-300 dark:from-yellow-300 dark:to-amber-200"
-          style={{
-            width: Math.random() * 4 + 2,
-            height: Math.random() * 4 + 2,
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-          }}
-          animate={{
-            y: [0, -Math.random() * 40 - 20, 0],
-            x: [0, Math.random() * 20 - 10, 0],
-            scale: [0, 1, 0],
-            opacity: [0, 0.8, 0],
-          }}
-          transition={{
-            duration: Math.random() * 3 + 2,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: i * 0.5,
-          }}
-        />
-      ))}
-    </div>
-  );
 };
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
   const [expanded, setExpanded] = useState({});
-  const [activeCategory, setActiveCategory] = useState(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
-
-  const containerRef = useRef(null);
-  const headerRef = useRef(null);
-  const heroRef = useRef(null);
-  const isInView = useInView(containerRef, { once: false, amount: 0.1 });
-  const isHeaderInView = useInView(headerRef, { once: false, amount: 0.3 });
-  const isHeroInView = useInView(heroRef, { once: false, amount: 0.5 });
-
-  // Scroll animations for hero section
-  const { scrollYProgress } = useScroll();
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, -200]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 1.1]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.9, 0.7]);
-  const textY = useTransform(scrollYProgress, [0, 1], [0, 100]);
-  const textScale = useTransform(scrollYProgress, [0, 0.3], [1, 1.05]);
+  const [hoveredCard, setHoveredCard] = useState(null);
 
   useEffect(() => {
     fetchWithAuth(`${BACKEND_URL}/api/categories`)
@@ -181,17 +86,6 @@ const Categories = () => {
         console.log("CATEGORIES DATA:", data);
         setCategories(data);
       });
-
-    // Update scroll progress
-    const updateScrollProgress = () => {
-      const totalHeight =
-        document.documentElement.scrollHeight - window.innerHeight;
-      const progress = (window.scrollY / totalHeight) * 100;
-      setScrollProgress(progress);
-    };
-
-    window.addEventListener("scroll", updateScrollProgress);
-    return () => window.removeEventListener("scroll", updateScrollProgress);
   }, []);
 
   const toggleExpand = (id, e) => {
@@ -201,246 +95,213 @@ const Categories = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#F8F5ED] via-amber-50 to-gray-50 dark:bg-gradient-to-b dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-      <div
-        ref={heroRef}
-        className="relative h-[70vh] min-h-[500px] max-h-[800px] overflow-hidden"
-      >
-        <motion.div
-          className="absolute inset-0"
+    <div className="min-h-screen bg-gradient-to-br from-primaryBg via-white to-lightBg/50 dark:from-dark dark:via-gray-900 dark:to-dark transition-all duration-700">
+      {/* Hero Section - Enhanced */}
+      <div className="relative h-[70vh] min-h-[500px] overflow-hidden bg-black">
+        {/* Animated Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-transparent to-purple-500/10 animate-pulse-slow" />
+
+        {/* Background Image with Enhanced Overlay */}
+        <div
+          className="absolute inset-0 w-full h-full bg-fixed"
           style={{
-            y: heroY,
-            scale: heroScale,
-            opacity: heroOpacity,
+            backgroundImage: `url("/photoshoot2.jpg")`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
           }}
         >
-          {/* Background Image */}
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `url("/photoshoot2.jpg")`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundAttachment: "fixed",
-            }}
-          >
-            {/* Multiple Gradient Overlays */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
 
-            {/* Animated Particles */}
-            <div className="absolute inset-0">
-              {[...Array(30)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute w-1 h-1 bg-gradient-to-r from-amber-400 to-yellow-300 dark:from-amber-300 dark:to-yellow-200 rounded-full"
-                  initial={{
-                    x: Math.random() * window.innerWidth,
-                    y: Math.random() * window.innerHeight,
-                    opacity: 0,
-                  }}
-                  animate={{
-                    y: [null, -40],
-                    opacity: [0, 0.7, 0],
-                  }}
-                  transition={{
-                    duration: 2 + Math.random() * 2,
-                    repeat: Infinity,
-                    delay: i * 0.1,
-                    ease: "linear",
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Shimmer Effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer bg-[length:200%_100%]" />
-
-        {/* Hero Content */}
-        <div className="relative z-10 h-full flex items-center justify-center px-4">
-          <motion.div
-            style={{
-              y: textY,
-              scale: textScale,
-            }}
-            className="text-center max-w-6xl mx-auto"
-          >
-            {/* Animated Badge */}
-            <motion.div
-              initial={{ y: 30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-3 mb-8 px-6 py-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20"
-            >
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              >
-                <FaCrown className="text-amber-400" />
-              </motion.div>
-              <span className="text-white font-medium tracking-wider">
-                PREMIUM COLLECTIONS
-              </span>
-              <motion.div
-                animate={{ scale: [1, 1.3, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <FaStar className="text-yellow-300" />
-              </motion.div>
-            </motion.div>
-
-            {/* Main Title */}
-            <motion.h1
-              initial={{ y: 40, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6"
-            >
-              <span className="text-white">Discover</span>
-              <motion.span
-                className="text-[#D8C9A7] block mt-4"
-                animate={{
-                  textShadow: [
-                    "0 0 20px rgba(251, 191, 36, 0.5)",
-                    "0 0 40px rgba(251, 191, 36, 0.8)",
-                    "0 0 20px rgba(251, 191, 36, 0.5)",
-                  ],
-                }}
-                transition={{ duration: 3, repeat: Infinity }}
-              >
-                Magic Categories
-              </motion.span>
-            </motion.h1>
-
-            {/* Subtitle */}
-            <motion.p
-              initial={{ y: 40, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="text-xl text-gray-200 max-w-2xl mx-auto mb-10 leading-relaxed"
-            >
-              Immerse yourself in our enchanting collections, where every
-              product tells a story of beauty and magic.
-            </motion.p>
-
-            {/* Stats */}
-            <motion.div
-              initial={{ y: 40, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="flex flex-wrap justify-center gap-6 mb-8"
-            >
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-1">50+</div>
-                <div className="text-sm text-gray-300">Collections</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-1">4.9★</div>
-                <div className="text-sm text-gray-300">Rating</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-1">100%</div>
-                <div className="text-sm text-gray-300">Quality</div>
-              </div>
-            </motion.div>
-          </motion.div>
-        </div>
-
-        {/* Wave Divider */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 1440 320"
-            className="w-full"
-          >
-            <path
-              className="fill-[#F8F5ED] dark:fill-gray-900"
-              fillOpacity="1"
-              d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,202.7C672,203,768,181,864,181.3C960,181,1056,203,1152,202.7C1248,203,1344,181,1392,170.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-            />
-          </svg>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-20 -mt-1">
-        {/* Magic Header */}
-        <motion.div
-          ref={headerRef}
-          initial={{ opacity: 0, y: 40 }}
-          animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
-        >
-          {/* Magic Sparkles */}
-          <div className="relative">
-            <motion.div
-              className="absolute -top-4 left-1/2 -translate-x-1/2 w-48 h-48 bg-gradient-to-r from-amber-400/10 via-yellow-300/5 to-amber-400/10 rounded-full blur-2xl"
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 4, repeat: Infinity }}
-            />
-          </div>
-
-          <motion.h2
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={isHeaderInView ? { scale: 1, opacity: 1 } : {}}
-            transition={{ delay: 0.2 }}
-            className="text-4xl md:text-5xl font-bold mb-6"
-          >
-            <span className="text-gray-900 dark:text-gray-100">Enchanted</span>
-            <span className="ml-4 text-[#D8C9A7] dark:text-amber-300">
-              Collections
-            </span>
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={isHeaderInView ? { opacity: 1 } : {}}
-            transition={{ delay: 0.4 }}
-            className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto"
-          >
-            Each collection is crafted with magical precision to bring out your
-            natural beauty
-          </motion.p>
-        </motion.div>
-
-        {/* Magic Categories Grid */}
-        <motion.div
-          ref={containerRef}
-          variants={containerVariants}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 relative"
-        >
-          {/* Magical Background Elements */}
-          <div className="absolute inset-0 pointer-events-none">
-            {[...Array(3)].map((_, i) => (
+          {/* Animated Particles */}
+          <div className="absolute inset-0">
+            {[...Array(20)].map((_, i) => (
               <motion.div
                 key={i}
-                className="absolute rounded-full bg-gradient-to-r from-amber-400/10 via-yellow-300/10 to-amber-400/10 dark:from-amber-400/5 dark:via-yellow-300/5 dark:to-amber-400/5"
-                style={{
-                  width: 200 + i * 100,
-                  height: 200 + i * 100,
-                  left: `${20 + i * 20}%`,
-                  top: `${30 + i * 10}%`,
-                }}
+                className="absolute w-[1px] h-[1px] bg-white/30 rounded-full"
+                initial={{ y: -100, opacity: 0 }}
                 animate={{
-                  rotate: [0, 360],
-                  scale: [1, 1.1, 1],
+                  y: "100vh",
+                  opacity: [0, 1, 0],
                 }}
                 transition={{
-                  duration: 20 + i * 5,
+                  duration: 3,
+                  delay: i * 0.1,
                   repeat: Infinity,
                   ease: "linear",
+                }}
+                style={{
+                  left: `${Math.random() * 100}%`,
                 }}
               />
             ))}
           </div>
+        </div>
 
-          {categories.map((cat, index) => {
+        <motion.div
+          className="relative z-10 h-full flex items-center justify-center px-4"
+          variants={container}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+        >
+          <motion.div
+            className="text-center max-w-6xl mx-auto"
+            variants={container}
+          >
+            {/* Premium Badge - Enhanced */}
+            <motion.div
+              variants={fromBottom}
+              className="inline-flex items-center gap-3 mb-8 px-6 py-3 rounded-full bg-gradient-to-r from-accent/20 via-accent/10 to-transparent backdrop-blur-xl border border-accent/30 dark:border-accent/50 shadow-lg shadow-accent/10 relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent">
+                <motion.div
+                  variants={shimmerEffect}
+                  className="absolute inset-y-0 w-32 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                />
+              </div>
+              <FaCrown className="text-accent dark:text-accent/90 animate-pulse" />
+              <span className="text-white font-medium tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white to-accent">
+                PREMIUM COLLECTIONS
+              </span>
+              <IoSparkles className="text-accent/80 dark:text-accent/90 animate-spin-slow" />
+            </motion.div>
+
+            {/* Main Title with Gradient Text */}
+            <motion.div variants={fromBottom} className="relative">
+              <motion.h1
+                variants={fromBottom}
+                className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tight"
+              >
+                <span className="text-white drop-shadow-2xl">Discover</span>
+                <span className="block mt-2 md:mt-4">
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-accent via-accent/90 to-purple-400 dark:from-accent dark:via-accent/80 dark:to-purple-300">
+                    Our Categories
+                  </span>
+                </span>
+              </motion.h1>
+
+              {/* Title Decoration */}
+              <motion.div
+                initial={{ scaleX: 0 }}
+                whileInView={{ scaleX: 1 }}
+                transition={{ duration: 1.5, ease: "easeInOut" }}
+                className="hidden md:block h-1 w-48 mx-auto bg-gradient-to-r from-transparent via-accent to-transparent rounded-full mt-8"
+              />
+            </motion.div>
+
+            {/* Description */}
+            <motion.p
+              variants={fromBottom}
+              className="text-xl text-gray-200 max-w-2xl mx-auto mb-12 leading-relaxed font-light"
+            >
+              Explore our curated collections, where every product tells a story
+              <span className="text-accent font-normal">
+                {" "}
+                of beauty, quality, and craftsmanship.
+              </span>
+            </motion.p>
+
+            {/* Stats - Enhanced */}
+            <motion.div
+              variants={fromBottom}
+              className="flex flex-wrap justify-center gap-8 mb-8"
+            >
+              {[
+                { value: "50+", label: "Collections", icon: <FaShoppingBag /> },
+                { value: "4.9★", label: "Rating", icon: <FaStar /> },
+                { value: "100%", label: "Quality", icon: <FaGem /> },
+              ].map((stat, index) => (
+                <motion.div
+                  key={index}
+                  whileHover={{ scale: 1.05 }}
+                  className="text-center group"
+                >
+                  <div className="relative inline-block p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 group-hover:border-accent/50 transition-all duration-300">
+                    <div className="text-3xl font-bold text-white mb-2 flex items-center justify-center gap-2">
+                      {stat.icon}
+                      {stat.value}
+                    </div>
+                    <div className="text-sm text-gray-300 group-hover:text-accent transition-colors">
+                      {stat.label}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
+        </motion.div>
+
+        {/* Scroll Indicator */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1, duration: 1 }}
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+        >
+          <motion.div
+            animate={{ y: [0, 10, 0] }}
+            transition={{ repeat: Infinity, duration: 1.5 }}
+            className="text-white/60 text-sm flex flex-col items-center"
+          >
+            <span className="mb-2">Scroll to explore</span>
+            <FaChevronDown />
+          </motion.div>
+        </motion.div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-16">
+        {/* Header with Enhanced Design */}
+        <motion.div
+          className="text-center mb-20 relative"
+          variants={container}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+        >
+          {/* Decorative Elements */}
+          <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 w-64 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
+
+          <motion.div
+            variants={fromBottom}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-lightBg/50 to-lightBg/80 dark:from-dark/50 dark:to-dark/80 backdrop-blur-md border border-accent/20 dark:border-accent/30 shadow-lg mb-8 relative overflow-hidden group"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-accent/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+            <span className="text-sm font-medium text-dark dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-dark to-gray-600 dark:from-white dark:to-gray-300">
+              Explore Our Curated Collections
+            </span>
+          </motion.div>
+
+          <motion.h2
+            variants={fromBottom}
+            className="text-5xl lg:text-7xl font-bold mb-8"
+          >
+            <span className="text-dark dark:text-white">Premium</span>
+            <span className="text-accent dark:text-accent/80 ml-4 relative">
+              Categories
+              <motion.div
+                initial={{ scaleX: 0 }}
+                whileInView={{ scaleX: 1 }}
+                transition={{ duration: 1, delay: 0.3 }}
+                className="absolute -bottom-3 left-0 right-0 h-1 bg-gradient-to-r from-accent/50 via-accent to-accent/50 rounded-full"
+              />
+            </span>
+          </motion.h2>
+        </motion.div>
+
+        {/* Enhanced Categories Grid */}
+        <motion.div
+          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"
+          variants={container}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.1 }}
+        >
+          {categories.map((cat) => {
             const isExpanded = expanded[cat._id] || false;
+            const isHovered = hoveredCard === cat._id;
             const shortDesc =
               cat.description?.length > 100
                 ? cat.description.slice(0, 100) + "..."
@@ -449,290 +310,166 @@ const Categories = () => {
             return (
               <motion.div
                 key={cat._id}
-                custom={index}
-                variants={cardVariants}
-                whileHover="hover"
-                animate="rest"
-                initial="rest"
-                onMouseEnter={() => setActiveCategory(cat._id)}
-                onMouseLeave={() => setActiveCategory(null)}
+                variants={cardAnim}
+                whileHover={{
+                  y: -12,
+                  scale: 1.02,
+                  transition: { duration: 0.3 },
+                }}
+                onHoverStart={() => setHoveredCard(cat._id)}
+                onHoverEnd={() => setHoveredCard(null)}
                 className="relative group"
               >
+                {/* Card Glow Effect */}
+                <div
+                  className={`absolute -inset-0.5 bg-gradient-to-r from-accent/20 to-purple-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500 ${isHovered ? "opacity-100" : ""}`}
+                />
+
                 <Link to={`/category/${cat.name}`}>
-                  {/* Magical Card Container */}
-                  <motion.div
-                    variants={hoverVariants}
-                    className="relative rounded-3xl overflow-hidden shadow-2xl backdrop-blur-sm border border-amber-200/50 dark:border-gray-700/50 bg-gradient-to-br from-white via-white/95 to-amber-50/30 dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800/95 dark:to-gray-900 cursor-pointer"
-                  >
-                    {/* Magical Glow Effect */}
-                    <motion.div
-                      variants={glowVariants}
-                      className="absolute inset-0 rounded-3xl bg-gradient-to-br from-amber-400/5 via-amber-300/10 to-yellow-300/5 dark:from-amber-400/0 dark:via-amber-300/5 dark:to-yellow-300/0"
-                    />
-
-                    {/* Magic Particles */}
-                    <Particles count={6} />
-
-                    {/* Image Container with Magic Effects */}
-                    <motion.div
-                      className="relative h-64 overflow-hidden"
-                      whileHover="hover"
-                    >
-                      {/* Image with Magic Overlay */}
+                  <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-lightBg/50 dark:border-white/10 bg-white dark:bg-gray-900/30 dark:backdrop-blur-md cursor-pointer transition-all duration-300 hover:shadow-3xl hover:border-accent/30">
+                    {/* Image Container with Enhanced Effects */}
+                    <div className="relative w-full h-64 overflow-hidden">
                       <motion.img
-                        variants={imageVariants}
                         src={getCategoryImage(cat.image)}
                         alt={cat.name}
-                        className="w-full h-full object-contain relative z-10"
+                        className="w-full h-full object-cover"
+                        initial={{ scale: 1 }}
+                        animate={isHovered ? { scale: 1.1 } : { scale: 1 }}
+                        transition={{ duration: 0.5 }}
+                        loading="lazy"
                       />
+                      {/* Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
-                      {/* Magic Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent z-10" />
+                      {/* Category Badge */}
+                      <div className="absolute top-4 left-4">
+                        <span className="px-3 py-1.5 rounded-full bg-black/70 backdrop-blur-sm text-white text-sm font-medium border border-white/20">
+                          {cat.name}
+                        </span>
+                      </div>
 
-                      {/* Magic Sparkle Overlay */}
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(251,191,36,0.1),transparent_70%)] z-10" />
-                    </motion.div>
+                      {/* Hover View Indicator */}
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={
+                          isHovered
+                            ? { opacity: 1, y: 0 }
+                            : { opacity: 0, y: 20 }
+                        }
+                        className="absolute bottom-4 right-4 flex items-center gap-2 px-3 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20"
+                      >
+                        <FaEye className="text-white" />
+                        <span className="text-white text-sm font-medium">
+                          View
+                        </span>
+                      </motion.div>
+                    </div>
 
-                    {/* Magic Content */}
-                    <div className="p-6 relative z-20">
-                      {/* Category Header with Magic Icons */}
+                    {/* Content */}
+                    <div className="p-6">
                       <div className="flex items-center justify-between mb-4">
-                        <motion.h3
-                          className="text-2xl font-bold"
-                          whileHover={{ scale: 1.02 }}
-                        >
-                          <span className="text-gray-900 dark:text-gray-100">
-                            {cat.name}
-                          </span>
-                        </motion.h3>
+                        <h3 className="text-2xl font-bold text-dark dark:text-white">
+                          {cat.name}
+                        </h3>
                         <motion.div
-                          animate={{
-                            rotate: activeCategory === cat._id ? [0, 360] : 0,
-                            scale: activeCategory === cat._id ? [1, 1.3, 1] : 1,
-                          }}
-                          transition={{ duration: 0.5 }}
-                          className="text-amber-600 dark:text-amber-300"
+                          animate={isHovered ? { rotate: 180 } : { rotate: 0 }}
+                          transition={{ duration: 0.3 }}
                         >
-                          <FaStar />
+                          <FaStar className="text-accent dark:text-accent/80" />
                         </motion.div>
                       </div>
 
-                      {/* Magic Description */}
-                      <AnimatePresence>
-                        <motion.div
-                          initial={false}
-                          animate={isExpanded ? "expanded" : "collapsed"}
-                          variants={{
-                            collapsed: {
-                              height: 0,
-                              opacity: 0,
-                            },
-                            expanded: {
-                              height: "auto",
-                              opacity: 1,
-                            },
-                          }}
-                          className="overflow-hidden"
-                        >
-                          <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
-                            {isExpanded ? cat.description : shortDesc}
-                          </p>
-                        </motion.div>
-                      </AnimatePresence>
+                      <div className="overflow-hidden">
+                        <p className="text-dark/80 dark:text-gray-300 leading-relaxed font-light">
+                          {isExpanded ? cat.description : shortDesc}
+                        </p>
+                      </div>
 
-                      {/* Magic Read More Button */}
+                      {/* Read More Button */}
                       {cat.description?.length > 100 && (
                         <motion.button
                           type="button"
                           onClick={(e) => toggleExpand(cat._id, e)}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="flex items-center gap-2 mb-4 group"
+                          className="flex items-center gap-2 mt-4 text-accent dark:text-accent/80 font-medium hover:text-dark dark:hover:text-white transition-all duration-300 group/readmore"
+                          whileHover={{ x: 5 }}
                         >
-                          <span className="text-amber-600 dark:text-amber-300 font-medium">
-                            {isExpanded ? "Show Less" : "Read More"}
-                          </span>
-                          <motion.div
-                            animate={{ rotate: isExpanded ? 180 : 0 }}
+                          <span>{isExpanded ? "Show Less" : "Read More"}</span>
+                          <motion.span
+                            animate={
+                              isExpanded ? { rotate: 180 } : { rotate: 0 }
+                            }
                             transition={{ duration: 0.3 }}
-                            className="text-amber-600 dark:text-amber-300"
                           >
                             {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
-                          </motion.div>
+                          </motion.span>
                         </motion.button>
                       )}
 
-                      {/* Magic Explore Button */}
+                      {/* Enhanced Explore Button */}
                       <motion.div
+                        className="mt-6 px-5 py-4 rounded-xl border border-accent/30 dark:border-accent/20 bg-gradient-to-r from-accent/5 to-accent/10 dark:from-accent/5 dark:to-accent/0 transition-all duration-300 group-hover:from-accent/20 group-hover:to-accent/15 group-hover:border-accent/50"
                         whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
                       >
-                        <div className="px-4 py-3 rounded-xl backdrop-blur-sm border border-amber-200/30 dark:border-amber-700/30 bg-gradient-to-r from-amber-100/40 via-amber-50/50 to-amber-100/40 dark:bg-gradient-to-r dark:from-amber-900/20 dark:via-amber-800/30 dark:to-amber-900/20 group-hover:border-amber-300/50 dark:group-hover:border-amber-600/50 transition-all duration-300">
-                          <div className="flex items-center justify-between">
-                            <span className="font-medium text-gray-900 dark:text-gray-100">
-                              Explore Magic
-                            </span>
-                            <motion.div
-                              animate={{
-                                x: activeCategory === cat._id ? [0, 5, 0] : 0,
-                              }}
-                              transition={{
-                                duration: 1,
-                                repeat: Infinity,
-                              }}
-                              className="text-amber-600 dark:text-amber-300"
-                            >
-                              <FaFeather />
-                            </motion.div>
-                          </div>
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-dark dark:text-white group-hover:text-dark dark:group-hover:text-white">
+                            Explore Collection
+                          </span>
+                          <motion.div
+                            animate={isHovered ? { x: 5 } : { x: 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <FaFeather className="text-accent dark:text-accent/80 group-hover:scale-110 transition-transform duration-300" />
+                          </motion.div>
+                        </div>
+                        <div className="text-xs text-dark/60 dark:text-gray-400 mt-1">
+                          Click to discover more
                         </div>
                       </motion.div>
                     </div>
-
-                    {/* Magic Corner Accents */}
-                    <div className="absolute top-0 left-0 w-20 h-20 overflow-hidden">
-                      <div className="absolute -top-10 -left-10 w-20 h-20 bg-gradient-to-br from-amber-400/30 to-transparent dark:from-amber-400/20 rounded-full" />
-                    </div>
-                    <div className="absolute bottom-0 right-0 w-20 h-20 overflow-hidden">
-                      <div className="absolute -bottom-10 -right-10 w-20 h-20 bg-gradient-to-tl from-yellow-300/30 to-transparent dark:from-yellow-300/20 rounded-full" />
-                    </div>
-                  </motion.div>
+                  </div>
                 </Link>
-
-                {/* Magic Hover Effects */}
-                <AnimatePresence>
-                  {activeCategory === cat._id && (
-                    <>
-                      {/* Floating Magic Dust */}
-                      {[...Array(5)].map((_, i) => (
-                        <motion.div
-                          key={i}
-                          className="absolute w-1 h-1 rounded-full bg-gradient-to-r from-amber-500 to-yellow-400 dark:from-amber-400 dark:to-yellow-300"
-                          initial={{ scale: 0, opacity: 0 }}
-                          animate={{
-                            scale: [0, 1, 0],
-                            opacity: [0, 1, 0],
-                            y: [0, -40],
-                            x: Math.random() * 60 - 30,
-                          }}
-                          exit={{ scale: 0, opacity: 0 }}
-                          transition={{
-                            duration: 1.2,
-                            delay: i * 0.1,
-                          }}
-                          style={{
-                            left: `${Math.random() * 100}%`,
-                            top: "40%",
-                          }}
-                        />
-                      ))}
-                    </>
-                  )}
-                </AnimatePresence>
               </motion.div>
             );
           })}
         </motion.div>
 
-        {/* Magic Stats Footer */}
+        {/* Enhanced Stats Footer */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mt-20 text-center"
+          className="mt-24 text-center"
+          variants={container}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
         >
-          <div className="inline-flex items-center gap-8 px-8 py-6 rounded-2xl backdrop-blur-sm border border-white/10 dark:border-gray-700/50 bg-white/10 dark:bg-gray-800/20">
-            <div className="text-center">
-              <div className="text-3xl font-bold bg-gradient-to-r from-amber-400 to-yellow-300 bg-clip-text text-transparent">
-                {categories.length}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Magical Collections
-              </div>
-            </div>
-            <div className="h-12 w-px bg-gradient-to-b from-transparent via-amber-300/50 dark:via-amber-300/30 to-transparent" />
-            <div className="text-center">
-              <div className="text-3xl font-bold bg-gradient-to-r from-amber-400 to-yellow-300 bg-clip-text text-transparent">
-                100%
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Premium Quality
-              </div>
-            </div>
-            <div className="h-12 w-px bg-gradient-to-b from-transparent via-amber-300/50 dark:via-amber-300/30 to-transparent" />
-            <div className="text-center">
-              <div className="text-3xl font-bold bg-gradient-to-r from-amber-400 to-yellow-300 bg-clip-text text-transparent">
-                4.9★
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Magic Rating
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Magic Background Elements */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        {/* Large Magic Orbs */}
-        <motion.div
-          animate={{
-            y: [0, -40, 0],
-            x: [0, 20, 0],
-            rotate: [0, 180, 360],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute top-1/4 left-10 w-64 h-64 opacity-5"
-        >
-          <div className="w-full h-full rounded-full bg-gradient-to-br from-amber-400 to-yellow-300 dark:from-amber-900 dark:to-yellow-800 blur-3xl" />
-        </motion.div>
-
-        <motion.div
-          animate={{
-            y: [0, 60, 0],
-            x: [0, -30, 0],
-            rotate: [0, -180, -360],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute bottom-1/4 right-8 w-80 h-80 opacity-5"
-        >
-          <div className="w-full h-full rounded-full bg-gradient-to-tr from-amber-400 to-yellow-300 dark:from-amber-900 dark:to-yellow-800 blur-3xl" />
-        </motion.div>
-
-        {/* Floating Magic Shapes */}
-        {[...Array(12)].map((_, i) => (
           <motion.div
-            key={i}
-            className="absolute w-12 h-12 opacity-10"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              background: `linear-gradient(45deg, rgba(251,191,36,0.3), rgba(253,224,71,0.3))`,
-              borderRadius: i % 3 === 0 ? "50%" : i % 3 === 1 ? "0%" : "25%",
-              filter: "blur(20px)",
-            }}
-            animate={{
-              y: [0, Math.random() * 100 - 50, 0],
-              x: [0, Math.random() * 100 - 50, 0],
-              rotate: [0, 180, 360],
-              scale: [1, 1.2, 1],
-            }}
-            transition={{
-              duration: Math.random() * 25 + 25,
-              repeat: Infinity,
-              ease: "linear",
-              delay: i * 2,
-            }}
-          />
-        ))}
+            variants={fromBottom}
+            className="inline-flex items-center gap-8 px-10 py-8 rounded-2xl border border-lightBg/50 dark:border-white/10 bg-white/50 dark:bg-gray-900/30 dark:backdrop-blur-md justify-center shadow-xl relative overflow-hidden"
+          >
+            {/* Background Pattern */}
+            <div className="absolute inset-0 opacity-5">
+              <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-transparent to-purple-500/20" />
+            </div>
+
+            {[
+              { value: categories.length, label: "Collections", suffix: "+" },
+              { value: 100, label: "Quality", suffix: "%" },
+              { value: 4.9, label: "Rating", suffix: "★" },
+            ].map((stat, index) => (
+              <div key={index} className="text-center relative group">
+                <div className="text-3xl font-bold text-accent dark:text-accent/80 mb-2">
+                  {stat.value}
+                  <span className="text-dark/70 dark:text-gray-300">
+                    {stat.suffix}
+                  </span>
+                </div>
+                <div className="text-sm text-dark/70 dark:text-gray-300 font-medium">
+                  {stat.label}
+                </div>
+                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 group-hover:w-16 h-0.5 bg-gradient-to-r from-accent to-transparent transition-all duration-300" />
+              </div>
+            ))}
+          </motion.div>
+        </motion.div>
       </div>
     </div>
   );

@@ -328,7 +328,7 @@ const BlogPostPage = () => {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen bg-gradient-to-b from-primaryBg to-gray-100 dark:from-gray-900 dark:to-gray-800 py-16 max-sm:py-24"
+      className="min-h-screen bg-gradient-to-b from-primaryBg to-gray-100 dark:from-gray-900 dark:to-gray-800 py-24 max-sm:py-24"
     >
       {/* Scroll Progress Bar */}
       <motion.div

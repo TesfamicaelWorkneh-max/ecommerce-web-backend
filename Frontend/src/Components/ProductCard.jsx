@@ -1,348 +1,5 @@
-// // // import React from "react";
-// // // import { Link } from "react-router-dom";
-// // // import { motion } from "framer-motion";
-// // // import {
-// // //   FaHeart,
-// // //   FaStar,
-// // //   FaTag,
-// // //   FaShoppingCart,
-// // //   FaTruck,
-// // //   FaUndo,
-// // //   FaEye,
-// // // } from "react-icons/fa";
-// // // import { useProducts } from "../Context/ProductContext";
-// // // import { getImageUrl } from "../utils/imageUtils";
-
-// // // const formatLikes = (num) => {
-// // //   const likes = Number(num) || 0;
-// // //   if (likes >= 1000000) return (likes / 1000000).toFixed(1) + "M";
-// // //   if (likes >= 1000) return (likes / 1000).toFixed(1) + "k";
-// // //   return likes.toString();
-// // // };
-
-// // // const formatPrice = (price) => {
-// // //   const priceNum = Number(price) || 0;
-// // //   return new Intl.NumberFormat("en-US", {
-// // //     style: "currency",
-// // //     currency: "USD",
-// // //     minimumFractionDigits: 0,
-// // //   }).format(priceNum);
-// // // };
-
-// // // const generateRating = (productId) => {
-// // //   if (!productId || typeof productId !== "string") return 4.0;
-// // //   const seed = productId.charCodeAt(productId.length - 1) || 0;
-// // //   return 3.5 + ((seed % 10) / 10) * 1.5;
-// // // };
-
-// // // const ProductCard = ({ product, index = 0 }) => {
-// // //   const { toggleLike, products } = useProducts();
-// // //   const prod = products[product._id] || product;
-
-// // //   // Validate product data
-// // //   if (!prod || typeof prod !== "object") {
-// // //     return (
-// // //       <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-2xl">
-// // //         <p className="text-red-600 dark:text-red-400">Invalid product data</p>
-// // //       </div>
-// // //     );
-// // //   }
-
-// // //   // Safely extract image path
-// // //   let imagePath = "";
-// // //   if (prod.images && Array.isArray(prod.images) && prod.images.length > 0) {
-// // //     imagePath = typeof prod.images[0] === "string" ? prod.images[0] : "";
-// // //   } else if (typeof prod.image === "string") {
-// // //     imagePath = prod.image;
-// // //   }
-
-// // //   const imgSrc = getImageUrl(imagePath);
-
-// // //   const rating = generateRating(prod._id);
-// // //   const stars = Math.round(rating);
-
-// // //   // Check if product is on sale
-// // //   const isOnSale =
-// // //     prod.originalPrice && Number(prod.originalPrice) > Number(prod.price);
-// // //   const discountPercent = isOnSale
-// // //     ? Math.round(
-// // //         ((Number(prod.originalPrice) - Number(prod.price)) /
-// // //           Number(prod.originalPrice)) *
-// // //           100
-// // //       )
-// // //     : 0;
-
-// // //   // Safely extract category
-// // //   const category =
-// // //     typeof prod.category === "string"
-// // //       ? prod.category
-// // //       : typeof prod.category === "object" && prod.category !== null
-// // //         ? prod.category.name || ""
-// // //         : "";
-
-// // //   return (
-// // //     <motion.div
-// // //       className="group relative bg-gradient-to-br from-white to-gray-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-200 dark:border-slate-700 hover:border-amber-200 dark:hover:border-amber-700"
-// // //       initial={{ opacity: 0, y: 40, scale: 0.95 }}
-// // //       animate={{ opacity: 1, y: 0, scale: 1 }}
-// // //       transition={{
-// // //         duration: 0.6,
-// // //         delay: index * 0.05,
-// // //         type: "spring",
-// // //         stiffness: 100,
-// // //         damping: 15,
-// // //       }}
-// // //       whileHover={{
-// // //         y: -8,
-// // //         transition: { duration: 0.3 },
-// // //       }}
-// // //     >
-// // //       {/* Discount Badge */}
-// // //       {isOnSale && (
-// // //         <motion.div
-// // //           initial={{ scale: 0, rotate: -45 }}
-// // //           animate={{ scale: 1, rotate: 0 }}
-// // //           transition={{ delay: index * 0.05 + 0.3 }}
-// // //           className="absolute top-4 left-4 z-20"
-// // //         >
-// // //           <div className="relative">
-// // //             <div className="absolute -inset-1 bg-gradient-to-r from-red-500 to-pink-500 rounded-lg blur opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-// // //             <div className="relative px-3 py-1.5 bg-gradient-to-r from-red-600 to-pink-600 text-white text-xs font-bold rounded-lg flex items-center gap-1 shadow-lg">
-// // //               <FaTag className="text-xs" />
-// // //               <span>-{discountPercent}% OFF</span>
-// // //             </div>
-// // //           </div>
-// // //         </motion.div>
-// // //       )}
-
-// // //       {/* Like Button */}
-// // //       <motion.button
-// // //         onClick={() => toggleLike(prod._id)}
-// // //         className="absolute top-4 right-4 z-20 p-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-shadow duration-300"
-// // //         whileHover={{ scale: 1.1 }}
-// // //         whileTap={{ scale: 0.9 }}
-// // //         initial={{ opacity: 0, x: 20 }}
-// // //         animate={{ opacity: 1, x: 0 }}
-// // //         transition={{ delay: index * 0.05 + 0.2 }}
-// // //       >
-// // //         <div className="relative">
-// // //           <FaHeart
-// // //             className={`text-xl transition-all duration-300 ${
-// // //               prod.isLiked
-// // //                 ? "text-red-500 fill-red-500 drop-shadow-lg"
-// // //                 : "text-gray-400 hover:text-red-400"
-// // //             }`}
-// // //           />
-// // //           {/* Pulsing effect when liked */}
-// // //           {prod.isLiked && (
-// // //             <motion.div
-// // //               className="absolute inset-0 rounded-full bg-red-500/20"
-// // //               initial={{ scale: 0.8, opacity: 0.8 }}
-// // //               animate={{ scale: 1.5, opacity: 0 }}
-// // //               transition={{
-// // //                 duration: 1.5,
-// // //                 repeat: Infinity,
-// // //                 repeatType: "loop",
-// // //               }}
-// // //             />
-// // //           )}
-// // //         </div>
-// // //       </motion.button>
-
-// // //       {/* Product Image Container */}
-// // //       <div className="relative overflow-hidden">
-// // //         <Link to={`/product/${prod._id}`} className="block">
-// // //           {/* Image with hover effect */}
-// // //           <motion.img
-// // //             src={getImageUrl(product.images?.[0] || product.image)}
-// // //             alt={typeof prod.name === "string" ? prod.name : "Product"}
-// // //             className="w-full h-64 object-contain p-6 transition-transform duration-500 group-hover:scale-105"
-// // //             loading="lazy"
-// // //             onError={(e) => {
-// // //               e.target.src =
-// // //                 "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop";
-// // //               e.target.className =
-// // //                 "w-full h-64 object-contain p-6 transition-transform duration-500 group-hover:scale-105";
-// // //               e.target.onerror = null; // Prevent infinite loop
-// // //             }}
-// // //             whileHover={{ scale: 1.05 }}
-// // //             transition={{ duration: 0.5 }}
-// // //           />
-
-// // //           {/* Quick View Overlay */}
-// // //           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center pb-6">
-// // //             <motion.div
-// // //               className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-full px-5 py-2.5 flex items-center gap-2.5 shadow-xl"
-// // //               initial={{ y: 20 }}
-// // //               whileInView={{ y: 0 }}
-// // //               transition={{ duration: 0.3 }}
-// // //             >
-// // //               <FaEye className="text-slate-700 dark:text-slate-300 text-sm" />
-// // //               <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-// // //                 Quick View
-// // //               </span>
-// // //             </motion.div>
-// // //           </div>
-// // //         </Link>
-
-// // //         {/* SOLD / AVAILABLE Badge */}
-// // //         <div className="absolute bottom-4 left-4">
-// // //           <motion.div
-// // //             initial={{ opacity: 0, y: 10 }}
-// // //             animate={{ opacity: 1, y: 0 }}
-// // //             transition={{ delay: index * 0.05 + 0.4 }}
-// // //             className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm border ${
-// // //               prod.isSold
-// // //                 ? "bg-gradient-to-r from-red-500/90 to-red-600/90 text-white border-red-400/30"
-// // //                 : "bg-gradient-to-r from-green-500/90 to-emerald-600/90 text-white border-green-400/30"
-// // //             }`}
-// // //           >
-// // //             {prod.isSold ? "Sold Out" : "In Stock"}
-// // //           </motion.div>
-// // //         </div>
-// // //       </div>
-
-// // //       {/* Product Info */}
-// // //       <div className="p-6">
-// // //         {/* Category Tag */}
-// // //         {category && (
-// // //           <div className="mb-3">
-// // //             <span className="inline-block px-3 py-1.5 bg-gradient-to-r from-amber-500/10 to-amber-600/10 text-amber-700 dark:text-amber-300 text-xs font-medium rounded-full border border-amber-500/20 hover:border-amber-500/40 transition-colors duration-300">
-// // //               {category}
-// // //             </span>
-// // //           </div>
-// // //         )}
-
-// // //         {/* Product Name */}
-// // //         <Link to={`/product/${prod._id}`}>
-// // //           <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2 line-clamp-2 min-h-[3.5rem] group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-300">
-// // //             {typeof prod.name === "string" ? prod.name : "Unnamed Product"}
-// // //           </h3>
-// // //         </Link>
-
-// // //         {/* Rating */}
-// // //         <div className="flex items-center gap-2 mb-4">
-// // //           <div className="flex items-center gap-0.5">
-// // //             {[...Array(5)].map((_, i) => (
-// // //               <FaStar
-// // //                 key={i}
-// // //                 className={`text-sm ${
-// // //                   i < stars
-// // //                     ? "text-amber-500 fill-amber-500 drop-shadow-sm"
-// // //                     : "text-gray-300 dark:text-slate-600"
-// // //                 }`}
-// // //               />
-// // //             ))}
-// // //           </div>
-// // //           <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
-// // //             {rating.toFixed(1)}
-// // //           </span>
-// // //           <span className="text-xs text-gray-500 dark:text-slate-500 ml-2">
-// // //             ({Math.floor(Math.random() * 100) + 50} reviews)
-// // //           </span>
-// // //         </div>
-
-// // //         {/* Price and Likes */}
-// // //         <div className="flex items-center justify-between mb-6">
-// // //           <div className="flex items-baseline gap-3">
-// // //             {/* Current Price */}
-// // //             <span className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-800 dark:from-white dark:to-slate-200 bg-clip-text text-transparent">
-// // //               {formatPrice(prod.price)}
-// // //             </span>
-
-// // //             {/* Original Price if on sale */}
-// // //             {isOnSale && (
-// // //               <span className="text-sm text-gray-500 dark:text-slate-500 line-through">
-// // //                 {formatPrice(prod.originalPrice)}
-// // //               </span>
-// // //             )}
-// // //           </div>
-
-// // //           {/* Likes */}
-// // //           <motion.div
-// // //             className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 rounded-full border border-rose-200 dark:border-rose-800/30 hover:border-rose-300 dark:hover:border-rose-700 transition-colors duration-300"
-// // //             whileHover={{ scale: 1.05 }}
-// // //             whileTap={{ scale: 0.95 }}
-// // //           >
-// // //             <FaHeart
-// // //               className={`text-sm ${prod.isLiked ? "text-rose-500 fill-rose-500" : "text-rose-400"}`}
-// // //             />
-// // //             <span className="text-sm font-medium text-rose-700 dark:text-rose-300">
-// // //               {formatLikes(prod.likesCount)}
-// // //             </span>
-// // //           </motion.div>
-// // //         </div>
-
-// // //         {/* Action Buttons */}
-// // //         <div className="flex gap-3 mb-4">
-// // //           <motion.button
-// // //             className="px-4 py-3.5 bg-gradient-to-r from-slate-100 to-gray-100 dark:from-slate-700 dark:to-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 border border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500"
-// // //             whileHover={{ scale: 1.05 }}
-// // //             whileTap={{ scale: 0.95 }}
-// // //             onClick={() => toggleLike(prod._id)}
-// // //           >
-// // //             <FaHeart
-// // //               className={`text-lg ${prod.isLiked ? "text-rose-500 fill-rose-500" : "text-gray-400"}`}
-// // //             />
-// // //           </motion.button>
-// // //         </div>
-
-// // //         {/* Shipping Info */}
-// // //         <div className="pt-4 border-t border-gray-100 dark:border-slate-700">
-// // //           <div className="flex items-center justify-between">
-// // //             <div className="flex items-center gap-2">
-// // //               <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-lg">
-// // //                 <FaTruck className="text-green-600 dark:text-green-400 text-sm" />
-// // //               </div>
-// // //               <div>
-// // //                 <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
-// // //                   Free Shipping
-// // //                 </p>
-// // //                 <p className="text-xs text-gray-500 dark:text-slate-500">
-// // //                   Over $100
-// // //                 </p>
-// // //               </div>
-// // //             </div>
-
-// // //             <div className="flex items-center gap-2">
-// // //               <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-// // //                 <FaUndo className="text-blue-600 dark:text-blue-400 text-sm" />
-// // //               </div>
-// // //               <div>
-// // //                 <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
-// // //                   30-Day Returns
-// // //                 </p>
-// // //                 <p className="text-xs text-gray-500 dark:text-slate-500">
-// // //                   Easy returns
-// // //                 </p>
-// // //               </div>
-// // //             </div>
-// // //           </div>
-// // //         </div>
-// // //       </div>
-
-// // //       {/* Glow Effect on Hover */}
-// // //       <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-amber-500/5 via-transparent to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-
-// // //       {/* Top seller badge (if applicable) */}
-// // //       {prod.isTopSeller && (
-// // //         <div className="absolute -top-2 -right-2 z-10">
-// // //           <div className="relative">
-// // //             <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-full blur opacity-70"></div>
-// // //             <div className="relative px-3 py-1 bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-xs font-bold rounded-full shadow-lg">
-// // //               🔥 Top Seller
-// // //             </div>
-// // //           </div>
-// // //         </div>
-// // //       )}
-// // //     </motion.div>
-// // //   );
-// // // };
-
-// // // export default ProductCard;
-// // import React, { useEffect, useState, useContext, useRef } from "react";
-// // import { Link } from "react-router-dom";
-// // import { motion } from "framer-motion";
+// // import React, { useState, useContext } from "react";
+// // import { Link, useNavigate } from "react-router-dom";
 // // import { authContext } from "../Context/authContext";
 // // import { cartContext } from "../Context/cartContext";
 // // import {
@@ -350,15 +7,17 @@
 // //   FaStar,
 // //   FaTag,
 // //   FaShoppingCart,
-// //   FaTruck,
-// //   FaUndo,
+// //   FaTimesCircle,
+// //   FaCheckCircle,
 // //   FaEye,
 // // } from "react-icons/fa";
 // // import { useProducts } from "../Context/ProductContext";
 // // import { getImageUrl } from "../utils/imageUtils";
 // // import { fetchWithAuth } from "../utils/auth";
 // // import { toast } from "react-hot-toast";
+
 // // const BACKEND_URL = import.meta.env.VITE_API_URL;
+
 // // const formatLikes = (num) => {
 // //   const likes = Number(num) || 0;
 // //   if (likes >= 1000000) return (likes / 1000000).toFixed(1) + "M";
@@ -385,16 +44,19 @@
 // //   const { user } = useContext(authContext);
 // //   const { setCart } = useContext(cartContext);
 // //   const { toggleLike, products } = useProducts();
+// //   const navigate = useNavigate();
 // //   const prod = products[product._id] || product;
 // //   const [loadingAdd, setLoadingAdd] = useState(false);
+
 // //   // Validate product data
 // //   if (!prod || typeof prod !== "object") {
 // //     return (
-// //       <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-2xl">
-// //         <p className="text-red-600 dark:text-red-400">Invalid product data</p>
+// //       <div className="p-4">
+// //         <p className="text-accent">Invalid product data</p>
 // //       </div>
 // //     );
 // //   }
+
 // //   const addToCart = async () => {
 // //     if (!user) {
 // //       toast.error("Please login to add to cart");
@@ -429,6 +91,7 @@
 // //       toast.error("Server error");
 // //     }
 // //   };
+
 // //   // Safely extract image path
 // //   let imagePath = "";
 // //   if (prod.images && Array.isArray(prod.images) && prod.images.length > 0) {
@@ -461,115 +124,99 @@
 // //         ? prod.category.name || ""
 // //         : "";
 
+// //   // Check product availability
+// //   const isProductAvailable = !prod.isSold && prod.stock > 0;
+// //   const isLowStock = isProductAvailable && prod.stock <= 5;
+
 // //   return (
-// //     <motion.div
-// //       className="group relative bg-white dark:bg-transparent rounded-xl overflow-hidden transition-all duration-300"
-// //       initial={{ opacity: 0, y: 40, scale: 0.95 }}
-// //       animate={{ opacity: 1, y: 0, scale: 1 }}
-// //       transition={{
-// //         duration: 0.6,
-// //         delay: index * 0.05,
-// //         type: "spring",
-// //         stiffness: 100,
-// //         damping: 15,
-// //       }}
-// //       whileHover={{
-// //         y: -5,
-// //         transition: { duration: 0.3 },
-// //       }}
-// //     >
+// //     <div className="group relative overflow-hidden">
+// //       {/* Availability Badge */}
+// //       <div className="absolute top-4 left-4 z-30 flex flex-col gap-2">
+// //         {/* Sold/Available Badge */}
+// //         <div
+// //           className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 ${
+// //             prod.isSold ? "bg-accent text-dark" : "bg-lightBg/20 text-dark"
+// //           }`}
+// //         >
+// //           {prod.isSold ? (
+// //             <>
+// //               <FaTimesCircle className="text-xs" />
+// //               <span>SOLD</span>
+// //             </>
+// //           ) : (
+// //             <>
+// //               <FaCheckCircle className="text-xs" />
+// //               <span>AVAILABLE</span>
+// //             </>
+// //           )}
+// //         </div>
+
+// //         {/* Stock Indicator */}
+// //         {isProductAvailable && (
+// //           <div className="px-3 py-1.5 rounded-lg bg-lightBg/20 text-dark text-xs font-bold flex items-center gap-1.5">
+// //             <FaTag className="text-xs" />
+// //             <span>{prod.stock} LEFT</span>
+// //           </div>
+// //         )}
+// //       </div>
+
 // //       {/* Discount Badge */}
 // //       {isOnSale && (
-// //         <motion.div
-// //           initial={{ scale: 0, rotate: -45 }}
-// //           animate={{ scale: 1, rotate: 0 }}
-// //           transition={{ delay: index * 0.05 + 0.3 }}
-// //           className="absolute top-4 left-4 z-20"
-// //         >
-// //           <div className="px-3 py-1.5 bg-amber-600 dark:bg-amber-700 text-white text-xs font-bold rounded-lg flex items-center gap-1">
+// //         <div className="absolute top-4 right-4 z-20">
+// //           <div className="px-3 py-1.5 bg-accent text-dark text-xs font-bold rounded-lg flex items-center gap-1">
 // //             <FaTag className="text-xs" />
 // //             <span>-{discountPercent}% OFF</span>
 // //           </div>
-// //         </motion.div>
+// //         </div>
 // //       )}
 
 // //       {/* Like Button */}
-// //       <motion.button
+// //       <button
 // //         onClick={() => toggleLike(prod._id)}
-// //         className="absolute top-4 right-4 z-20 p-2 bg-white dark:bg-gray-800 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
-// //         whileHover={{ scale: 1.1 }}
-// //         whileTap={{ scale: 0.9 }}
-// //         initial={{ opacity: 0, x: 20 }}
-// //         animate={{ opacity: 1, x: 0 }}
-// //         transition={{ delay: index * 0.05 + 0.2 }}
+// //         className="absolute top-20 right-4 z-20 p-2 bg-lightBg/20 rounded-full hover:bg-accent transition-colors duration-300"
 // //       >
-// //         <div className="relative">
-// //           <FaHeart
-// //             className={`text-xl transition-all duration-300 ${
-// //               prod.isLiked
-// //                 ? "text-red-500 fill-red-500"
-// //                 : "text-gray-400 hover:text-red-400"
-// //             }`}
-// //           />
-// //           {/* Pulsing effect when liked */}
-// //           {prod.isLiked && (
-// //             <motion.div
-// //               className="absolute inset-0 rounded-full bg-red-500/20"
-// //               initial={{ scale: 0.8, opacity: 0.8 }}
-// //               animate={{ scale: 1.5, opacity: 0 }}
-// //               transition={{
-// //                 duration: 1.5,
-// //                 repeat: Infinity,
-// //                 repeatType: "loop",
-// //               }}
-// //             />
-// //           )}
-// //         </div>
-// //       </motion.button>
+// //         <FaHeart
+// //           className={`text-xl ${
+// //             prod.isLiked ? "text-accent fill-accent" : "text-accent/70"
+// //           }`}
+// //         />
+// //       </button>
 
-// //       {/* Product Image Container */}
-// //       <div className="relative overflow-hidden">
+// //       {/* Product Image Container - NO background */}
+// //       <div className="relative rounded-2xl overflow-hidden">
 // //         <Link to={`/product/${prod._id}`} className="block">
-// //           {/* Image with hover effect */}
-// //           <motion.img
+// //           <img
 // //             src={getImageUrl(product.images?.[0] || product.image)}
 // //             alt={typeof prod.name === "string" ? prod.name : "Product"}
-// //             className="w-full h-60 lg:h-60 object-contain p-2 transition-transform duration-300 group-hover:scale-105"
+// //             className="w-full h-60 object-contain p-4"
 // //             loading="lazy"
 // //             onError={(e) => {
 // //               e.target.src =
-// //                 "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop";
-// //               e.target.className =
-// //                 "w-full h-72 lg:h-80 object-contain p-6 transition-transform duration-300 group-hover:scale-105";
+// //                 "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop";
+// //               e.target.className = "w-full h-60 object-contain p-4";
 // //               e.target.onerror = null;
 // //             }}
-// //             whileHover={{ scale: 1.05 }}
-// //             transition={{ duration: 0.3 }}
 // //           />
-
-// //           {/* Quick View Overlay */}
-// //           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center pb-6">
-// //             <motion.div
-// //               className="bg-white dark:bg-gray-800 rounded-full px-5 py-2.5 flex items-center gap-2.5"
-// //               initial={{ y: 20 }}
-// //               whileInView={{ y: 0 }}
-// //               transition={{ duration: 0.3 }}
-// //             >
-// //               <FaEye className="text-gray-700 dark:text-gray-300 text-sm" />
-// //               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-// //                 Quick View
-// //               </span>
-// //             </motion.div>
-// //           </div>
 // //         </Link>
+
+// //         {/* Quick View Overlay */}
+// //         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+// //           <button
+// //             onClick={() => navigate(`/product/${prod._id}`)}
+// //             className="px-4 py-2 bg-primaryBg text-dark rounded-lg font-medium flex items-center gap-2"
+// //           >
+// //             <FaEye />
+// //             Quick View
+// //           </button>
+// //         </div>
 // //       </div>
 
-// //       {/* Product Info */}
-// //       <div className="p-6">
+// //       {/* Product Info - NO background */}
+// //       <div className="p-4">
 // //         {/* Category Tag */}
 // //         {category && (
-// //           <div className="mb-3">
-// //             <span className="inline-block px-3 py-1.5 bg-amber-100 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 text-xs font-medium rounded-full">
+// //           <div className="mb-2">
+// //             <span className="inline-block px-3 py-1 bg-lightBg/20 text-dark text-xs font-medium rounded-full">
 // //               {category}
 // //             </span>
 // //           </div>
@@ -577,114 +224,116 @@
 
 // //         {/* Product Name */}
 // //         <Link to={`/product/${prod._id}`}>
-// //           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 min-h-[3rem] group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-300">
+// //           <h3 className="text-base font-bold text-dark mb-2 line-clamp-2 min-h-[2.5rem] hover:text-accent transition-colors duration-300">
 // //             {typeof prod.name === "string" ? prod.name : "Unnamed Product"}
 // //           </h3>
 // //         </Link>
 
 // //         {/* Rating */}
-// //         <div className="flex items-center gap-2 mb-4">
+// //         <div className="flex items-center gap-2 mb-3">
 // //           <div className="flex items-center gap-0.5">
 // //             {[...Array(5)].map((_, i) => (
 // //               <FaStar
 // //                 key={i}
 // //                 className={`text-sm ${
-// //                   i < stars
-// //                     ? "text-amber-500 fill-amber-500"
-// //                     : "text-gray-300 dark:text-gray-600"
+// //                   i < stars ? "text-accent fill-accent" : "text-lightBg"
 // //                 }`}
 // //               />
 // //             ))}
 // //           </div>
-// //           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+// //           <span className="text-xs font-medium text-dark/70">
 // //             {rating.toFixed(1)}
 // //           </span>
 // //         </div>
 
 // //         {/* Price and Likes */}
-// //         <div className="flex items-center justify-between mb-6">
-// //           <div className="flex items-baseline gap-3">
+// //         <div className="flex items-center justify-between mb-4">
+// //           <div className="flex items-baseline gap-2">
 // //             {/* Current Price */}
-// //             <span className="text-2xl font-bold text-gray-900 dark:text-white">
+// //             <span className="text-xl font-bold text-dark">
 // //               {formatPrice(prod.price)}
 // //             </span>
 
 // //             {/* Original Price if on sale */}
 // //             {isOnSale && (
-// //               <span className="text-sm text-gray-500 dark:text-gray-400 line-through">
+// //               <span className="text-sm text-dark/70 line-through">
 // //                 {formatPrice(prod.originalPrice)}
 // //               </span>
 // //             )}
 // //           </div>
 
 // //           {/* Likes */}
-// //           <div className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-100 dark:bg-rose-900/20 rounded-full">
+// //           <div className="flex items-center gap-1.5 px-2 py-1 bg-lightBg/20 rounded-full">
 // //             <FaHeart
-// //               className={`text-sm ${prod.isLiked ? "text-rose-500 fill-rose-500" : "text-rose-400"}`}
+// //               className={`text-xs ${
+// //                 prod.isLiked ? "text-accent fill-accent" : "text-accent/70"
+// //               }`}
 // //             />
-// //             <span className="text-sm font-medium text-rose-700 dark:text-rose-300">
+// //             <span className="text-xs font-medium text-dark">
 // //               {formatLikes(prod.likesCount)}
 // //             </span>
 // //           </div>
 // //         </div>
 
 // //         {/* Action Buttons */}
-// //         <div className="flex gap-3 mb-4">
-// //           <motion.button
-// //             className="flex-1 px-2 py-3 bg-amber-500 dark:bg-amber-600 text-white rounded-lg font-semibold hover:bg-amber-600 dark:hover:bg-amber-700 transition-colors duration-300 flex items-center justify-center gap-2"
-// //             whileHover={{ scale: 1.02 }}
-// //             whileTap={{ scale: 0.98 }}
-// //             onClick={addToCart}
-// //           >
-// //             <FaShoppingCart className="text-lg" />
-// //             <span>Add to Cart</span>
-// //           </motion.button>
+// //         <div className="mb-3">
+// //           {prod.isSold ? (
+// //             <button
+// //               className="w-full px-2 py-3 bg-lightBg text-dark rounded-lg font-semibold flex items-center justify-center gap-2 cursor-not-allowed"
+// //               disabled
+// //             >
+// //               <FaTimesCircle className="text-lg" />
+// //               <span>SOLD OUT</span>
+// //             </button>
+// //           ) : (
+// //             <button
+// //               className="w-full px-2 py-3 bg-accent hover:bg-lightBg text-dark rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors duration-300"
+// //               onClick={addToCart}
+// //               disabled={loadingAdd}
+// //             >
+// //               {loadingAdd ? (
+// //                 <>
+// //                   <div className="w-4 h-4 border-2 border-dark/30 border-t-dark rounded-full animate-spin" />
+// //                   <span>ADDING...</span>
+// //                 </>
+// //               ) : (
+// //                 <>
+// //                   <FaShoppingCart className="text-lg" />
+// //                   <span>ADD TO CART</span>
+// //                 </>
+// //               )}
+// //             </button>
+// //           )}
 // //         </div>
 
-// //         {/* Shipping Info */}
-// //         <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
-// //           <div className="flex items-center justify-between gap-4">
+// //         {/* Stock Warning */}
+// //         {isLowStock && (
+// //           <div className="p-2 bg-lightBg/20 rounded-lg">
 // //             <div className="flex items-center gap-2">
-// //               <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-lg">
-// //                 <FaTruck className="text-green-600 dark:text-green-400 text-sm" />
-// //               </div>
-// //               <div>
-// //                 <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
-// //                   Free Shipping
-// //                 </p>
-// //               </div>
-// //             </div>
-
-// //             <div className="flex items-center gap-2">
-// //               <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-// //                 <FaUndo className="text-blue-600 dark:text-blue-400 text-sm" />
-// //               </div>
-// //               <div>
-// //                 <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
-// //                   30-Day Returns
-// //                 </p>
-// //               </div>
+// //               <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />
+// //               <span className="text-xs font-bold text-dark">
+// //                 ⚠️ Only {prod.stock} left in stock!
+// //               </span>
 // //             </div>
 // //           </div>
-// //         </div>
+// //         )}
 // //       </div>
 
 // //       {/* Top seller badge (if applicable) */}
 // //       {prod.isTopSeller && (
 // //         <div className="absolute -top-2 -right-2 z-10">
-// //           <div className="px-3 py-1 bg-amber-500 dark:bg-amber-600 text-white text-xs font-bold rounded-full">
+// //           <div className="px-3 py-1 bg-accent text-dark text-xs font-bold rounded-full">
 // //             🔥 Top Seller
 // //           </div>
 // //         </div>
 // //       )}
-// //     </motion.div>
+// //     </div>
 // //   );
 // // };
 
 // // export default ProductCard;
-// import React, { useEffect, useState, useContext, useRef } from "react";
+// import React, { useState, useContext } from "react";
 // import { Link, useNavigate } from "react-router-dom";
-// import { motion } from "framer-motion";
 // import { authContext } from "../Context/authContext";
 // import { cartContext } from "../Context/cartContext";
 // import {
@@ -692,17 +341,17 @@
 //   FaStar,
 //   FaTag,
 //   FaShoppingCart,
-//   FaTruck,
-//   FaUndo,
-//   FaEye,
-//   FaCheckCircle,
 //   FaTimesCircle,
+//   FaCheckCircle,
+//   FaEye,
 // } from "react-icons/fa";
 // import { useProducts } from "../Context/ProductContext";
 // import { getImageUrl } from "../utils/imageUtils";
 // import { fetchWithAuth } from "../utils/auth";
 // import { toast } from "react-hot-toast";
+
 // const BACKEND_URL = import.meta.env.VITE_API_URL;
+
 // const formatLikes = (num) => {
 //   const likes = Number(num) || 0;
 //   if (likes >= 1000000) return (likes / 1000000).toFixed(1) + "M";
@@ -736,8 +385,8 @@
 //   // Validate product data
 //   if (!prod || typeof prod !== "object") {
 //     return (
-//       <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-2xl">
-//         <p className="text-red-600 dark:text-red-400">Invalid product data</p>
+//       <div className="p-4">
+//         <p className="text-accent">Invalid product data</p>
 //       </div>
 //     );
 //   }
@@ -814,35 +463,13 @@
 //   const isLowStock = isProductAvailable && prod.stock <= 5;
 
 //   return (
-//     <motion.div
-//       className="group relative bg-[#DCD7C9] dark:bg-transparent rounded-xl overflow-hidden transition-all duration-300"
-//       initial={{ opacity: 0, y: 40, scale: 0.95 }}
-//       animate={{ opacity: 1, y: 0, scale: 1 }}
-//       transition={{
-//         duration: 0.6,
-//         delay: index * 0.05,
-//         type: "spring",
-//         stiffness: 100,
-//         damping: 15,
-//       }}
-//       whileHover={{
-//         y: -5,
-//         transition: { duration: 0.3 },
-//       }}
-//     >
+//     <div className="group relative overflow-hidden">
 //       {/* Availability Badge */}
-//       <motion.div
-//         initial={{ opacity: 0, x: -20 }}
-//         animate={{ opacity: 1, x: 0 }}
-//         transition={{ delay: index * 0.05 + 0.1 }}
-//         className="absolute top-4 left-4 z-30 flex flex-col gap-2"
-//       >
+//       <div className="absolute top-4 left-4 z-30 flex flex-col gap-2">
 //         {/* Sold/Available Badge */}
 //         <div
-//           className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-lg ${
-//             prod.isSold
-//               ? "bg-gradient-to-r from-rose-500 to-rose-600 text-white"
-//               : "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white"
+//           className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 ${
+//             prod.isSold ? "bg-accent text-dark" : "bg-lightBg text-dark"
 //           }`}
 //         >
 //           {prod.isSold ? (
@@ -860,105 +487,70 @@
 
 //         {/* Stock Indicator */}
 //         {isProductAvailable && (
-//           <div className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg">
+//           <div className="px-3 py-1.5 rounded-lg bg-lightBg text-dark text-xs font-bold flex items-center gap-1.5">
 //             <FaTag className="text-xs" />
 //             <span>{prod.stock} LEFT</span>
 //           </div>
 //         )}
-//       </motion.div>
+//       </div>
 
-//       {/* Discount Badge - moved to right side */}
+//       {/* Discount Badge */}
 //       {isOnSale && (
-//         <motion.div
-//           initial={{ scale: 0, rotate: -45 }}
-//           animate={{ scale: 1, rotate: 0 }}
-//           transition={{ delay: index * 0.05 + 0.3 }}
-//           className="absolute top-4 right-4 z-20"
-//         >
-//           <div className="px-3 py-1.5 bg-gradient-to-r from-amber-600 to-orange-600 text-white text-xs font-bold rounded-lg flex items-center gap-1">
+//         <div className="absolute top-4 right-4 z-20">
+//           <div className="px-3 py-1.5 bg-accent text-dark text-xs font-bold rounded-lg flex items-center gap-1">
 //             <FaTag className="text-xs" />
 //             <span>-{discountPercent}% OFF</span>
 //           </div>
-//         </motion.div>
+//         </div>
 //       )}
 
-//       {/* Like Button - moved below badges */}
-//       <motion.button
+//       {/* Like Button */}
+//       <button
 //         onClick={() => toggleLike(prod._id)}
-//         className="absolute top-20 right-4 z-20 p-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
-//         whileHover={{ scale: 1.1 }}
-//         whileTap={{ scale: 0.9 }}
-//         initial={{ opacity: 0, x: 20 }}
-//         animate={{ opacity: 1, x: 0 }}
-//         transition={{ delay: index * 0.05 + 0.2 }}
+//         className="absolute top-20 right-4 z-20 p-2 bg-lightBg rounded-full hover:bg-accent transition-colors duration-300"
 //       >
-//         <div className="relative">
-//           <FaHeart
-//             className={`text-xl transition-all duration-300 ${
-//               prod.isLiked
-//                 ? "text-red-500 fill-red-500"
-//                 : "text-gray-400 hover:text-red-400"
-//             }`}
-//           />
-//           {/* Pulsing effect when liked */}
-//           {prod.isLiked && (
-//             <motion.div
-//               className="absolute inset-0 rounded-full bg-red-500/20"
-//               initial={{ scale: 0.8, opacity: 0.8 }}
-//               animate={{ scale: 1.5, opacity: 0 }}
-//               transition={{
-//                 duration: 1.5,
-//                 repeat: Infinity,
-//                 repeatType: "loop",
-//               }}
-//             />
-//           )}
-//         </div>
-//       </motion.button>
+//         <FaHeart
+//           className={`text-xl ${
+//             prod.isLiked ? "text-accent fill-accent" : "text-dark/70"
+//           }`}
+//         />
+//       </button>
 
-//       {/* Product Image Container */}
-//       <div className="relative overflow-hidden">
+//       {/* Product Image Container - NO background */}
+//       <div className="relative rounded-2xl overflow-hidden">
 //         <Link to={`/product/${prod._id}`} className="block">
-//           {/* Image with hover effect */}
-//           <motion.img
+//           <img
 //             src={getImageUrl(product.images?.[0] || product.image)}
 //             alt={typeof prod.name === "string" ? prod.name : "Product"}
-//             className="w-full h-60 lg:h-60 object-contain p-2 transition-transform duration-300 group-hover:scale-105"
+//             className="w-full h-60 object-contain p-4"
 //             loading="lazy"
 //             onError={(e) => {
 //               e.target.src =
-//                 "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop";
-//               e.target.className =
-//                 "w-full h-72 lg:h-80 object-contain p-6 transition-transform duration-300 group-hover:scale-105";
+//                 "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop";
+//               e.target.className = "w-full h-60 object-contain p-4";
 //               e.target.onerror = null;
 //             }}
-//             whileHover={{ scale: 1.05 }}
-//             transition={{ duration: 0.3 }}
 //           />
-
-//           {/* Quick View Overlay */}
-//           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center pb-6">
-//             <motion.div
-//               className="bg-white dark:bg-gray-800 rounded-full px-5 py-2.5 flex items-center gap-2.5"
-//               initial={{ y: 20 }}
-//               whileInView={{ y: 0 }}
-//               transition={{ duration: 0.3 }}
-//             >
-//               <FaEye className="text-gray-700 dark:text-gray-300 text-sm" />
-//               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-//                 Quick View
-//               </span>
-//             </motion.div>
-//           </div>
 //         </Link>
+
+//         {/* Quick View Overlay */}
+//         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+//           <button
+//             onClick={() => navigate(`/product/${prod._id}`)}
+//             className="px-4 py-2 bg-primaryBg text-dark rounded-lg font-medium flex items-center gap-2"
+//           >
+//             <FaEye />
+//             Quick View
+//           </button>
+//         </div>
 //       </div>
 
-//       {/* Product Info */}
-//       <div className="p-6">
+//       {/* Product Info - NO background */}
+//       <div className="p-4">
 //         {/* Category Tag */}
 //         {category && (
-//           <div className="mb-3">
-//             <span className="inline-block px-3 py-1.5 bg-amber-100 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 text-xs font-medium rounded-full">
+//           <div className="mb-2">
+//             <span className="inline-block px-3 py-1 bg-lightBg text-dark text-xs font-medium rounded-full">
 //               {category}
 //             </span>
 //           </div>
@@ -966,80 +558,76 @@
 
 //         {/* Product Name */}
 //         <Link to={`/product/${prod._id}`}>
-//           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 min-h-[3rem] group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-300">
+//           <h3 className="text-base font-bold text-dark mb-2 line-clamp-2 min-h-[2.5rem] hover:text-accent transition-colors duration-300">
 //             {typeof prod.name === "string" ? prod.name : "Unnamed Product"}
 //           </h3>
 //         </Link>
 
 //         {/* Rating */}
-//         <div className="flex items-center gap-2 mb-4">
+//         <div className="flex items-center gap-2 mb-3">
 //           <div className="flex items-center gap-0.5">
 //             {[...Array(5)].map((_, i) => (
 //               <FaStar
 //                 key={i}
 //                 className={`text-sm ${
-//                   i < stars
-//                     ? "text-amber-500 fill-amber-500"
-//                     : "text-gray-300 dark:text-gray-600"
+//                   i < stars ? "text-accent fill-accent" : "text-lightBg"
 //                 }`}
 //               />
 //             ))}
 //           </div>
-//           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+//           <span className="text-xs font-medium text-dark/70">
 //             {rating.toFixed(1)}
 //           </span>
 //         </div>
 
 //         {/* Price and Likes */}
-//         <div className="flex items-center justify-between mb-6">
-//           <div className="flex items-baseline gap-3">
+//         <div className="flex items-center justify-between mb-4">
+//           <div className="flex items-baseline gap-2">
 //             {/* Current Price */}
-//             <span className="text-2xl font-bold text-gray-900 dark:text-white">
+//             <span className="text-xl font-bold text-dark">
 //               {formatPrice(prod.price)}
 //             </span>
 
 //             {/* Original Price if on sale */}
 //             {isOnSale && (
-//               <span className="text-sm text-gray-500 dark:text-gray-400 line-through">
+//               <span className="text-sm text-dark/70 line-through">
 //                 {formatPrice(prod.originalPrice)}
 //               </span>
 //             )}
 //           </div>
 
 //           {/* Likes */}
-//           <div className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-100 dark:bg-rose-900/20 rounded-full">
+//           <div className="flex items-center gap-1.5 px-2 py-1 bg-lightBg rounded-full">
 //             <FaHeart
-//               className={`text-sm ${prod.isLiked ? "text-rose-500 fill-rose-500" : "text-rose-400"}`}
+//               className={`text-xs ${
+//                 prod.isLiked ? "text-accent fill-accent" : "text-dark/70"
+//               }`}
 //             />
-//             <span className="text-sm font-medium text-rose-700 dark:text-rose-300">
+//             <span className="text-xs font-medium text-dark">
 //               {formatLikes(prod.likesCount)}
 //             </span>
 //           </div>
 //         </div>
 
 //         {/* Action Buttons */}
-//         <div className="flex gap-3 mb-4">
+//         <div className="mb-3">
 //           {prod.isSold ? (
-//             <motion.button
-//               initial={{ opacity: 0 }}
-//               animate={{ opacity: 1 }}
-//               className="flex-1 px-2 py-3 bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-semibold flex items-center justify-center gap-2 cursor-not-allowed"
+//             <button
+//               className="w-full px-2 py-3 bg-lightBg text-dark rounded-lg font-semibold flex items-center justify-center gap-2 cursor-not-allowed"
 //               disabled
 //             >
 //               <FaTimesCircle className="text-lg" />
 //               <span>SOLD OUT</span>
-//             </motion.button>
+//             </button>
 //           ) : (
-//             <motion.button
-//               className="flex-1 px-2 py-3 bg-amber-500 dark:bg-amber-600 text-white rounded-lg font-semibold hover:bg-amber-600 dark:hover:bg-amber-700 transition-colors duration-300 flex items-center justify-center gap-2"
-//               whileHover={{ scale: 1.02 }}
-//               whileTap={{ scale: 0.98 }}
+//             <button
+//               className="w-full px-2 py-3 bg-accent hover:bg-lightBg text-dark rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors duration-300"
 //               onClick={addToCart}
 //               disabled={loadingAdd}
 //             >
 //               {loadingAdd ? (
 //                 <>
-//                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+//                   <div className="w-4 h-4 border-2 border-dark/30 border-t-dark rounded-full animate-spin" />
 //                   <span>ADDING...</span>
 //                 </>
 //               ) : (
@@ -1048,66 +636,38 @@
 //                   <span>ADD TO CART</span>
 //                 </>
 //               )}
-//             </motion.button>
+//             </button>
 //           )}
 //         </div>
 
 //         {/* Stock Warning */}
 //         {isLowStock && (
-//           <div className="mb-4 p-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+//           <div className="p-2 bg-lightBg rounded-lg">
 //             <div className="flex items-center gap-2">
-//               <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
-//               <span className="text-xs font-bold text-amber-700 dark:text-amber-300">
+//               <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />
+//               <span className="text-xs font-bold text-dark">
 //                 ⚠️ Only {prod.stock} left in stock!
 //               </span>
 //             </div>
 //           </div>
 //         )}
-
-//         {/* Shipping Info */}
-//         <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
-//           <div className="flex items-center justify-between gap-4">
-//             <div className="flex items-center gap-2">
-//               <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-lg">
-//                 <FaTruck className="text-green-600 dark:text-green-400 text-sm" />
-//               </div>
-//               <div>
-//                 <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
-//                   Free Shipping
-//                 </p>
-//               </div>
-//             </div>
-
-//             <div className="flex items-center gap-2">
-//               <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-//                 <FaUndo className="text-blue-600 dark:text-blue-400 text-sm" />
-//               </div>
-//               <div>
-//                 <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
-//                   30-Day Returns
-//                 </p>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
 //       </div>
 
 //       {/* Top seller badge (if applicable) */}
 //       {prod.isTopSeller && (
 //         <div className="absolute -top-2 -right-2 z-10">
-//           <div className="px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-full shadow-lg">
+//           <div className="px-3 py-1 bg-accent text-dark text-xs font-bold rounded-full">
 //             🔥 Top Seller
 //           </div>
 //         </div>
 //       )}
-//     </motion.div>
+//     </div>
 //   );
 // };
 
 // export default ProductCard;
-import React, { useEffect, useState, useContext, useRef } from "react";
+import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { authContext } from "../Context/authContext";
 import { cartContext } from "../Context/cartContext";
 import {
@@ -1115,17 +675,17 @@ import {
   FaStar,
   FaTag,
   FaShoppingCart,
-  FaTruck,
-  FaUndo,
-  FaEye,
-  FaCheckCircle,
   FaTimesCircle,
+  FaCheckCircle,
+  FaEye,
 } from "react-icons/fa";
 import { useProducts } from "../Context/ProductContext";
 import { getImageUrl } from "../utils/imageUtils";
 import { fetchWithAuth } from "../utils/auth";
 import { toast } from "react-hot-toast";
+
 const BACKEND_URL = import.meta.env.VITE_API_URL;
+
 const formatLikes = (num) => {
   const likes = Number(num) || 0;
   if (likes >= 1000000) return (likes / 1000000).toFixed(1) + "M";
@@ -1159,8 +719,8 @@ const ProductCard = ({ product, index = 0 }) => {
   // Validate product data
   if (!prod || typeof prod !== "object") {
     return (
-      <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-2xl">
-        <p className="text-red-600 dark:text-red-400">Invalid product data</p>
+      <div className="p-4">
+        <p className="text-accent dark:text-accent/80">Invalid product data</p>
       </div>
     );
   }
@@ -1237,35 +797,15 @@ const ProductCard = ({ product, index = 0 }) => {
   const isLowStock = isProductAvailable && prod.stock <= 5;
 
   return (
-    <motion.div
-      className="group relative bg-[#EEEEEE] dark:bg-transparent rounded-xl overflow-hidden transition-all duration-300 "
-      initial={{ opacity: 0, y: 40, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{
-        duration: 0.6,
-        delay: index * 0.05,
-        type: "spring",
-        stiffness: 100,
-        damping: 15,
-      }}
-      whileHover={{
-        y: -5,
-        transition: { duration: 0.3 },
-      }}
-    >
+    <div className="group relative overflow-hidden">
       {/* Availability Badge */}
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: index * 0.05 + 0.1 }}
-        className="absolute top-4 left-4 z-30 flex flex-col gap-2"
-      >
+      <div className="absolute top-4 left-4 z-30 flex flex-col gap-2">
         {/* Sold/Available Badge */}
         <div
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-lg ${
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 ${
             prod.isSold
-              ? "bg-gradient-to-r from-rose-500 to-rose-600 text-white"
-              : "bg-white text-slate-700"
+              ? "bg-accent dark:bg-accent/80 text-dark dark:text-white"
+              : "bg-lightBg dark:bg-lightBg/30 text-dark dark:text-white"
           }`}
         >
           {prod.isSold ? (
@@ -1283,105 +823,72 @@ const ProductCard = ({ product, index = 0 }) => {
 
         {/* Stock Indicator */}
         {isProductAvailable && (
-          <div className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#D8C9A7] to-[#D7C097] text-gray-900 text-xs font-bold flex items-center gap-1.5 shadow-lg">
+          <div className="px-3 py-1.5 rounded-lg bg-lightBg dark:bg-lightBg/30 text-dark dark:text-white text-xs font-bold flex items-center gap-1.5">
             <FaTag className="text-xs" />
             <span>{prod.stock} LEFT</span>
           </div>
         )}
-      </motion.div>
+      </div>
 
-      {/* Discount Badge - moved to right side */}
+      {/* Discount Badge */}
       {isOnSale && (
-        <motion.div
-          initial={{ scale: 0, rotate: -45 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ delay: index * 0.05 + 0.3 }}
-          className="absolute top-4 right-4 z-20"
-        >
-          <div className="px-3 py-1.5 bg-gradient-to-r from-[#D8C9A7] to-[#D7C097] text-gray-900 text-xs font-bold rounded-lg flex items-center gap-1">
+        <div className="absolute top-4 right-4 z-20">
+          <div className="px-3 py-1.5 bg-accent dark:bg-accent/80 text-dark dark:text-white text-xs font-bold rounded-lg flex items-center gap-1">
             <FaTag className="text-xs" />
             <span>-{discountPercent}% OFF</span>
           </div>
-        </motion.div>
+        </div>
       )}
 
-      {/* Like Button - moved below badges */}
-      <motion.button
+      {/* Like Button */}
+      <button
         onClick={() => toggleLike(prod._id)}
-        className="absolute top-20 right-4 z-20 p-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: index * 0.05 + 0.2 }}
+        className="absolute top-20 right-4 z-20 p-2 bg-lightBg dark:bg-lightBg/30 rounded-full hover:bg-accent dark:hover:bg-accent/80 transition-colors duration-300"
       >
-        <div className="relative">
-          <FaHeart
-            className={`text-xl transition-all duration-300 ${
-              prod.isLiked
-                ? "text-red-500 fill-red-500"
-                : "text-gray-400 hover:text-red-400"
-            }`}
-          />
-          {/* Pulsing effect when liked */}
-          {prod.isLiked && (
-            <motion.div
-              className="absolute inset-0 rounded-full bg-red-500/20"
-              initial={{ scale: 0.8, opacity: 0.8 }}
-              animate={{ scale: 1.5, opacity: 0 }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                repeatType: "loop",
-              }}
-            />
-          )}
-        </div>
-      </motion.button>
+        <FaHeart
+          className={`text-xl ${
+            prod.isLiked
+              ? "text-accent dark:text-accent/80 fill-accent dark:fill-accent/80"
+              : "text-dark/70 dark:text-gray-300"
+          }`}
+        />
+      </button>
 
-      {/* Product Image Container */}
-      <div className="relative  dark:bg-gray-800/50">
+      {/* Product Image Container - NO background */}
+      <div className="relative rounded-2xl overflow-hidden">
         <Link to={`/product/${prod._id}`} className="block">
-          {/* Image with hover effect */}
-          <motion.img
+          <img
             src={getImageUrl(product.images?.[0] || product.image)}
             alt={typeof prod.name === "string" ? prod.name : "Product"}
-            className="w-full h-60 lg:h-60 object-contain p-2 transition-transform duration-300 group-hover:scale-105"
+            className="w-full h-60 object-contain p-4"
             loading="lazy"
             onError={(e) => {
               e.target.src =
-                "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop";
-              e.target.className =
-                "w-full h-72 lg:h-80 object-contain p-6 transition-transform duration-300 group-hover:scale-105";
+                "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop";
+              e.target.className = "w-full h-60 object-contain p-4";
               e.target.onerror = null;
             }}
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.3 }}
           />
-
-          {/* Quick View Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center pb-6">
-            <motion.div
-              className="bg-[#D8C9A7] dark:bg-[#D7C097] text-gray-900 rounded-full px-5 py-2.5 flex items-center gap-2.5"
-              initial={{ y: 20 }}
-              whileInView={{ y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <FaEye className="text-gray-900 text-sm" />
-              <span className="text-sm font-medium text-gray-900">
-                Quick View
-              </span>
-            </motion.div>
-          </div>
         </Link>
+
+        {/* Quick View Overlay */}
+        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+          <button
+            onClick={() => navigate(`/product/${prod._id}`)}
+            className="px-4 py-2 bg-primaryBg dark:bg-gray-800 text-dark dark:text-white rounded-lg font-medium flex items-center gap-2"
+          >
+            <FaEye />
+            Quick View
+          </button>
+        </div>
       </div>
 
-      {/* Product Info */}
-      <div className="p-6">
+      {/* Product Info - NO background */}
+      <div className="p-4">
         {/* Category Tag */}
         {category && (
-          <div className="mb-3">
-            <span className="inline-block px-3 py-1.5 bg-[#D8C9A7] dark:bg-[#D7C097]/30 text-gray-800 dark:text-gray-900 text-xs font-medium rounded-full">
+          <div className="mb-2">
+            <span className="inline-block px-3 py-1 bg-lightBg dark:bg-lightBg/30 text-dark dark:text-white text-xs font-medium rounded-full">
               {category}
             </span>
           </div>
@@ -1389,80 +896,80 @@ const ProductCard = ({ product, index = 0 }) => {
 
         {/* Product Name */}
         <Link to={`/product/${prod._id}`}>
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 min-h-[3rem] group-hover:text-[#D7C097] dark:group-hover:text-[#D8C9A7] transition-colors duration-300">
+          <h3 className="text-base font-bold text-dark dark:text-white mb-2 line-clamp-2 min-h-[2.5rem] hover:text-accent dark:hover:text-accent/80 transition-colors duration-300">
             {typeof prod.name === "string" ? prod.name : "Unnamed Product"}
           </h3>
         </Link>
 
         {/* Rating */}
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2 mb-3">
           <div className="flex items-center gap-0.5">
             {[...Array(5)].map((_, i) => (
               <FaStar
                 key={i}
                 className={`text-sm ${
                   i < stars
-                    ? "text-[#D7C097] fill-[#D7C097]"
-                    : "text-gray-300 dark:text-gray-600"
+                    ? "text-accent dark:text-accent/80 fill-accent dark:fill-accent/80"
+                    : "text-lightBg dark:text-lightBg/30"
                 }`}
               />
             ))}
           </div>
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <span className="text-xs font-medium text-dark/70 dark:text-gray-300">
             {rating.toFixed(1)}
           </span>
         </div>
 
         {/* Price and Likes */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-baseline gap-3">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-baseline gap-2">
             {/* Current Price */}
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">
+            <span className="text-xl font-bold text-dark dark:text-white">
               {formatPrice(prod.price)}
             </span>
 
             {/* Original Price if on sale */}
             {isOnSale && (
-              <span className="text-sm text-gray-500 dark:text-gray-400 line-through">
+              <span className="text-sm text-dark/70 dark:text-gray-300 line-through">
                 {formatPrice(prod.originalPrice)}
               </span>
             )}
           </div>
 
           {/* Likes */}
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-100 dark:bg-rose-900/20 rounded-full">
+          <div className="flex items-center gap-1.5 px-2 py-1 bg-lightBg dark:bg-lightBg/30 rounded-full">
             <FaHeart
-              className={`text-sm ${prod.isLiked ? "text-rose-500 fill-rose-500" : "text-rose-400"}`}
+              className={`text-xs ${
+                prod.isLiked
+                  ? "text-accent dark:text-accent/80 fill-accent dark:fill-accent/80"
+                  : "text-dark/70 dark:text-gray-300"
+              }`}
             />
-            <span className="text-sm font-medium text-rose-700 dark:text-rose-300">
+            <span className="text-xs font-medium text-dark dark:text-white">
               {formatLikes(prod.likesCount)}
             </span>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-3 mb-4">
+        <div className="mb-3">
           {prod.isSold ? (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex-1 px-2 py-3 bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-semibold flex items-center justify-center gap-2 cursor-not-allowed"
+            <button
+              className="w-full px-2 py-3 bg-lightBg dark:bg-lightBg/30 text-dark dark:text-white rounded-lg font-semibold flex items-center justify-center gap-2 cursor-not-allowed"
               disabled
             >
               <FaTimesCircle className="text-lg" />
               <span>SOLD OUT</span>
-            </motion.button>
+            </button>
           ) : (
-            <motion.button
-              className="flex-1 px-2 py-3 bg-gradient-to-r from-[#D8C9A7] to-[#D7C097] text-gray-900 rounded-lg font-semibold hover:from-[#D7C097] hover:to-[#D8C9A7] transition-all duration-300 flex items-center justify-center gap-2"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+            <button
+              className="w-full px-2 py-3 bg-accent dark:bg-accent/80 hover:bg-lightBg dark:hover:bg-lightBg/30 text-dark dark:text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors duration-300"
               onClick={addToCart}
               disabled={loadingAdd}
             >
               {loadingAdd ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-gray-900/30 border-t-gray-900 rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-dark/30 dark:border-white/30 border-t-dark dark:border-t-white rounded-full animate-spin" />
                   <span>ADDING...</span>
                 </>
               ) : (
@@ -1471,59 +978,32 @@ const ProductCard = ({ product, index = 0 }) => {
                   <span>ADD TO CART</span>
                 </>
               )}
-            </motion.button>
+            </button>
           )}
         </div>
 
         {/* Stock Warning */}
         {isLowStock && (
-          <div className="mb-4 p-3 bg-gradient-to-r from-[#D8C9A7]/20 to-[#D7C097]/20 dark:from-[#D8C9A7]/10 dark:to-[#D7C097]/10 rounded-lg border border-[#D7C097] dark:border-[#D8C9A7]/30">
+          <div className="p-2 bg-lightBg dark:bg-lightBg/30 rounded-lg">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-[#D7C097] rounded-full animate-pulse" />
-              <span className="text-xs font-bold text-gray-800 dark:text-gray-300">
+              <div className="w-2 h-2 bg-accent dark:bg-accent/80 rounded-full animate-pulse" />
+              <span className="text-xs font-bold text-dark dark:text-white">
                 ⚠️ Only {prod.stock} left in stock!
               </span>
             </div>
           </div>
         )}
-
-        {/* Shipping Info */}
-        <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                <FaTruck className="text-green-600 dark:text-green-400 text-sm" />
-              </div>
-              <div>
-                <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Free Shipping
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                <FaUndo className="text-blue-600 dark:text-blue-400 text-sm" />
-              </div>
-              <div>
-                <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                  30-Day Returns
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Top seller badge (if applicable) */}
       {prod.isTopSeller && (
         <div className="absolute -top-2 -right-2 z-10">
-          <div className="px-3 py-1 bg-gradient-to-r from-[#D8C9A7] to-[#D7C097] text-gray-900 text-xs font-bold rounded-full shadow-lg">
+          <div className="px-3 py-1 bg-accent dark:bg-accent/80 text-dark dark:text-white text-xs font-bold rounded-full">
             🔥 Top Seller
           </div>
         </div>
       )}
-    </motion.div>
+    </div>
   );
 };
 

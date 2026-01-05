@@ -302,7 +302,6 @@ const CategoryPage = () => {
           transform-style: preserve-3d;
         }
       `}</style>
-
       {/* Hero Image Section with Parallax */}
       <div ref={heroRef} className="relative overflow-hidden">
         <motion.div
@@ -496,7 +495,6 @@ const CategoryPage = () => {
           </svg>
         </div>
       </div>
-
       {/* Main Content Section */}
       <div
         ref={containerRef}
@@ -1206,29 +1204,6 @@ const CategoryPage = () => {
           </motion.div>
         </div>
       </div>
-
-      {/* Floating Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.7 }}
-        transition={{ delay: 1.5, duration: 1 }}
-        className="fixed bottom-6 md:bottom-8 right-4 md:right-8 z-30"
-      >
-        <motion.div
-          animate={{
-            y: [0, 10, 0],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-[#D7C097] to-[#B8A075] flex items-center justify-center shadow-xl cursor-pointer"
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        >
-          <FaChevronUp className="text-white" />
-        </motion.div>
-      </motion.div>
     </motion.div>
   );
 };

@@ -14,7 +14,6 @@ const MainPage = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // If there's a hash in the URL, scroll to that section
     if (location.hash) {
       const id = location.hash.replace("#", "");
       const element = document.getElementById(id);
@@ -24,7 +23,6 @@ const MainPage = () => {
         }, 100);
       }
     } else {
-      // Scroll to top if no hash
       window.scrollTo(0, 0);
     }
   }, [location]);
@@ -35,42 +33,22 @@ const MainPage = () => {
       <section id="home" className="min-h-screen">
         <Home />
       </section>
-
       {/* Categories Section */}
       <section id="categories" className="min-h-screen">
         <Categories />
       </section>
-
       {/* Products Section */}
       <section id="products" className="min-h-screen">
         <ProductsPage />
       </section>
-
       {/* About Section */}
       <section id="about" className="">
         <AboutPage />
       </section>
 
-      {/* Shipping Info Section */}
-      <section id="shipping" className="">
-        <ShippingInfoPage />
-      </section>
-
-      {/* Return Policy Section */}
-      <section id="policy" className="">
-        <ReturnPolicyPage />
-      </section>
-
-      {/* FAQ Section */}
-      <section id="faqs" className="">
-        <FAQPage />
-      </section>
-
-      {/* Contact Section */}
       <section id="contact" className="">
         <ContactPage />
       </section>
-
       {/* Footer */}
       {/* <Footer /> */}
     </div>

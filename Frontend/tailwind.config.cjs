@@ -39,13 +39,23 @@ module.exports = {
     extend: {
       colors: {
         primaryBg: "#EEEEEE",
-        lightBg: "#D8C9A7",
-        accent: "#D7C097",
+        lightBg: "#EBE1D1",
+        accent: "#FFE2AF",
         // You might also want these for dark mode
         dark: "#111827",
       },
     },
   },
+  // theme: {
+  //   extend: {
+  //     colors: {
+  //       primary: "#FFF7ED",
+  //       secondary: "#F43F5E",
+  //       accent: "#B45309",
+  //       dark: "#111827",
+  //     },
+  //   },
+  // },
   plugins: [
     // Add plugins here if needed
   ],

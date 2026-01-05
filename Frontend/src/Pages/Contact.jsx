@@ -1,5 +1,563 @@
-// import React, { useState, useEffect, useRef } from "react";
-// import { motion, AnimatePresence, useInView } from "framer-motion";
+// // // import React, { useState, useEffect } from "react";
+// // // import toast from "react-hot-toast";
+// // // import {
+// // //   FaPhone,
+// // //   FaEnvelope,
+// // //   FaMapMarkerAlt,
+// // //   FaClock,
+// // //   FaPaperPlane,
+// // //   FaUser,
+// // //   FaTag,
+// // //   FaComment,
+// // //   FaBuilding,
+// // // } from "react-icons/fa";
+// // // import { fetchWithAuth } from "../utils/auth";
+
+// // // const BACKEND_URL = import.meta.env.VITE_API_URL;
+
+// // // const ContactPage = () => {
+// // //   const [formData, setFormData] = useState({
+// // //     name: "",
+// // //     email: "",
+// // //     subject: "",
+// // //     message: "",
+// // //   });
+// // //   const [isSubmitting, setIsSubmitting] = useState(false);
+// // //   const [isLoading, setIsLoading] = useState(true);
+
+// // //   useEffect(() => {
+// // //     const timer = setTimeout(() => setIsLoading(false), 800);
+// // //     return () => clearTimeout(timer);
+// // //   }, []);
+
+// // //   const handleChange = (e) => {
+// // //     const { name, value } = e.target;
+// // //     setFormData((prev) => ({ ...prev, [name]: value }));
+// // //   };
+
+// // //   const handleSubmit = async (e) => {
+// // //     e.preventDefault();
+// // //     setIsSubmitting(true);
+
+// // //     try {
+// // //       const response = await fetchWithAuth(`${BACKEND_URL}/api/contact`, {
+// // //         method: "POST",
+// // //         headers: {
+// // //           "Content-Type": "application/json",
+// // //         },
+// // //         body: JSON.stringify(formData),
+// // //       });
+
+// // //       const data = await response.json();
+
+// // //       if (response.ok) {
+// // //         toast.success("Message sent successfully! We'll get back to you soon.");
+// // //         setFormData({ name: "", email: "", subject: "", message: "" });
+// // //       } else {
+// // //         toast.error(
+// // //           data.message || "Failed to send message. Please try again."
+// // //         );
+// // //       }
+// // //     } catch (error) {
+// // //       toast.error("Network error. Please check your connection.");
+// // //     } finally {
+// // //       setIsSubmitting(false);
+// // //     }
+// // //   };
+
+// // //   const contactInfo = [
+// // //     {
+// // //       icon: <FaPhone />,
+// // //       title: "Call Us",
+// // //       details: ["+251 96 462 3413", "+251 92 683 0205"],
+// // //       action: "tel:+251964623413",
+// // //     },
+// // //     {
+// // //       icon: <FaEnvelope />,
+// // //       title: "Email Us",
+// // //       details: [
+// // //         "worknehtesfamicael707@gmail.com",
+// // //         "biruktawithabtamu686@gmail.com",
+// // //       ],
+// // //       action: "mailto:worknehtesfamicael707@gmail.com",
+// // //     },
+// // //     {
+// // //       icon: <FaMapMarkerAlt />,
+// // //       title: "Visit Us",
+// // //       details: ["Platinum Plaza", "Front of EU Delegation"],
+// // //       action: "https://maps.google.com",
+// // //     },
+// // //     {
+// // //       icon: <FaClock />,
+// // //       title: "Hours",
+// // //       details: ["Mon-Fri: 9AM-6PM", "Sat-Sun: 10AM-4PM"],
+// // //       action: null,
+// // //     },
+// // //   ];
+
+// // //   return (
+// // //     <>
+// // //       {/* Loading Animation */}
+// // //       {isLoading && (
+// // //         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-gray-900">
+// // //           <div className="text-center">
+// // //             <div className="w-24 h-24 rounded-full border-4 border-transparent border-t-[#D7C097] border-r-[#A38C5C] animate-spin mb-4"></div>
+// // //             <p className="dark:text-gray-300 text-gray-700 font-medium">
+// // //               Loading Contact...
+// // //             </p>
+// // //           </div>
+// // //         </div>
+// // //       )}
+
+// // //       <div className="min-h-screen bg-white dark:bg-gray-900 pt-24 pb-12">
+// // //         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+// // //           {/* Header */}
+// // //           <div className="text-center mb-16">
+// // //             <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-[#D7C097] mb-6">
+// // //               <FaPaperPlane className="text-4xl text-white" />
+// // //             </div>
+
+// // //             <h1 className="text-4xl lg:text-6xl font-bold mb-6">
+// // //               <span className="text-gray-900 dark:text-gray-100">
+// // //                 Get in Touch
+// // //               </span>
+// // //             </h1>
+
+// // //             <p className="text-xl lg:text-2xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
+// // //               Have questions? We're here to help. Reach out anytime!
+// // //             </p>
+// // //           </div>
+
+// // //           {/* Contact Cards */}
+// // //           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+// // //             {contactInfo.map((info, index) => (
+// // //               <div
+// // //                 key={index}
+// // //                 className={`p-8 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 ${
+// // //                   info.action ? "cursor-pointer" : "cursor-default"
+// // //                 }`}
+// // //                 onClick={() =>
+// // //                   info.action && window.open(info.action, "_blank")
+// // //                 }
+// // //               >
+// // //                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#D7C097] mb-6">
+// // //                   <div className="text-2xl text-white">{info.icon}</div>
+// // //                 </div>
+
+// // //                 <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+// // //                   {info.title}
+// // //                 </h3>
+
+// // //                 <div className="space-y-2">
+// // //                   {info.details.map((detail, idx) => (
+// // //                     <p key={idx} className="text-gray-700 dark:text-gray-300">
+// // //                       {detail}
+// // //                     </p>
+// // //                   ))}
+// // //                 </div>
+// // //               </div>
+// // //             ))}
+// // //           </div>
+
+// // //           <div className="grid lg:grid-cols-3 gap-12">
+// // //             {/* Contact Form */}
+// // //             <div className="lg:col-span-2">
+// // //               <div className="p-8 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+// // //                 <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+// // //                   Send us a Message
+// // //                 </h2>
+
+// // //                 <p className="text-lg text-gray-700 dark:text-gray-300 mb-8">
+// // //                   Fill out the form below and we'll get back to you as soon as
+// // //                   possible.
+// // //                 </p>
+
+// // //                 <form onSubmit={handleSubmit} className="space-y-6">
+// // //                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+// // //                     <div>
+// // //                       <label className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-3 font-medium">
+// // //                         <FaUser className="text-[#D7C097]" />
+// // //                         Your Name
+// // //                       </label>
+// // //                       <input
+// // //                         type="text"
+// // //                         name="name"
+// // //                         value={formData.name}
+// // //                         onChange={handleChange}
+// // //                         required
+// // //                         className="w-full px-4 py-4 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-400"
+// // //                         placeholder="John Doe"
+// // //                       />
+// // //                     </div>
+
+// // //                     <div>
+// // //                       <label className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-3 font-medium">
+// // //                         <FaEnvelope className="text-[#D7C097]" />
+// // //                         Email Address
+// // //                       </label>
+// // //                       <input
+// // //                         type="email"
+// // //                         name="email"
+// // //                         value={formData.email}
+// // //                         onChange={handleChange}
+// // //                         required
+// // //                         className="w-full px-4 py-4 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-400"
+// // //                         placeholder="john@example.com"
+// // //                       />
+// // //                     </div>
+// // //                   </div>
+
+// // //                   <div>
+// // //                     <label className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-3 font-medium">
+// // //                       <FaTag className="text-[#D7C097]" />
+// // //                       Subject
+// // //                     </label>
+// // //                     <input
+// // //                       type="text"
+// // //                       name="subject"
+// // //                       value={formData.subject}
+// // //                       onChange={handleChange}
+// // //                       required
+// // //                       className="w-full px-4 py-4 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-400"
+// // //                       placeholder="How can we help you?"
+// // //                     />
+// // //                   </div>
+
+// // //                   <div>
+// // //                     <label className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-3 font-medium">
+// // //                       <FaComment className="text-[#D7C097]" />
+// // //                       Your Message
+// // //                     </label>
+// // //                     <textarea
+// // //                       name="message"
+// // //                       value={formData.message}
+// // //                       onChange={handleChange}
+// // //                       required
+// // //                       rows={6}
+// // //                       className="w-full px-4 py-4 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-400 resize-none"
+// // //                       placeholder="Tell us more about your inquiry..."
+// // //                     />
+// // //                   </div>
+
+// // //                   <button
+// // //                     type="submit"
+// // //                     disabled={isSubmitting}
+// // //                     className="w-full py-5 rounded-xl bg-[#D7C097] text-white font-bold text-lg flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+// // //                   >
+// // //                     {isSubmitting ? (
+// // //                       <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+// // //                     ) : (
+// // //                       <FaPaperPlane className="text-xl" />
+// // //                     )}
+// // //                     <span>{isSubmitting ? "Sending..." : "Send Message"}</span>
+// // //                   </button>
+// // //                 </form>
+// // //               </div>
+// // //             </div>
+
+// // //             {/* Office Location */}
+// // //             <div>
+// // //               <div className="p-8 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+// // //                 <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-3">
+// // //                   <FaBuilding className="text-[#D7C097]" />
+// // //                   Our Office
+// // //                 </h3>
+
+// // //                 <div className="h-64 rounded-2xl overflow-hidden border border-gray-300 dark:border-gray-600">
+// // //                   <div className="w-full h-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+// // //                     <div className="text-center">
+// // //                       <div className="w-16 h-16 rounded-full bg-[#D7C097] flex items-center justify-center mx-auto mb-4">
+// // //                         <FaMapMarkerAlt className="text-2xl text-white" />
+// // //                       </div>
+
+// // //                       <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+// // //                         Platinum Plaza
+// // //                       </h4>
+
+// // //                       <p className="text-gray-700 dark:text-gray-300 mb-1">
+// // //                         Front of EU Delegation
+// // //                       </p>
+
+// // //                       <p className="text-[#D7C097]">Addis Ababa, Ethiopia</p>
+// // //                     </div>
+// // //                   </div>
+// // //                 </div>
+
+// // //                 <button
+// // //                   onClick={() =>
+// // //                     window.open("https://maps.google.com", "_blank")
+// // //                   }
+// // //                   className="w-full mt-6 px-6 py-3 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-300 font-semibold flex items-center justify-center gap-2"
+// // //                 >
+// // //                   View on Google Maps
+// // //                 </button>
+// // //               </div>
+// // //             </div>
+// // //           </div>
+// // //         </div>
+// // //       </div>
+// // //     </>
+// // //   );
+// // // };
+
+// // // export default ContactPage;
+// // import React, { useState, useEffect } from "react";
+// // import { motion } from "framer-motion";
+// // import toast from "react-hot-toast";
+// // import {
+// //   FaPhone,
+// //   FaEnvelope,
+// //   FaMapMarkerAlt,
+// //   FaClock,
+// //   FaPaperPlane,
+// //   FaUser,
+// //   FaTag,
+// //   FaComment,
+// //   FaBuilding,
+// // } from "react-icons/fa";
+// // import { fetchWithAuth } from "../utils/auth";
+
+// // const BACKEND_URL = import.meta.env.VITE_API_URL;
+
+// // /* 🔥 SIMPLE REUSABLE ANIMATION */
+// // const fadeUp = {
+// //   hidden: { opacity: 0, y: 40 },
+// //   visible: {
+// //     opacity: 1,
+// //     y: 0,
+// //     transition: { duration: 0.6, ease: "easeOut" },
+// //   },
+// // };
+
+// // const ContactPage = () => {
+// //   const [formData, setFormData] = useState({
+// //     name: "",
+// //     email: "",
+// //     subject: "",
+// //     message: "",
+// //   });
+// //   const [isSubmitting, setIsSubmitting] = useState(false);
+// //   const [isLoading, setIsLoading] = useState(true);
+
+// //   useEffect(() => {
+// //     const timer = setTimeout(() => setIsLoading(false), 800);
+// //     return () => clearTimeout(timer);
+// //   }, []);
+
+// //   const handleChange = (e) => {
+// //     const { name, value } = e.target;
+// //     setFormData((prev) => ({ ...prev, [name]: value }));
+// //   };
+
+// //   const handleSubmit = async (e) => {
+// //     e.preventDefault();
+// //     setIsSubmitting(true);
+
+// //     try {
+// //       const response = await fetchWithAuth(`${BACKEND_URL}/api/contact`, {
+// //         method: "POST",
+// //         headers: { "Content-Type": "application/json" },
+// //         body: JSON.stringify(formData),
+// //       });
+
+// //       const data = await response.json();
+
+// //       if (response.ok) {
+// //         toast.success("Message sent successfully!");
+// //         setFormData({ name: "", email: "", subject: "", message: "" });
+// //       } else {
+// //         toast.error(data.message || "Failed to send message.");
+// //       }
+// //     } catch {
+// //       toast.error("Network error.");
+// //     } finally {
+// //       setIsSubmitting(false);
+// //     }
+// //   };
+
+// //   const contactInfo = [
+// //     {
+// //       icon: <FaPhone />,
+// //       title: "Call Us",
+// //       details: ["+251 96 462 3413", "+251 92 683 0205"],
+// //       action: "tel:+251964623413",
+// //     },
+// //     {
+// //       icon: <FaEnvelope />,
+// //       title: "Email Us",
+// //       details: [
+// //         "worknehtesfamicael707@gmail.com",
+// //         "biruktawithabtamu686@gmail.com",
+// //       ],
+// //       action: "mailto:worknehtesfamicael707@gmail.com",
+// //     },
+// //     {
+// //       icon: <FaMapMarkerAlt />,
+// //       title: "Visit Us",
+// //       details: ["Platinum Plaza", "Front of EU Delegation"],
+// //       action: "https://maps.google.com",
+// //     },
+// //     {
+// //       icon: <FaClock />,
+// //       title: "Hours",
+// //       details: ["Mon-Fri: 9AM-6PM", "Sat-Sun: 10AM-4PM"],
+// //       action: null,
+// //     },
+// //   ];
+
+// //   return (
+// //     <>
+// //       {/* Loading */}
+// //       {isLoading && (
+// //         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-gray-900">
+// //           <div className="w-24 h-24 rounded-full border-4 border-t-[#D7C097] animate-spin" />
+// //         </div>
+// //       )}
+
+// //       <div className="min-h-screen bg-white dark:bg-gray-900 pt-24 pb-12">
+// //         <div className="max-w-7xl mx-auto px-4">
+// //           {/* 🔥 HEADER */}
+// //           <motion.div
+// //             variants={fadeUp}
+// //             initial="hidden"
+// //             animate="visible"
+// //             className="text-center mb-16"
+// //           >
+// //             <div className="inline-flex w-24 h-24 rounded-full bg-[#D7C097] items-center justify-center mb-6">
+// //               <FaPaperPlane className="text-4xl text-white" />
+// //             </div>
+
+// //             <h1 className="text-4xl lg:text-6xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+// //               Get in Touch
+// //             </h1>
+
+// //             <p className="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
+// //               Have questions? We're here to help.
+// //             </p>
+// //           </motion.div>
+
+// //           {/* 🔥 CONTACT CARDS */}
+// //           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+// //             {contactInfo.map((info, index) => (
+// //               <motion.div
+// //                 key={index}
+// //                 variants={fadeUp}
+// //                 initial="hidden"
+// //                 whileInView="visible"
+// //                 viewport={{ once: true }}
+// //                 transition={{ delay: index * 0.1 }}
+// //                 className="p-8 rounded-3xl bg-white dark:bg-gray-800 border"
+// //                 onClick={() =>
+// //                   info.action && window.open(info.action, "_blank")
+// //                 }
+// //               >
+// //                 <div className="w-16 h-16 rounded-full bg-[#D7C097] flex items-center justify-center mb-6 text-white text-2xl">
+// //                   {info.icon}
+// //                 </div>
+
+// //                 <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100">
+// //                   {info.title}
+// //                 </h3>
+
+// //                 {info.details.map((d, i) => (
+// //                   <p key={i} className="text-gray-700 dark:text-gray-300">
+// //                     {d}
+// //                   </p>
+// //                 ))}
+// //               </motion.div>
+// //             ))}
+// //           </div>
+
+// //           <div className="grid lg:grid-cols-3 gap-12">
+// //             {/* 🔥 FORM */}
+// //             <motion.div
+// //               variants={fadeUp}
+// //               initial="hidden"
+// //               whileInView="visible"
+// //               viewport={{ once: true }}
+// //               className="lg:col-span-2 p-8 rounded-3xl bg-white dark:bg-gray-800 border"
+// //             >
+// //               <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+// //                 Send us a Message
+// //               </h2>
+
+// //               <form onSubmit={handleSubmit} className="space-y-6">
+// //                 <input
+// //                   name="name"
+// //                   placeholder="Your Name"
+// //                   value={formData.name}
+// //                   onChange={handleChange}
+// //                   className="w-full px-4 py-4 rounded-xl bg-gray-50 dark:bg-gray-700"
+// //                   required
+// //                 />
+
+// //                 <input
+// //                   name="email"
+// //                   type="email"
+// //                   placeholder="Email"
+// //                   value={formData.email}
+// //                   onChange={handleChange}
+// //                   className="w-full px-4 py-4 rounded-xl bg-gray-50 dark:bg-gray-700"
+// //                   required
+// //                 />
+
+// //                 <input
+// //                   name="subject"
+// //                   placeholder="Subject"
+// //                   value={formData.subject}
+// //                   onChange={handleChange}
+// //                   className="w-full px-4 py-4 rounded-xl bg-gray-50 dark:bg-gray-700"
+// //                   required
+// //                 />
+
+// //                 <textarea
+// //                   name="message"
+// //                   rows={5}
+// //                   placeholder="Your Message"
+// //                   value={formData.message}
+// //                   onChange={handleChange}
+// //                   className="w-full px-4 py-4 rounded-xl bg-gray-50 dark:bg-gray-700"
+// //                   required
+// //                 />
+
+// //                 <button
+// //                   type="submit"
+// //                   disabled={isSubmitting}
+// //                   className="w-full py-4 rounded-xl bg-[#D7C097] text-white font-bold"
+// //                 >
+// //                   {isSubmitting ? "Sending..." : "Send Message"}
+// //                 </button>
+// //               </form>
+// //             </motion.div>
+
+// //             {/* 🔥 OFFICE */}
+// //             <motion.div
+// //               variants={fadeUp}
+// //               initial="hidden"
+// //               whileInView="visible"
+// //               viewport={{ once: true }}
+// //               className="p-8 rounded-3xl bg-white dark:bg-gray-800 border"
+// //             >
+// //               <h3 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100 flex items-center gap-2">
+// //                 <FaBuilding className="text-[#D7C097]" /> Our Office
+// //               </h3>
+
+// //               <p className="text-gray-700 dark:text-gray-300">
+// //                 Platinum Plaza
+// //                 <br />
+// //                 Addis Ababa, Ethiopia
+// //               </p>
+// //             </motion.div>
+// //           </div>
+// //         </div>
+// //       </div>
+// //     </>
+// //   );
+// // };
+
+// // export default ContactPage;
+// import React, { useState, useEffect } from "react";
+// import { motion } from "framer-motion";
 // import toast from "react-hot-toast";
 // import {
 //   FaPhone,
@@ -7,20 +565,30 @@
 //   FaMapMarkerAlt,
 //   FaClock,
 //   FaPaperPlane,
-//   FaUser,
-//   FaTag,
-//   FaComment,
-//   FaCheckCircle,
-//   FaChevronUp,
-//   FaHeadset,
 //   FaBuilding,
-//   FaGlobe,
 // } from "react-icons/fa";
-// import { IoChatbubbleEllipses, IoLogoWhatsapp } from "react-icons/io5";
-// import { MdSupportAgent } from "react-icons/md";
 // import { fetchWithAuth } from "../utils/auth";
 
 // const BACKEND_URL = import.meta.env.VITE_API_URL;
+
+// /* =======================
+//    ANIMATION VARIANTS
+// ======================= */
+// const fadeUp = {
+//   hidden: { opacity: 0, y: 60 },
+//   visible: {
+//     opacity: 1,
+//     y: 0,
+//     transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+//   },
+// };
+
+// const container = {
+//   hidden: {},
+//   visible: {
+//     transition: { staggerChildren: 0.15 },
+//   },
+// };
 
 // const ContactPage = () => {
 //   const [formData, setFormData] = useState({
@@ -30,40 +598,11 @@
 //     message: "",
 //   });
 //   const [isSubmitting, setIsSubmitting] = useState(false);
-//   const [scrollProgress, setScrollProgress] = useState(0);
-//   const [isScrolling, setIsScrolling] = useState(false);
 //   const [isLoading, setIsLoading] = useState(true);
-//   const containerRef = useRef(null);
 
-//   // Loading animation
 //   useEffect(() => {
 //     const timer = setTimeout(() => setIsLoading(false), 800);
 //     return () => clearTimeout(timer);
-//   }, []);
-
-//   // Enhanced scroll animation with momentum
-//   useEffect(() => {
-//     let lastScrollY = window.scrollY;
-//     let ticking = false;
-
-//     const handleScroll = () => {
-//       lastScrollY = window.scrollY;
-
-//       if (!ticking) {
-//         window.requestAnimationFrame(() => {
-//           const scrolled = lastScrollY;
-//           const maxScroll = document.body.scrollHeight - window.innerHeight;
-//           const progress = (scrolled / maxScroll) * 100;
-//           setScrollProgress(progress);
-//           setIsScrolling(scrolled > 100);
-//           ticking = false;
-//         });
-//         ticking = true;
-//       }
-//     };
-
-//     window.addEventListener("scroll", handleScroll, { passive: true });
-//     return () => window.removeEventListener("scroll", handleScroll);
 //   }, []);
 
 //   const handleChange = (e) => {
@@ -78,31 +617,20 @@
 //     try {
 //       const response = await fetchWithAuth(`${BACKEND_URL}/api/contact`, {
 //         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
+//         headers: { "Content-Type": "application/json" },
 //         body: JSON.stringify(formData),
 //       });
 
 //       const data = await response.json();
 
 //       if (response.ok) {
-//         toast.success("Message sent successfully! We'll get back to you soon.");
+//         toast.success("Message sent successfully!");
 //         setFormData({ name: "", email: "", subject: "", message: "" });
-
-//         // Success animation
-//         const form = e.target;
-//         form.classList.add("success-animation");
-//         setTimeout(() => {
-//           form.classList.remove("success-animation");
-//         }, 2000);
 //       } else {
-//         toast.error(
-//           data.message || "Failed to send message. Please try again."
-//         );
+//         toast.error(data.message || "Failed to send message.");
 //       }
-//     } catch (error) {
-//       toast.error("Network error. Please check your connection.");
+//     } catch {
+//       toast.error("Network error.");
 //     } finally {
 //       setIsSubmitting(false);
 //     }
@@ -113,10 +641,7 @@
 //       icon: <FaPhone />,
 //       title: "Call Us",
 //       details: ["+251 96 462 3413", "+251 92 683 0205"],
-//       color: "from-[#D7C097] to-[#A38C5C]",
 //       action: "tel:+251964623413",
-//       delay: 0.1,
-//       rotation: 5,
 //     },
 //     {
 //       icon: <FaEnvelope />,
@@ -125,1020 +650,191 @@
 //         "worknehtesfamicael707@gmail.com",
 //         "biruktawithabtamu686@gmail.com",
 //       ],
-//       color: "from-[#D7C097] to-[#A38C5C]",
 //       action: "mailto:worknehtesfamicael707@gmail.com",
-//       delay: 0.2,
-//       rotation: -3,
 //     },
 //     {
 //       icon: <FaMapMarkerAlt />,
 //       title: "Visit Us",
 //       details: ["Platinum Plaza", "Front of EU Delegation"],
-//       color: "from-[#D7C097] to-[#A38C5C]",
 //       action: "https://maps.google.com",
-//       delay: 0.3,
-//       rotation: 2,
 //     },
 //     {
 //       icon: <FaClock />,
 //       title: "Hours",
 //       details: ["Mon-Fri: 9AM-6PM", "Sat-Sun: 10AM-4PM"],
-//       color: "from-[#D7C097] to-[#A38C5C]",
 //       action: null,
-//       delay: 0.4,
-//       rotation: -5,
 //     },
 //   ];
-
-//   const faqs = [
-//     {
-//       q: "How quickly will I get a response?",
-//       a: "We respond to all inquiries within 24 hours during business days.",
-//       delay: 0.1,
-//     },
-//     {
-//       q: "Do you have phone support?",
-//       a: "Yes! Call us anytime between 9AM-6PM, Monday through Friday.",
-//       delay: 0.2,
-//     },
-//     {
-//       q: "Can I visit your office?",
-//       a: "Our office is open for appointments. Please contact us to schedule a visit.",
-//       delay: 0.3,
-//     },
-//     {
-//       q: "Do you offer bulk order support?",
-//       a: "Absolutely! Contact our sales team for bulk orders and corporate discounts.",
-//       delay: 0.4,
-//     },
-//   ];
-
-//   const socialContacts = [
-//     {
-//       icon: <IoLogoWhatsapp />,
-//       label: "WhatsApp",
-//       color: "from-[#D7C097] to-[#A38C5C]",
-//       delay: 0.1,
-//     },
-//     {
-//       icon: <FaHeadset />,
-//       label: "Live Chat",
-//       color: "from-[#D7C097] to-[#A38C5C]",
-//       delay: 0.2,
-//     },
-//     {
-//       icon: <MdSupportAgent />,
-//       label: "Support",
-//       color: "from-[#D7C097] to-[#A38C5C]",
-//       delay: 0.3,
-//     },
-//   ];
-
-//   // Animation variants
-//   const containerVariants = {
-//     hidden: { opacity: 0 },
-//     visible: {
-//       opacity: 1,
-//       transition: {
-//         staggerChildren: 0.1,
-//         delayChildren: 0.2,
-//       },
-//     },
-//   };
-
-//   const itemVariants = {
-//     hidden: { y: 30, opacity: 0, scale: 0.95 },
-//     visible: {
-//       y: 0,
-//       opacity: 1,
-//       scale: 1,
-//       transition: {
-//         type: "spring",
-//         stiffness: 100,
-//         damping: 15,
-//       },
-//     },
-//   };
-
-//   const cardVariants = {
-//     hidden: { y: 50, opacity: 0, rotateX: 10 },
-//     visible: {
-//       y: 0,
-//       opacity: 1,
-//       rotateX: 0,
-//       transition: {
-//         type: "spring",
-//         bounce: 0.4,
-//         duration: 0.8,
-//       },
-//     },
-//   };
-
-//   const floatingAnimation = {
-//     y: [0, -8, 0],
-//     transition: {
-//       duration: 3,
-//       repeat: Infinity,
-//       ease: "easeInOut",
-//     },
-//   };
-
-//   const pulseAnimation = {
-//     scale: [1, 1.05, 1],
-//     transition: {
-//       duration: 2,
-//       repeat: Infinity,
-//       ease: "easeInOut",
-//     },
-//   };
-
-//   const rotateAnimation = {
-//     rotate: [0, 360],
-//     transition: {
-//       duration: 20,
-//       repeat: Infinity,
-//       ease: "linear",
-//     },
-//   };
 
 //   return (
 //     <>
-//       {/* Loading Animation */}
-//       <AnimatePresence>
-//         {isLoading && (
-//           <motion.div
-//             initial={{ opacity: 1 }}
-//             exit={{ opacity: 0 }}
-//             transition={{ duration: 0.5 }}
-//             className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-[#F8F5ED] to-[#ECE8DC] dark:from-gray-900 dark:to-gray-950"
-//           >
-//             <div className="relative">
-//               <motion.div
-//                 animate={pulseAnimation}
-//                 className="w-24 h-24 rounded-full bg-gradient-to-r from-[#D7C097] to-[#A38C5C]"
-//               />
-//               <motion.div
-//                 animate={floatingAnimation}
-//                 className="absolute inset-0 flex items-center justify-center"
-//               >
-//                 <IoChatbubbleEllipses className="text-4xl text-white" />
-//               </motion.div>
-//             </div>
-//           </motion.div>
-//         )}
-//       </AnimatePresence>
-
-//       <motion.div
-//         ref={containerRef}
-//         initial={{ opacity: 0 }}
-//         animate={{ opacity: 1 }}
-//         transition={{ duration: 0.6 }}
-//         className="min-h-screen bg-gradient-to-br from-[#F8F5ED] via-white to-[#F8F5ED]/80 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-24 pb-12 overflow-hidden relative max-sm:py-32"
-//       >
-//         {/* Animated Background Elements */}
-//         <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-//           {[...Array(15)].map((_, i) => (
-//             <motion.div
-//               key={i}
-//               className="absolute rounded-full bg-gradient-to-r from-[#D7C097]/5 to-[#A38C5C]/5 dark:from-[#D7C097]/3 dark:to-[#A38C5C]/3"
-//               initial={{
-//                 x: Math.random() * 100 + "%",
-//                 y: Math.random() * 100 + "%",
-//                 scale: Math.random() * 0.3 + 0.3,
-//                 opacity: Math.random() * 0.2 + 0.1,
-//               }}
-//               animate={{
-//                 y: [
-//                   null,
-//                   `calc(${Math.random() * 100}% + ${Math.random() * 50 - 25}px)`,
-//                 ],
-//                 x: [
-//                   null,
-//                   `calc(${Math.random() * 100}% + ${Math.random() * 50 - 25}px)`,
-//                 ],
-//               }}
-//               transition={{
-//                 duration: Math.random() * 15 + 10,
-//                 repeat: Infinity,
-//                 ease: "linear",
-//               }}
-//               style={{
-//                 width: Math.random() * 100 + 50,
-//                 height: Math.random() * 100 + 50,
-//               }}
-//             />
-//           ))}
+//       {/* Loading */}
+//       {isLoading && (
+//         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-gray-900">
+//           <div className="w-24 h-24 rounded-full border-4 border-t-[#D7C097] animate-spin" />
 //         </div>
+//       )}
 
-//         {/* Enhanced Scroll Progress Bar */}
-//         <motion.div
-//           className="fixed top-0 left-0 h-1.5 z-40 bg-gradient-to-r from-[#D7C097] via-white to-[#A38C5C] dark:from-[#D7C097] dark:via-gray-800 dark:to-[#A38C5C]"
-//           style={{ width: `${scrollProgress}%` }}
-//         />
-
-//         {/* Back to Top Button */}
-//         <AnimatePresence>
-//           {isScrolling && (
-//             <motion.button
-//               initial={{ opacity: 0, scale: 0, rotate: -180 }}
-//               animate={{
-//                 opacity: 1,
-//                 scale: 1,
-//                 rotate: 0,
-//                 transition: {
-//                   type: "spring",
-//                   stiffness: 200,
-//                   damping: 15,
-//                 },
-//               }}
-//               exit={{ opacity: 0, scale: 0, rotate: 180 }}
-//               whileHover={{
-//                 scale: 1.1,
-//                 rotate: 360,
-//                 boxShadow: "0 0 30px rgba(215, 192, 151, 0.5)",
-//               }}
-//               whileTap={{ scale: 0.9 }}
-//               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-//               className="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-r from-[#D7C097] to-[#A38C5C] text-white rounded-full shadow-2xl flex items-center justify-center z-40 hover:shadow-3xl transition-all duration-300 group"
-//             >
-//               <motion.div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#D7C097]/80 to-[#A38C5C]/80 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-//               <FaChevronUp className="w-6 h-6 relative" />
-//             </motion.button>
-//           )}
-//         </AnimatePresence>
-
-//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-//           {/* Header */}
+//       <div className="min-h-screen bg-white dark:bg-gray-900 pt-24 pb-12">
+//         <div className="max-w-7xl mx-auto px-4">
+//           {/* ================= HEADER ================= */}
 //           <motion.div
-//             variants={containerVariants}
+//             className="text-center mb-16"
+//             variants={container}
 //             initial="hidden"
-//             animate="visible"
-//             className="text-center mb-16 relative"
+//             whileInView="visible"
+//             viewport={{ once: true, amount: 0.3 }}
 //           >
-//             <div className="relative inline-block">
-//               <motion.div
-//                 initial={{ scale: 0, rotate: -180 }}
-//                 animate={{
-//                   scale: 1,
-//                   rotate: 0,
-//                   transition: {
-//                     type: "spring",
-//                     stiffness: 200,
-//                     damping: 15,
-//                   },
-//                 }}
-//                 whileHover={{ scale: 1.1, rotate: 360 }}
-//                 className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-r from-[#D7C097] to-[#A38C5C] mb-6 shadow-2xl group relative"
-//               >
-//                 <motion.div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#D7C097]/80 to-[#A38C5C]/80 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-//                 <motion.div animate={floatingAnimation}>
-//                   <IoChatbubbleEllipses className="text-4xl text-white relative" />
-//                 </motion.div>
-//               </motion.div>
-
-//               {/* Orbiting circles */}
-//               {[0, 120, 240].map((rotation, i) => (
-//                 <motion.div
-//                   key={i}
-//                   className="absolute w-4 h-4 rounded-full bg-gradient-to-r from-[#F8F5ED]/80 to-white/80 dark:from-gray-800/80 dark:to-gray-700/80"
-//                   animate={{
-//                     rotate: rotation,
-//                     x: [0, 60 * Math.cos((rotation * Math.PI) / 180), 0],
-//                     y: [0, 60 * Math.sin((rotation * Math.PI) / 180), 0],
-//                   }}
-//                   transition={{
-//                     duration: 4,
-//                     repeat: Infinity,
-//                     ease: "easeInOut",
-//                     delay: i * 0.3,
-//                   }}
-//                   style={{
-//                     top: "50%",
-//                     left: "50%",
-//                     marginLeft: -8,
-//                     marginTop: -8,
-//                   }}
-//                 />
-//               ))}
-//             </div>
+//             <motion.div
+//               variants={fadeUp}
+//               className="inline-flex w-24 h-24 rounded-full bg-[#D7C097] items-center justify-center mb-6"
+//             >
+//               <FaPaperPlane className="text-4xl text-white" />
+//             </motion.div>
 
 //             <motion.h1
-//               variants={itemVariants}
-//               className="text-4xl lg:text-6xl font-bold mb-6 relative"
+//               variants={fadeUp}
+//               className="text-4xl lg:text-6xl font-bold mb-6 text-gray-900 dark:text-gray-100"
 //             >
-//               <span className="bg-gradient-to-r from-gray-900 via-[#D7C097] to-gray-900 dark:from-gray-100 dark:via-[#D7C097] dark:to-gray-100 bg-clip-text text-transparent">
-//                 Get in Touch
-//               </span>
-//               <motion.span
-//                 className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-64 h-1 bg-gradient-to-r from-[#D7C097] to-[#A38C5C] rounded-full"
-//                 initial={{ scaleX: 0 }}
-//                 animate={{ scaleX: 1 }}
-//                 transition={{ delay: 0.8, duration: 0.8 }}
-//               />
+//               Get in Touch
 //             </motion.h1>
 
 //             <motion.p
-//               variants={itemVariants}
-//               className="text-xl lg:text-2xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto"
+//               variants={fadeUp}
+//               className="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto"
 //             >
-//               Have questions? We're here to help. Reach out anytime!
+//               Have questions? We're here to help.
 //             </motion.p>
 //           </motion.div>
 
-//           {/* Contact Cards */}
+//           {/* ================= CONTACT CARDS ================= */}
 //           <motion.div
-//             variants={containerVariants}
+//             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16"
+//             variants={container}
 //             initial="hidden"
 //             whileInView="visible"
-//             viewport={{ once: true, margin: "-100px" }}
-//             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16"
+//             viewport={{ once: true, amount: 0.3 }}
 //           >
 //             {contactInfo.map((info, index) => (
 //               <motion.div
 //                 key={index}
-//                 custom={index}
-//                 variants={{
-//                   hidden: {
-//                     y: 50,
-//                     opacity: 0,
-//                     scale: 0.8,
-//                     rotate: info.rotation,
-//                   },
-//                   visible: {
-//                     y: 0,
-//                     opacity: 1,
-//                     scale: 1,
-//                     rotate: 0,
-//                     transition: {
-//                       type: "spring",
-//                       stiffness: 100,
-//                       damping: 12,
-//                       delay: info.delay,
-//                     },
-//                   },
-//                 }}
-//                 whileHover={{
-//                   y: -10,
-//                   scale: 1.05,
-//                   rotate: info.rotation,
-//                   transition: { type: "spring", stiffness: 400, damping: 25 },
-//                 }}
-//                 whileTap={{ scale: 0.95 }}
-//                 className={`p-8 rounded-3xl bg-white dark:bg-gray-800 backdrop-blur-xl border border-[#F8F5ED] dark:border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden group ${
-//                   info.action ? "cursor-pointer" : "cursor-default"
-//                 }`}
+//                 variants={fadeUp}
+//                 whileHover={{ y: -6, scale: 1.03 }}
+//                 transition={{ type: "spring", stiffness: 120 }}
+//                 className="p-8 rounded-3xl bg-white dark:bg-gray-800 border cursor-pointer"
 //                 onClick={() =>
 //                   info.action && window.open(info.action, "_blank")
 //                 }
 //               >
-//                 {/* Shimmer effect */}
-//                 <motion.div
-//                   className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-gray-700/20 to-transparent"
-//                   initial={{ x: "-100%" }}
-//                   whileHover={{ x: "100%" }}
-//                   transition={{ duration: 0.6 }}
-//                 />
-
-//                 <motion.div
-//                   initial={{ scale: 0, rotate: -180 }}
-//                   whileInView={{ scale: 1, rotate: 0 }}
-//                   transition={{ delay: info.delay + 0.2, type: "spring" }}
-//                   className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${info.color} mb-6 relative group-hover:scale-110 group-hover:rotate-12 transition-all duration-300`}
-//                 >
-//                   <motion.div
-//                     animate={floatingAnimation}
-//                     className="text-2xl text-white"
-//                   >
-//                     {info.icon}
-//                   </motion.div>
-//                   <div className="absolute inset-0 rounded-full bg-white/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-//                 </motion.div>
-
-//                 <motion.h3
-//                   initial={{ opacity: 0, y: 10 }}
-//                   whileInView={{ opacity: 1, y: 0 }}
-//                   transition={{ delay: info.delay + 0.3 }}
-//                   className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3"
-//                 >
-//                   {info.title}
-//                 </motion.h3>
-
-//                 <div className="space-y-2">
-//                   {info.details.map((detail, idx) => (
-//                     <motion.p
-//                       key={idx}
-//                       initial={{ opacity: 0, x: -10 }}
-//                       whileInView={{ opacity: 1, x: 0 }}
-//                       transition={{ delay: info.delay + 0.4 + idx * 0.1 }}
-//                       className="text-gray-700 dark:text-gray-300"
-//                     >
-//                       {detail}
-//                     </motion.p>
-//                   ))}
+//                 <div className="w-16 h-16 rounded-full bg-[#D7C097] flex items-center justify-center mb-6 text-white text-2xl">
+//                   {info.icon}
 //                 </div>
+
+//                 <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100">
+//                   {info.title}
+//                 </h3>
+
+//                 {info.details.map((d, i) => (
+//                   <p key={i} className="text-gray-700 dark:text-gray-300">
+//                     {d}
+//                   </p>
+//                 ))}
 //               </motion.div>
 //             ))}
 //           </motion.div>
 
 //           <div className="grid lg:grid-cols-3 gap-12">
-//             {/* Contact Form */}
+//             {/* ================= FORM ================= */}
 //             <motion.div
-//               initial={{ x: -50, opacity: 0 }}
-//               whileInView={{ x: 0, opacity: 1 }}
-//               transition={{
-//                 type: "spring",
-//                 stiffness: 50,
-//                 damping: 20,
-//                 delay: 0.2,
-//               }}
-//               viewport={{ once: true, margin: "-100px" }}
-//               className="lg:col-span-2"
+//               variants={fadeUp}
+//               initial="hidden"
+//               whileInView="visible"
+//               viewport={{ once: true, amount: 0.3 }}
+//               className="lg:col-span-2 p-8 rounded-3xl bg-white dark:bg-gray-800 border"
 //             >
-//               <div className="p-8 rounded-3xl bg-white dark:bg-gray-800 backdrop-blur-xl border border-[#F8F5ED] dark:border-gray-700 shadow-xl relative overflow-hidden">
-//                 <div className="absolute top-4 right-4 w-24 h-24 bg-gradient-to-r from-[#D7C097]/10 to-[#A38C5C]/10 dark:from-[#D7C097]/5 dark:to-[#A38C5C]/5 rounded-full blur-2xl" />
+//               <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+//                 Send us a Message
+//               </h2>
 
-//                 <motion.h2
-//                   initial={{ opacity: 0, y: -20 }}
-//                   whileInView={{ opacity: 1, y: 0 }}
-//                   transition={{ delay: 0.3 }}
-//                   className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2"
-//                 >
-//                   Send us a Message
-//                 </motion.h2>
-
-//                 <motion.p
-//                   initial={{ opacity: 0 }}
-//                   whileInView={{ opacity: 1 }}
-//                   transition={{ delay: 0.4 }}
-//                   className="text-lg text-gray-700 dark:text-gray-300 mb-8"
-//                 >
-//                   Fill out the form below and we'll get back to you as soon as
-//                   possible.
-//                 </motion.p>
-
-//                 <form onSubmit={handleSubmit} className="space-y-6 relative">
-//                   {/* Floating particles in form */}
-//                   {[...Array(5)].map((_, i) => (
-//                     <motion.div
-//                       key={i}
-//                       className="absolute w-2 h-2 rounded-full bg-[#D7C097]/30 dark:bg-[#D7C097]/30"
-//                       animate={{
-//                         y: [0, -20, 0],
-//                         opacity: [0.3, 0.8, 0.3],
-//                       }}
-//                       transition={{
-//                         duration: 3 + Math.random() * 2,
-//                         repeat: Infinity,
-//                         delay: Math.random() * 2,
-//                       }}
-//                       style={{
-//                         left: `${Math.random() * 100}%`,
-//                         top: `${Math.random() * 100}%`,
-//                       }}
-//                     />
-//                   ))}
-
-//                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-//                     <motion.div
-//                       initial={{ opacity: 0, y: 20 }}
-//                       whileInView={{ opacity: 1, y: 0 }}
-//                       transition={{ delay: 0.5 }}
-//                     >
-//                       <label className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-3 font-medium">
-//                         <motion.div
-//                           animate={pulseAnimation}
-//                           className="flex-shrink-0"
-//                         >
-//                           <FaUser className="text-[#D7C097] dark:text-[#D7C097]" />
-//                         </motion.div>
-//                         Your Name
-//                       </label>
-//                       <motion.input
-//                         type="text"
-//                         name="name"
-//                         value={formData.name}
-//                         onChange={handleChange}
-//                         required
-//                         whileFocus={{ scale: 1.02 }}
-//                         className="w-full px-4 py-4 rounded-xl bg-gradient-to-r from-[#F8F5ED] to-white/50 dark:from-gray-800/50 dark:to-gray-700/50 border border-[#F8F5ED] dark:border-gray-600 focus:border-[#D7C097] focus:ring-2 focus:ring-[#D7C097]/20 focus:outline-none transition-all duration-300 text-gray-900 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-400"
-//                         placeholder="John Doe"
-//                       />
-//                     </motion.div>
-
-//                     <motion.div
-//                       initial={{ opacity: 0, y: 20 }}
-//                       whileInView={{ opacity: 1, y: 0 }}
-//                       transition={{ delay: 0.6 }}
-//                     >
-//                       <label className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-3 font-medium">
-//                         <motion.div
-//                           animate={pulseAnimation}
-//                           transition={{ delay: 0.5 }}
-//                           className="flex-shrink-0"
-//                         >
-//                           <FaEnvelope className="text-[#D7C097] dark:text-[#D7C097]" />
-//                         </motion.div>
-//                         Email Address
-//                       </label>
-//                       <motion.input
-//                         type="email"
-//                         name="email"
-//                         value={formData.email}
-//                         onChange={handleChange}
-//                         required
-//                         whileFocus={{ scale: 1.02 }}
-//                         className="w-full px-4 py-4 rounded-xl bg-gradient-to-r from-[#F8F5ED] to-white/50 dark:from-gray-800/50 dark:to-gray-700/50 border border-[#F8F5ED] dark:border-gray-600 focus:border-[#D7C097] focus:ring-2 focus:ring-[#D7C097]/20 focus:outline-none transition-all duration-300 text-gray-900 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-400"
-//                         placeholder="john@example.com"
-//                       />
-//                     </motion.div>
-//                   </div>
-
-//                   <motion.div
-//                     initial={{ opacity: 0, y: 20 }}
-//                     whileInView={{ opacity: 1, y: 0 }}
-//                     transition={{ delay: 0.7 }}
-//                   >
-//                     <label className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-3 font-medium">
-//                       <motion.div
-//                         animate={pulseAnimation}
-//                         transition={{ delay: 0.6 }}
-//                         className="flex-shrink-0"
-//                       >
-//                         <FaTag className="text-[#D7C097] dark:text-[#D7C097]" />
-//                       </motion.div>
-//                       Subject
-//                     </label>
-//                     <motion.input
-//                       type="text"
-//                       name="subject"
-//                       value={formData.subject}
-//                       onChange={handleChange}
-//                       required
-//                       whileFocus={{ scale: 1.02 }}
-//                       className="w-full px-4 py-4 rounded-xl bg-gradient-to-r from-[#F8F5ED] to-white/50 dark:from-gray-800/50 dark:to-gray-700/50 border border-[#F8F5ED] dark:border-gray-600 focus:border-[#D7C097] focus:ring-2 focus:ring-[#D7C097]/20 focus:outline-none transition-all duration-300 text-gray-900 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-400"
-//                       placeholder="How can we help you?"
-//                     />
-//                   </motion.div>
-
-//                   <motion.div
-//                     initial={{ opacity: 0, y: 20 }}
-//                     whileInView={{ opacity: 1, y: 0 }}
-//                     transition={{ delay: 0.8 }}
-//                   >
-//                     <label className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-3 font-medium">
-//                       <motion.div
-//                         animate={pulseAnimation}
-//                         transition={{ delay: 0.7 }}
-//                         className="flex-shrink-0"
-//                       >
-//                         <FaComment className="text-[#D7C097] dark:text-[#D7C097]" />
-//                       </motion.div>
-//                       Your Message
-//                     </label>
-//                     <motion.textarea
-//                       name="message"
-//                       value={formData.message}
-//                       onChange={handleChange}
-//                       required
-//                       rows={6}
-//                       whileFocus={{ scale: 1.01 }}
-//                       className="w-full px-4 py-4 rounded-xl bg-gradient-to-r from-[#F8F5ED] to-white/50 dark:from-gray-800/50 dark:to-gray-700/50 border border-[#F8F5ED] dark:border-gray-600 focus:border-[#D7C097] focus:ring-2 focus:ring-[#D7C097]/20 focus:outline-none transition-all duration-300 text-gray-900 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-400 resize-none"
-//                       placeholder="Tell us more about your inquiry..."
-//                     />
-//                   </motion.div>
-
-//                   <motion.button
-//                     type="submit"
-//                     disabled={isSubmitting}
-//                     whileHover={{
-//                       scale: 1.02,
-//                       boxShadow: "0 20px 40px rgba(215, 192, 151, 0.3)",
-//                     }}
-//                     whileTap={{ scale: 0.98 }}
-//                     animate={isSubmitting ? undefined : pulseAnimation}
-//                     className="w-full py-5 rounded-xl bg-gradient-to-r from-[#D7C097] to-[#A38C5C] text-white font-bold text-lg shadow-xl hover:shadow-2xl hover:shadow-[#D7C097]/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 relative overflow-hidden group"
-//                   >
-//                     {/* Button shine effect */}
-//                     <motion.div className="absolute inset-0 bg-gradient-to-r from-[#D7C097]/90 to-[#A38C5C]/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-//                     {isSubmitting ? (
-//                       <motion.div
-//                         initial={{ rotate: 0 }}
-//                         animate={{ rotate: 360 }}
-//                         transition={{
-//                           duration: 1,
-//                           repeat: Infinity,
-//                           ease: "linear",
-//                         }}
-//                         className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full"
-//                       />
-//                     ) : (
-//                       <motion.div animate={floatingAnimation}>
-//                         <FaPaperPlane className="text-xl" />
-//                       </motion.div>
-//                     )}
-//                     <span className="relative z-10">
-//                       {isSubmitting ? "Sending..." : "Send Message"}
-//                     </span>
-//                   </motion.button>
-//                 </form>
-//               </div>
-//             </motion.div>
-
-//             {/* Right Column */}
-//             <motion.div
-//               initial={{ x: 50, opacity: 0 }}
-//               whileInView={{ x: 0, opacity: 1 }}
-//               transition={{
-//                 type: "spring",
-//                 stiffness: 50,
-//                 damping: 20,
-//                 delay: 0.3,
-//               }}
-//               viewport={{ once: true, margin: "-100px" }}
-//               className="space-y-8"
-//             >
-//               {/* Quick Connect */}
-//               <motion.div
-//                 initial={{ y: 30, opacity: 0 }}
-//                 whileInView={{ y: 0, opacity: 1 }}
-//                 transition={{ delay: 0.4 }}
-//                 viewport={{ once: true }}
-//                 className="p-8 rounded-3xl bg-gradient-to-br from-[#D7C097]/10 to-[#A38C5C]/10 dark:from-[#D7C097]/5 dark:to-[#A38C5C]/5 border border-[#D7C097]/20 dark:border-[#D7C097]/30 backdrop-blur-xl shadow-xl"
-//               >
-//                 <motion.h3
-//                   initial={{ opacity: 0 }}
-//                   whileInView={{ opacity: 1 }}
-//                   transition={{ delay: 0.5 }}
-//                   className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6"
-//                 >
-//                   Quick Connect
-//                 </motion.h3>
-
-//                 <div className="grid grid-cols-3 gap-4 mb-6">
-//                   {socialContacts.map((contact, index) => (
-//                     <motion.button
-//                       key={index}
-//                       initial={{ scale: 0 }}
-//                       whileInView={{ scale: 1 }}
-//                       transition={{ delay: contact.delay }}
-//                       whileHover={{
-//                         y: -5,
-//                         scale: 1.1,
-//                         transition: { type: "spring", stiffness: 400 },
-//                       }}
-//                       whileTap={{ scale: 0.95 }}
-//                       className={`aspect-square rounded-2xl bg-gradient-to-r ${contact.color} flex flex-col items-center justify-center text-white shadow-lg hover:shadow-xl transition-all duration-300`}
-//                     >
-//                       <div className="text-2xl mb-1">{contact.icon}</div>
-//                       <span className="text-xs font-medium">
-//                         {contact.label}
-//                       </span>
-//                     </motion.button>
-//                   ))}
-//                 </div>
-
-//                 <motion.p
-//                   initial={{ opacity: 0 }}
-//                   whileInView={{ opacity: 1 }}
-//                   transition={{ delay: 0.6 }}
-//                   className="text-center text-gray-700 dark:text-gray-300 text-sm"
-//                 >
-//                   Connect with us instantly
-//                 </motion.p>
-//               </motion.div>
-
-//               {/* FAQ Section */}
-//               <motion.div
-//                 initial={{ y: 30, opacity: 0 }}
-//                 whileInView={{ y: 0, opacity: 1 }}
-//                 transition={{ delay: 0.5 }}
-//                 viewport={{ once: true }}
-//                 className="p-8 rounded-3xl bg-white dark:bg-gray-800 backdrop-blur-xl border border-[#F8F5ED] dark:border-gray-700 shadow-xl relative overflow-hidden"
-//               >
-//                 <div className="absolute top-4 left-4 w-16 h-16 bg-gradient-to-r from-[#D7C097]/10 to-[#A38C5C]/10 dark:from-[#D7C097]/5 dark:to-[#A38C5C]/5 rounded-full blur-2xl" />
-
-//                 <motion.h3
-//                   initial={{ opacity: 0 }}
-//                   whileInView={{ opacity: 1 }}
-//                   transition={{ delay: 0.6 }}
-//                   className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6"
-//                 >
-//                   Common Questions
-//                 </motion.h3>
-
-//                 <div className="space-y-6">
-//                   {faqs.map((faq, index) => (
-//                     <motion.div
-//                       key={index}
-//                       initial={{ y: 20, opacity: 0 }}
-//                       whileInView={{ y: 0, opacity: 1 }}
-//                       transition={{ delay: faq.delay }}
-//                       viewport={{ once: true }}
-//                       whileHover={{ x: 5 }}
-//                       className="pb-6 border-b border-[#F8F5ED]/50 dark:border-gray-600 last:border-0 last:pb-0"
-//                     >
-//                       <motion.h4
-//                         initial={{ opacity: 0 }}
-//                         whileInView={{ opacity: 1 }}
-//                         transition={{ delay: faq.delay + 0.1 }}
-//                         className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-2"
-//                       >
-//                         {faq.q}
-//                       </motion.h4>
-//                       <motion.p
-//                         initial={{ opacity: 0 }}
-//                         whileInView={{ opacity: 1 }}
-//                         transition={{ delay: faq.delay + 0.2 }}
-//                         className="text-gray-700 dark:text-gray-300"
-//                       >
-//                         {faq.a}
-//                       </motion.p>
-//                     </motion.div>
-//                   ))}
-//                 </div>
-//               </motion.div>
-
-//               {/* Guarantee Section */}
-//               <motion.div
-//                 initial={{ y: 30, opacity: 0 }}
-//                 whileInView={{ y: 0, opacity: 1 }}
-//                 transition={{ delay: 0.6 }}
-//                 viewport={{ once: true }}
-//                 className="p-8 rounded-3xl bg-gradient-to-br from-[#D7C097]/5 to-[#A38C5C]/5 dark:from-[#D7C097]/10 dark:to-[#A38C5C]/10 border border-[#D7C097]/20 dark:border-[#D7C097]/30 backdrop-blur-xl shadow-xl relative overflow-hidden"
-//               >
-//                 <motion.div
-//                   animate={rotateAnimation}
-//                   className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-r from-[#D7C097]/5 to-[#A38C5C]/5 dark:from-[#D7C097]/10 dark:to-[#A38C5C]/10 rounded-full"
+//               <form onSubmit={handleSubmit} className="space-y-6">
+//                 <input
+//                   name="name"
+//                   placeholder="Your Name"
+//                   value={formData.name}
+//                   onChange={handleChange}
+//                   className="w-full px-4 py-4 rounded-xl bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-[#D7C097]"
+//                   required
 //                 />
 
-//                 <motion.div
-//                   initial={{ opacity: 0, scale: 0.8 }}
-//                   whileInView={{ opacity: 1, scale: 1 }}
-//                   transition={{ delay: 0.7 }}
-//                   className="flex items-start gap-4"
+//                 <input
+//                   name="email"
+//                   type="email"
+//                   placeholder="Email"
+//                   value={formData.email}
+//                   onChange={handleChange}
+//                   className="w-full px-4 py-4 rounded-xl bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-[#D7C097]"
+//                   required
+//                 />
+
+//                 <input
+//                   name="subject"
+//                   placeholder="Subject"
+//                   value={formData.subject}
+//                   onChange={handleChange}
+//                   className="w-full px-4 py-4 rounded-xl bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-[#D7C097]"
+//                   required
+//                 />
+
+//                 <textarea
+//                   name="message"
+//                   rows={5}
+//                   placeholder="Your Message"
+//                   value={formData.message}
+//                   onChange={handleChange}
+//                   className="w-full px-4 py-4 rounded-xl bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-[#D7C097]"
+//                   required
+//                 />
+
+//                 <motion.button
+//                   type="submit"
+//                   disabled={isSubmitting}
+//                   whileHover={{ scale: 1.02 }}
+//                   whileTap={{ scale: 0.98 }}
+//                   className="w-full py-4 rounded-xl bg-[#D7C097] text-white font-bold"
 //                 >
-//                   <div className="flex-shrink-0">
-//                     <motion.div
-//                       animate={pulseAnimation}
-//                       className="w-12 h-12 rounded-full bg-gradient-to-r from-[#D7C097] to-[#A38C5C] flex items-center justify-center"
-//                     >
-//                       <FaCheckCircle className="text-xl text-white" />
-//                     </motion.div>
-//                   </div>
-//                   <div>
-//                     <motion.h3
-//                       initial={{ opacity: 0 }}
-//                       whileInView={{ opacity: 1 }}
-//                       transition={{ delay: 0.8 }}
-//                       className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2"
-//                     >
-//                       24-Hour Response Guarantee
-//                     </motion.h3>
-//                     <motion.p
-//                       initial={{ opacity: 0 }}
-//                       whileInView={{ opacity: 1 }}
-//                       transition={{ delay: 0.9 }}
-//                       className="text-gray-700 dark:text-gray-300"
-//                     >
-//                       We promise to respond to all inquiries within 24 hours
-//                       during business days.
-//                     </motion.p>
-//                   </div>
-//                 </motion.div>
-//               </motion.div>
+//                   {isSubmitting ? "Sending..." : "Send Message"}
+//                 </motion.button>
+//               </form>
+//             </motion.div>
+
+//             {/* ================= OFFICE ================= */}
+//             <motion.div
+//               variants={fadeUp}
+//               initial="hidden"
+//               whileInView="visible"
+//               viewport={{ once: true, amount: 0.3 }}
+//               className="p-8 rounded-3xl bg-white dark:bg-gray-800 border"
+//             >
+//               <h3 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100 flex items-center gap-2">
+//                 <FaBuilding className="text-[#D7C097]" /> Our Office
+//               </h3>
+
+//               <p className="text-gray-700 dark:text-gray-300">
+//                 Platinum Plaza
+//                 <br />
+//                 Addis Ababa, Ethiopia
+//               </p>
 //             </motion.div>
 //           </div>
-
-//           {/* Map Section */}
-//           <motion.div
-//             initial={{ y: 50, opacity: 0 }}
-//             whileInView={{ y: 0, opacity: 1 }}
-//             transition={{
-//               type: "spring",
-//               stiffness: 50,
-//               damping: 20,
-//               delay: 0.7,
-//             }}
-//             viewport={{ once: true, margin: "-100px" }}
-//             className="mt-16"
-//           >
-//             <div className="p-8 rounded-3xl bg-white dark:bg-gray-800 backdrop-blur-xl border border-[#F8F5ED] dark:border-gray-700 shadow-xl relative overflow-hidden">
-//               <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#D7C097]/10 to-[#A38C5C]/10 dark:from-[#D7C097]/5 dark:to-[#A38C5C]/5 rounded-full blur-3xl" />
-
-//               <motion.h2
-//                 initial={{ opacity: 0, y: -20 }}
-//                 whileInView={{ opacity: 1, y: 0 }}
-//                 transition={{ delay: 0.8 }}
-//                 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-3"
-//               >
-//                 <FaBuilding className="text-[#D7C097] dark:text-[#D7C097]" />
-//                 Find Our Office
-//               </motion.h2>
-
-//               <div className="h-96 rounded-2xl overflow-hidden border border-[#F8F5ED] dark:border-gray-700 shadow-lg relative">
-//                 {/* Animated map placeholder */}
-//                 <div className="w-full h-full bg-gradient-to-br from-[#F8F5ED] to-white dark:from-gray-800 dark:to-gray-700 flex items-center justify-center relative overflow-hidden">
-//                   {/* Animated grid background */}
-//                   <div className="absolute inset-0 opacity-10">
-//                     {Array.from({ length: 20 }).map((_, i) => (
-//                       <div
-//                         key={i}
-//                         className="absolute w-0.5 h-full bg-[#D7C097] dark:bg-[#D7C097]"
-//                         style={{ left: `${i * 5}%` }}
-//                       />
-//                     ))}
-//                     {Array.from({ length: 20 }).map((_, i) => (
-//                       <div
-//                         key={i}
-//                         className="absolute h-0.5 w-full bg-[#D7C097] dark:bg-[#D7C097]"
-//                         style={{ top: `${i * 5}%` }}
-//                       />
-//                     ))}
-//                   </div>
-
-//                   <div className="relative z-10 text-center">
-//                     <motion.div
-//                       initial={{ scale: 0 }}
-//                       whileInView={{ scale: 1 }}
-//                       transition={{ delay: 0.9, type: "spring" }}
-//                       className="w-20 h-20 rounded-full bg-gradient-to-r from-[#D7C097] to-[#A38C5C] flex items-center justify-center mx-auto mb-6 shadow-2xl"
-//                     >
-//                       <motion.div animate={floatingAnimation}>
-//                         <FaMapMarkerAlt className="text-2xl text-white" />
-//                       </motion.div>
-//                     </motion.div>
-
-//                     <motion.h3
-//                       initial={{ opacity: 0, y: 20 }}
-//                       whileInView={{ opacity: 1, y: 0 }}
-//                       transition={{ delay: 1 }}
-//                       className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2"
-//                     >
-//                       Platinum Plaza
-//                     </motion.h3>
-
-//                     <motion.p
-//                       initial={{ opacity: 0 }}
-//                       whileInView={{ opacity: 1 }}
-//                       transition={{ delay: 1.1 }}
-//                       className="text-lg text-gray-700 dark:text-gray-300 mb-1"
-//                     >
-//                       Front of EU Delegation
-//                     </motion.p>
-
-//                     <motion.p
-//                       initial={{ opacity: 0 }}
-//                       whileInView={{ opacity: 1 }}
-//                       transition={{ delay: 1.2 }}
-//                       className="text-[#D7C097] dark:text-[#D7C097]"
-//                     >
-//                       Addis Ababa, Ethiopia
-//                     </motion.p>
-
-//                     <motion.div
-//                       initial={{ opacity: 0 }}
-//                       whileInView={{ opacity: 1 }}
-//                       transition={{ delay: 1.3 }}
-//                       className="mt-6"
-//                     >
-//                       <motion.button
-//                         whileHover={{ scale: 1.05 }}
-//                         whileTap={{ scale: 0.95 }}
-//                         className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#D7C097] to-[#A38C5C] text-white font-semibold hover:shadow-xl hover:shadow-[#D7C097]/30 transition-all duration-300 flex items-center gap-2 mx-auto"
-//                       >
-//                         <FaGlobe className="text-lg" />
-//                         View on Google Maps
-//                       </motion.button>
-//                     </motion.div>
-//                   </div>
-
-//                   {/* Animated marker pins */}
-//                   {[...Array(3)].map((_, i) => (
-//                     <motion.div
-//                       key={i}
-//                       className="absolute w-4 h-4 rounded-full bg-gradient-to-r from-[#D7C097] to-[#A38C5C]"
-//                       animate={{
-//                         y: [0, -10, 0],
-//                         scale: [1, 1.2, 1],
-//                       }}
-//                       transition={{
-//                         duration: 2,
-//                         repeat: Infinity,
-//                         delay: i * 0.3,
-//                       }}
-//                       style={{
-//                         left: `${20 + i * 30}%`,
-//                         top: `${40 + i * 10}%`,
-//                       }}
-//                     />
-//                   ))}
-//                 </div>
-//               </div>
-//             </div>
-//           </motion.div>
-
-//           {/* Contact Banner */}
-//           <motion.div
-//             initial={{ y: 50, opacity: 0 }}
-//             whileInView={{ y: 0, opacity: 1 }}
-//             transition={{
-//               type: "spring",
-//               stiffness: 50,
-//               damping: 20,
-//               delay: 0.9,
-//             }}
-//             viewport={{ once: true }}
-//             className="mt-16"
-//           >
-//             <div className="p-8 rounded-3xl bg-gradient-to-r from-[#D7C097]/10 via-white/10 to-[#A38C5C]/10 dark:from-[#D7C097]/5 dark:via-gray-800/5 dark:to-[#A38C5C]/5 border border-[#D7C097]/20 dark:border-[#D7C097]/30 backdrop-blur-xl shadow-xl text-center relative overflow-hidden">
-//               {/* Animated gradient background */}
-//               <motion.div
-//                 className="absolute inset-0"
-//                 animate={{
-//                   background: [
-//                     "linear-gradient(45deg, rgba(215,192,151,0.1), rgba(255,255,255,0.1), rgba(163,140,92,0.1))",
-//                     "linear-gradient(45deg, rgba(255,255,255,0.1), rgba(215,192,151,0.1), rgba(255,255,255,0.1))",
-//                   ],
-//                 }}
-//                 transition={{ duration: 5, repeat: Infinity }}
-//               />
-
-//               <motion.div
-//                 animate={floatingAnimation}
-//                 className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-[#D7C097] to-[#A38C5C] mb-6"
-//               >
-//                 <IoChatbubbleEllipses className="text-2xl text-white" />
-//               </motion.div>
-
-//               <motion.h3
-//                 initial={{ opacity: 0 }}
-//                 whileInView={{ opacity: 1 }}
-//                 transition={{ delay: 1 }}
-//                 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4"
-//               >
-//                 Ready to Start a Conversation?
-//               </motion.h3>
-
-//               <motion.p
-//                 initial={{ opacity: 0 }}
-//                 whileInView={{ opacity: 1 }}
-//                 transition={{ delay: 1.1 }}
-//                 className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto mb-8"
-//               >
-//                 Whether you have questions, feedback, or partnership inquiries,
-//                 we're here to listen and help you succeed.
-//               </motion.p>
-
-//               <motion.button
-//                 initial={{ opacity: 0, scale: 0.9 }}
-//                 whileInView={{ opacity: 1, scale: 1 }}
-//                 transition={{ delay: 1.2 }}
-//                 whileHover={{
-//                   scale: 1.05,
-//                   boxShadow: "0 20px 40px rgba(215, 192, 151, 0.3)",
-//                 }}
-//                 whileTap={{ scale: 0.95 }}
-//                 className="px-10 py-4 rounded-xl bg-gradient-to-r from-[#D7C097] to-[#A38C5C] text-white font-bold text-lg hover:shadow-xl hover:shadow-[#D7C097]/30 transition-all duration-300 inline-flex items-center gap-3"
-//                 onClick={() => {
-//                   const formSection = document.querySelector("form");
-//                   formSection?.scrollIntoView({ behavior: "smooth" });
-//                   document.querySelector('input[name="name"]')?.focus();
-//                 }}
-//               >
-//                 <FaPaperPlane />
-//                 Send Us a Message
-//               </motion.button>
-//             </div>
-//           </motion.div>
 //         </div>
-
-//         {/* Custom CSS for form success animation */}
-//         <style jsx>{`
-//           .success-animation {
-//             animation: successPulse 2s ease-in-out;
-//           }
-
-//           @keyframes successPulse {
-//             0% {
-//               box-shadow: 0 0 0 0 rgba(215, 192, 151, 0.7);
-//             }
-//             70% {
-//               boxshadow: 0 0 0 20px rgba(215, 192, 151, 0);
-//             }
-//             100% {
-//               box-shadow: 0 0 0 0 rgba(215, 192, 151, 0);
-//             }
-//           }
-//         `}</style>
-//       </motion.div>
+//       </div>
 //     </>
 //   );
 // };
 
 // export default ContactPage;
-import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence, useInView } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import {
   FaPhone,
@@ -1146,25 +842,89 @@ import {
   FaMapMarkerAlt,
   FaClock,
   FaPaperPlane,
-  FaUser,
-  FaTag,
-  FaComment,
-  FaCheckCircle,
-  FaChevronUp,
-  FaHeadset,
   FaBuilding,
-  FaGlobe,
-  FaInstagram,
-  FaFacebookF,
-  FaTwitter,
   FaStar,
+  FaArrowRight,
+  FaSpinner,
+  FaHeart,
+  FaUsers,
 } from "react-icons/fa";
-import { IoChatbubbleEllipses, IoLogoWhatsapp } from "react-icons/io5";
-import { MdSupportAgent } from "react-icons/md";
 import { fetchWithAuth } from "../utils/auth";
-// import photoshoot1 from "../assets/photoshoot1.jpg"; // Add this import
 
 const BACKEND_URL = import.meta.env.VITE_API_URL;
+
+/* =======================
+   ANIMATION VARIANTS
+======================= */
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 60 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
+const fadeInLeft = {
+  hidden: { opacity: 0, x: -60 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
+const fadeInRight = {
+  hidden: { opacity: 0, x: 60 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
+const scaleIn = {
+  hidden: { scale: 0.8, opacity: 0 },
+  visible: {
+    scale: 1,
+    opacity: 1,
+    transition: { duration: 0.6, ease: "backOut" },
+  },
+};
+
+const cardVariants = {
+  hidden: { scale: 0.9, opacity: 0, y: 30 },
+  visible: {
+    scale: 1,
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      damping: 15,
+    },
+  },
+  hover: {
+    y: -10,
+    scale: 1.03,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 15,
+    },
+  },
+};
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -1174,40 +934,11 @@ const ContactPage = () => {
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [isScrolling, setIsScrolling] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const containerRef = useRef(null);
 
-  // Loading animation
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 800);
     return () => clearTimeout(timer);
-  }, []);
-
-  // Enhanced scroll animation with momentum
-  useEffect(() => {
-    let lastScrollY = window.scrollY;
-    let ticking = false;
-
-    const handleScroll = () => {
-      lastScrollY = window.scrollY;
-
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const scrolled = lastScrollY;
-          const maxScroll = document.body.scrollHeight - window.innerHeight;
-          const progress = (scrolled / maxScroll) * 100;
-          setScrollProgress(progress);
-          setIsScrolling(scrolled > 100);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleChange = (e) => {
@@ -1222,31 +953,20 @@ const ContactPage = () => {
     try {
       const response = await fetchWithAuth(`${BACKEND_URL}/api/contact`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("Message sent successfully! We'll get back to you soon.");
+        toast.success("Message sent successfully!");
         setFormData({ name: "", email: "", subject: "", message: "" });
-
-        // Success animation
-        const form = e.target;
-        form.classList.add("success-animation");
-        setTimeout(() => {
-          form.classList.remove("success-animation");
-        }, 2000);
       } else {
-        toast.error(
-          data.message || "Failed to send message. Please try again."
-        );
+        toast.error(data.message || "Failed to send message.");
       }
-    } catch (error) {
-      toast.error("Network error. Please check your connection.");
+    } catch {
+      toast.error("Network error.");
     } finally {
       setIsSubmitting(false);
     }
@@ -1257,10 +977,7 @@ const ContactPage = () => {
       icon: <FaPhone />,
       title: "Call Us",
       details: ["+251 96 462 3413", "+251 92 683 0205"],
-      color: "from-[#D7C097] to-[#A38C5C]",
       action: "tel:+251964623413",
-      delay: 0.1,
-      rotation: 5,
     },
     {
       icon: <FaEnvelope />,
@@ -1269,1190 +986,438 @@ const ContactPage = () => {
         "worknehtesfamicael707@gmail.com",
         "biruktawithabtamu686@gmail.com",
       ],
-      color: "from-[#D7C097] to-[#A38C5C]",
       action: "mailto:worknehtesfamicael707@gmail.com",
-      delay: 0.2,
-      rotation: -3,
-    },
-    {
-      icon: <FaMapMarkerAlt />,
-      title: "Visit Us",
-      details: ["Platinum Plaza", "Front of EU Delegation"],
-      color: "from-[#D7C097] to-[#A38C5C]",
-      action: "https://maps.google.com",
-      delay: 0.3,
-      rotation: 2,
-    },
-    {
-      icon: <FaClock />,
-      title: "Hours",
-      details: ["Mon-Fri: 9AM-6PM", "Sat-Sun: 10AM-4PM"],
-      color: "from-[#D7C097] to-[#A38C5C]",
-      action: null,
-      delay: 0.4,
-      rotation: -5,
     },
   ];
-
-  const faqs = [
-    {
-      q: "How quickly will I get a response?",
-      a: "We respond to all inquiries within 24 hours during business days.",
-      delay: 0.1,
-    },
-    {
-      q: "Do you have phone support?",
-      a: "Yes! Call us anytime between 9AM-6PM, Monday through Friday.",
-      delay: 0.2,
-    },
-    {
-      q: "Can I visit your office?",
-      a: "Our office is open for appointments. Please contact us to schedule a visit.",
-      delay: 0.3,
-    },
-    {
-      q: "Do you offer bulk order support?",
-      a: "Absolutely! Contact our sales team for bulk orders and corporate discounts.",
-      delay: 0.4,
-    },
-  ];
-
-  const socialContacts = [
-    {
-      icon: <IoLogoWhatsapp />,
-      label: "WhatsApp",
-      color: "from-[#D7C097] to-[#A38C5C]",
-      delay: 0.1,
-    },
-    {
-      icon: <FaHeadset />,
-      label: "Live Chat",
-      color: "from-[#D7C097] to-[#A38C5C]",
-      delay: 0.2,
-    },
-    {
-      icon: <MdSupportAgent />,
-      label: "Support",
-      color: "from-[#D7C097] to-[#A38C5C]",
-      delay: 0.3,
-    },
-  ];
-
-  const socialMedia = [
-    {
-      icon: <FaInstagram />,
-      label: "Instagram",
-      color: "from-purple-500 to-pink-500",
-      url: "#",
-    },
-    {
-      icon: <FaFacebookF />,
-      label: "Facebook",
-      color: "from-blue-600 to-blue-800",
-      url: "#",
-    },
-    {
-      icon: <FaTwitter />,
-      label: "Twitter",
-      color: "from-sky-500 to-blue-500",
-      url: "#",
-    },
-  ];
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 30, opacity: 0, scale: 0.95 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      scale: 1,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 15,
-      },
-    },
-  };
-
-  const cardVariants = {
-    hidden: { y: 50, opacity: 0, rotateX: 10 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      rotateX: 0,
-      transition: {
-        type: "spring",
-        bounce: 0.4,
-        duration: 0.8,
-      },
-    },
-  };
-
-  const floatingAnimation = {
-    y: [0, -8, 0],
-    transition: {
-      duration: 3,
-      repeat: Infinity,
-      ease: "easeInOut",
-    },
-  };
-
-  const pulseAnimation = {
-    scale: [1, 1.05, 1],
-    transition: {
-      duration: 2,
-      repeat: Infinity,
-      ease: "easeInOut",
-    },
-  };
-
-  const rotateAnimation = {
-    rotate: [0, 360],
-    transition: {
-      duration: 20,
-      repeat: Infinity,
-      ease: "linear",
-    },
-  };
 
   return (
     <>
-      {/* Loading Animation */}
-      <AnimatePresence>
-        {isLoading && (
+      {/* Loading */}
+      {isLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-primaryBg dark:bg-dark">
           <motion.div
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-[#F8F5ED] to-[#ECE8DC] dark:from-gray-900 dark:to-gray-950"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15 }}
+            className="relative"
           >
-            <div className="relative">
-              <motion.div
-                animate={pulseAnimation}
-                className="w-24 h-24 rounded-full bg-gradient-to-r from-[#D7C097] to-[#A38C5C]"
-              />
-              <motion.div
-                animate={floatingAnimation}
-                className="absolute inset-0 flex items-center justify-center"
-              >
-                <IoChatbubbleEllipses className="text-4xl text-white" />
-              </motion.div>
-            </div>
+            <div className="w-24 h-24 rounded-full border-4 border-lightBg/30 border-t-accent animate-spin" />
+            <FaPaperPlane className="absolute inset-0 m-auto text-accent text-2xl" />
           </motion.div>
-        )}
-      </AnimatePresence>
-
-      <motion.div
-        ref={containerRef}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-        className="min-h-screen bg-gradient-to-br from-[#F8F5ED] via-white to-[#F8F5ED]/80 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-24 pb-12 overflow-hidden relative max-sm:py-32"
-      >
-        {/* Animated Background Elements */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-          {[...Array(15)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute rounded-full bg-gradient-to-r from-[#D7C097]/5 to-[#A38C5C]/5 dark:from-[#D7C097]/3 dark:to-[#A38C5C]/3"
-              initial={{
-                x: Math.random() * 100 + "%",
-                y: Math.random() * 100 + "%",
-                scale: Math.random() * 0.3 + 0.3,
-                opacity: Math.random() * 0.2 + 0.1,
-              }}
-              animate={{
-                y: [
-                  null,
-                  `calc(${Math.random() * 100}% + ${Math.random() * 50 - 25}px)`,
-                ],
-                x: [
-                  null,
-                  `calc(${Math.random() * 100}% + ${Math.random() * 50 - 25}px)`,
-                ],
-              }}
-              transition={{
-                duration: Math.random() * 15 + 10,
-                repeat: Infinity,
-                ease: "linear",
-              }}
-              style={{
-                width: Math.random() * 100 + 50,
-                height: Math.random() * 100 + 50,
-              }}
-            />
-          ))}
         </div>
-
-        {/* Enhanced Scroll Progress Bar */}
-        <motion.div
-          className="fixed top-0 left-0 h-1.5 z-40 bg-gradient-to-r from-[#D7C097] via-white to-[#A38C5C] dark:from-[#D7C097] dark:via-gray-800 dark:to-[#A38C5C]"
-          style={{ width: `${scrollProgress}%` }}
-        />
-
-        {/* Back to Top Button */}
-        <AnimatePresence>
-          {isScrolling && (
-            <motion.button
-              initial={{ opacity: 0, scale: 0, rotate: -180 }}
-              animate={{
-                opacity: 1,
-                scale: 1,
-                rotate: 0,
-                transition: {
-                  type: "spring",
-                  stiffness: 200,
-                  damping: 15,
-                },
-              }}
-              exit={{ opacity: 0, scale: 0, rotate: 180 }}
-              whileHover={{
-                scale: 1.1,
-                rotate: 360,
-                boxShadow: "0 0 30px rgba(215, 192, 151, 0.5)",
-              }}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-r from-[#D7C097] to-[#A38C5C] text-white rounded-full shadow-2xl flex items-center justify-center z-40 hover:shadow-3xl transition-all duration-300 group"
-            >
-              <motion.div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#D7C097]/80 to-[#A38C5C]/80 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-              <FaChevronUp className="w-6 h-6 relative" />
-            </motion.button>
-          )}
-        </AnimatePresence>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* Header */}
+      )}
+      <div className="min-h-screen bg-primaryBg dark:bg-dark transition-colors duration-300 pt-24 mt-0">
+        <div className="max-w-7xl mx-auto px-4">
+          {/* ================= HEADER ================= */}
           <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="text-center mb-16 relative"
-          >
-            <div className="relative inline-block">
-              <motion.div
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{
-                  scale: 1,
-                  rotate: 0,
-                  transition: {
-                    type: "spring",
-                    stiffness: 200,
-                    damping: 15,
-                  },
-                }}
-                whileHover={{ scale: 1.1, rotate: 360 }}
-                className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-r from-[#D7C097] to-[#A38C5C] mb-6 shadow-2xl group relative"
-              >
-                <motion.div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#D7C097]/80 to-[#A38C5C]/80 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
-                <motion.div animate={floatingAnimation}>
-                  <IoChatbubbleEllipses className="text-4xl text-white relative" />
-                </motion.div>
-              </motion.div>
-
-              {/* Orbiting circles */}
-              {[0, 120, 240].map((rotation, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute w-4 h-4 rounded-full bg-gradient-to-r from-[#F8F5ED]/80 to-white/80 dark:from-gray-800/80 dark:to-gray-700/80"
-                  animate={{
-                    rotate: rotation,
-                    x: [0, 60 * Math.cos((rotation * Math.PI) / 180), 0],
-                    y: [0, 60 * Math.sin((rotation * Math.PI) / 180), 0],
-                  }}
-                  transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: i * 0.3,
-                  }}
-                  style={{
-                    top: "50%",
-                    left: "50%",
-                    marginLeft: -8,
-                    marginTop: -8,
-                  }}
-                />
-              ))}
-            </div>
-
-            <motion.h1
-              variants={itemVariants}
-              className="text-4xl lg:text-6xl font-bold mb-6 relative"
-            >
-              <span className="bg-gradient-to-r from-gray-900 via-[#D7C097] to-gray-900 dark:from-gray-100 dark:via-[#D7C097] dark:to-gray-100 bg-clip-text text-transparent">
-                Get in Touch
-              </span>
-              <motion.span
-                className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-64 h-1 bg-gradient-to-r from-[#D7C097] to-[#A38C5C] rounded-full"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ delay: 0.8, duration: 0.8 }}
-              />
-            </motion.h1>
-
-            <motion.p
-              variants={itemVariants}
-              className="text-xl lg:text-2xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto"
-            >
-              Have questions? We're here to help. Reach out anytime!
-            </motion.p>
-          </motion.div>
-
-          {/* Contact Cards */}
-          <motion.div
+            className="text-center mb-16"
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16"
+            viewport={{ once: true, amount: 0.3 }}
+          >
+            <motion.div
+              variants={scaleIn}
+              className="inline-flex w-24 h-24 rounded-full bg-accent dark:bg-accent/80 items-center justify-center mb-6"
+            >
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              >
+                <FaPaperPlane className="text-4xl text-dark dark:text-white" />
+              </motion.div>
+            </motion.div>
+
+            <motion.h1
+              variants={fadeUp}
+              className="text-4xl lg:text-6xl font-bold mb-6 text-dark dark:text-white"
+            >
+              Get in{" "}
+              <span className="text-accent dark:text-accent/80">Touch</span>
+            </motion.h1>
+
+            <motion.p
+              variants={fadeUp}
+              className="text-xl text-dark/70 dark:text-gray-300 max-w-3xl mx-auto"
+            >
+              Have questions? We're here to help and connect with you.
+            </motion.p>
+          </motion.div>
+
+          {/* ================= CONTACT CARDS ================= */}
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-16"
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
           >
             {contactInfo.map((info, index) => (
               <motion.div
                 key={index}
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                whileHover="hover"
+                viewport={{ once: true }}
                 custom={index}
-                variants={{
-                  hidden: {
-                    y: 50,
-                    opacity: 0,
-                    scale: 0.8,
-                    rotate: info.rotation,
-                  },
-                  visible: {
-                    y: 0,
-                    opacity: 1,
-                    scale: 1,
-                    rotate: 0,
-                    transition: {
-                      type: "spring",
-                      stiffness: 100,
-                      damping: 12,
-                      delay: info.delay,
-                    },
-                  },
-                }}
-                whileHover={{
-                  y: -10,
-                  scale: 1.05,
-                  rotate: info.rotation,
-                  transition: { type: "spring", stiffness: 400, damping: 25 },
-                }}
-                whileTap={{ scale: 0.95 }}
-                className={`p-8 rounded-3xl bg-white dark:bg-gray-800 backdrop-blur-xl border border-[#F8F5ED] dark:border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden group ${
-                  info.action ? "cursor-pointer" : "cursor-default"
-                }`}
+                className="p-8 rounded-2xl bg-white dark:bg-gray-800 border border-lightBg dark:border-lightBg/30 shadow-lg cursor-pointer group"
                 onClick={() =>
                   info.action && window.open(info.action, "_blank")
                 }
               >
-                {/* Shimmer effect */}
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-gray-700/20 to-transparent"
-                  initial={{ x: "-100%" }}
-                  whileHover={{ x: "100%" }}
-                  transition={{ duration: 0.6 }}
-                />
-
-                <motion.div
-                  initial={{ scale: 0, rotate: -180 }}
-                  whileInView={{ scale: 1, rotate: 0 }}
-                  transition={{ delay: info.delay + 0.2, type: "spring" }}
-                  className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${info.color} mb-6 relative group-hover:scale-110 group-hover:rotate-12 transition-all duration-300`}
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.5 }}
+                  className="w-16 h-16 rounded-full bg-accent dark:bg-accent/80 flex items-center justify-center mb-6 text-dark dark:text-white text-2xl"
                 >
-                  <motion.div
-                    animate={floatingAnimation}
-                    className="text-2xl text-white"
-                  >
-                    {info.icon}
-                  </motion.div>
-                  <div className="absolute inset-0 rounded-full bg-white/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  {info.icon}
                 </motion.div>
 
                 <motion.h3
                   initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: info.delay + 0.3 }}
-                  className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3"
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-xl font-bold mb-3 text-dark dark:text-white"
                 >
                   {info.title}
                 </motion.h3>
 
-                <div className="space-y-2">
-                  {info.details.map((detail, idx) => (
-                    <motion.p
-                      key={idx}
-                      initial={{ opacity: 0, x: -10 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ delay: info.delay + 0.4 + idx * 0.1 }}
-                      className="text-gray-700 dark:text-gray-300"
-                    >
-                      {detail}
-                    </motion.p>
-                  ))}
-                </div>
+                {info.details.map((d, i) => (
+                  <motion.p
+                    key={i}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 + i * 0.1 }}
+                    className="text-dark/70 dark:text-gray-300 mb-1"
+                  >
+                    {d}
+                  </motion.p>
+                ))}
+
+                {/* Arrow Indicator for clickable cards */}
+                {info.action && (
+                  <motion.div
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="mt-4 flex items-center gap-2 text-accent dark:text-accent/80"
+                  >
+                    <span className="text-sm font-medium">
+                      Click to connect
+                    </span>
+                    <FaArrowRight className="group-hover:translate-x-2 transition-transform duration-300" />
+                  </motion.div>
+                )}
               </motion.div>
             ))}
           </motion.div>
 
-          <div className="grid lg:grid-cols-3 gap-12">
-            {/* Contact Form */}
+          {/* ================= FORM & OFFICE SECTION ================= */}
+          <div className="grid lg:grid-cols-3 gap-8 mb-16">
+            {/* ================= FORM ================= */}
             <motion.div
-              initial={{ x: -50, opacity: 0 }}
-              whileInView={{ x: 0, opacity: 1 }}
-              transition={{
-                type: "spring",
-                stiffness: 50,
-                damping: 20,
-                delay: 0.2,
-              }}
-              viewport={{ once: true, margin: "-100px" }}
-              className="lg:col-span-2"
+              variants={fadeInLeft}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              className="lg:col-span-2 p-8 rounded-2xl bg-white dark:bg-gray-800 border border-lightBg dark:border-lightBg/30 shadow-lg"
             >
-              <div className="p-8 rounded-3xl bg-white dark:bg-gray-800 backdrop-blur-xl border border-[#F8F5ED] dark:border-gray-700 shadow-xl relative overflow-hidden">
-                <div className="absolute top-4 right-4 w-24 h-24 bg-gradient-to-r from-[#D7C097]/10 to-[#A38C5C]/10 dark:from-[#D7C097]/5 dark:to-[#A38C5C]/5 rounded-full blur-2xl" />
-
-                <motion.h2
-                  initial={{ opacity: 0, y: -20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2"
-                >
-                  Send us a Message
-                </motion.h2>
-
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="text-lg text-gray-700 dark:text-gray-300 mb-8"
-                >
-                  Fill out the form below and we'll get back to you as soon as
-                  possible.
-                </motion.p>
-
-                <form onSubmit={handleSubmit} className="space-y-6 relative">
-                  {/* Floating particles in form */}
-                  {[...Array(5)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      className="absolute w-2 h-2 rounded-full bg-[#D7C097]/30 dark:bg-[#D7C097]/30"
-                      animate={{
-                        y: [0, -20, 0],
-                        opacity: [0.3, 0.8, 0.3],
-                      }}
-                      transition={{
-                        duration: 3 + Math.random() * 2,
-                        repeat: Infinity,
-                        delay: Math.random() * 2,
-                      }}
-                      style={{
-                        left: `${Math.random() * 100}%`,
-                        top: `${Math.random() * 100}%`,
-                      }}
-                    />
-                  ))}
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.5 }}
-                    >
-                      <label className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-3 font-medium">
-                        <motion.div
-                          animate={pulseAnimation}
-                          className="flex-shrink-0"
-                        >
-                          <FaUser className="text-[#D7C097] dark:text-[#D7C097]" />
-                        </motion.div>
-                        Your Name
-                      </label>
-                      <motion.input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                        whileFocus={{ scale: 1.02 }}
-                        className="w-full px-4 py-4 rounded-xl bg-gradient-to-r from-[#F8F5ED] to-white/50 dark:from-gray-800/50 dark:to-gray-700/50 border border-[#F8F5ED] dark:border-gray-600 focus:border-[#D7C097] focus:ring-2 focus:ring-[#D7C097]/20 focus:outline-none transition-all duration-300 text-gray-900 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-400"
-                        placeholder="John Doe"
-                      />
-                    </motion.div>
-
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.6 }}
-                    >
-                      <label className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-3 font-medium">
-                        <motion.div
-                          animate={pulseAnimation}
-                          transition={{ delay: 0.5 }}
-                          className="flex-shrink-0"
-                        >
-                          <FaEnvelope className="text-[#D7C097] dark:text-[#D7C097]" />
-                        </motion.div>
-                        Email Address
-                      </label>
-                      <motion.input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        whileFocus={{ scale: 1.02 }}
-                        className="w-full px-4 py-4 rounded-xl bg-gradient-to-r from-[#F8F5ED] to-white/50 dark:from-gray-800/50 dark:to-gray-700/50 border border-[#F8F5ED] dark:border-gray-600 focus:border-[#D7C097] focus:ring-2 focus:ring-[#D7C097]/20 focus:outline-none transition-all duration-300 text-gray-900 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-400"
-                        placeholder="john@example.com"
-                      />
-                    </motion.div>
-                  </div>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.7 }}
-                  >
-                    <label className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-3 font-medium">
-                      <motion.div
-                        animate={pulseAnimation}
-                        transition={{ delay: 0.6 }}
-                        className="flex-shrink-0"
-                      >
-                        <FaTag className="text-[#D7C097] dark:text-[#D7C097]" />
-                      </motion.div>
-                      Subject
-                    </label>
-                    <motion.input
-                      type="text"
-                      name="subject"
-                      value={formData.subject}
-                      onChange={handleChange}
-                      required
-                      whileFocus={{ scale: 1.02 }}
-                      className="w-full px-4 py-4 rounded-xl bg-gradient-to-r from-[#F8F5ED] to-white/50 dark:from-gray-800/50 dark:to-gray-700/50 border border-[#F8F5ED] dark:border-gray-600 focus:border-[#D7C097] focus:ring-2 focus:ring-[#D7C097]/20 focus:outline-none transition-all duration-300 text-gray-900 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-400"
-                      placeholder="How can we help you?"
-                    />
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.8 }}
-                  >
-                    <label className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-3 font-medium">
-                      <motion.div
-                        animate={pulseAnimation}
-                        transition={{ delay: 0.7 }}
-                        className="flex-shrink-0"
-                      >
-                        <FaComment className="text-[#D7C097] dark:text-[#D7C097]" />
-                      </motion.div>
-                      Your Message
-                    </label>
-                    <motion.textarea
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      required
-                      rows={6}
-                      whileFocus={{ scale: 1.01 }}
-                      className="w-full px-4 py-4 rounded-xl bg-gradient-to-r from-[#F8F5ED] to-white/50 dark:from-gray-800/50 dark:to-gray-700/50 border border-[#F8F5ED] dark:border-gray-600 focus:border-[#D7C097] focus:ring-2 focus:ring-[#D7C097]/20 focus:outline-none transition-all duration-300 text-gray-900 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-400 resize-none"
-                      placeholder="Tell us more about your inquiry..."
-                    />
-                  </motion.div>
-
-                  <motion.button
-                    type="submit"
-                    disabled={isSubmitting}
-                    whileHover={{
-                      scale: 1.02,
-                      boxShadow: "0 20px 40px rgba(215, 192, 151, 0.3)",
-                    }}
-                    whileTap={{ scale: 0.98 }}
-                    animate={isSubmitting ? undefined : pulseAnimation}
-                    className="w-full py-5 rounded-xl bg-gradient-to-r from-[#D7C097] to-[#A38C5C] text-white font-bold text-lg shadow-xl hover:shadow-2xl hover:shadow-[#D7C097]/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 relative overflow-hidden group"
-                  >
-                    {/* Button shine effect */}
-                    <motion.div className="absolute inset-0 bg-gradient-to-r from-[#D7C097]/90 to-[#A38C5C]/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                    {isSubmitting ? (
-                      <motion.div
-                        initial={{ rotate: 0 }}
-                        animate={{ rotate: 360 }}
-                        transition={{
-                          duration: 1,
-                          repeat: Infinity,
-                          ease: "linear",
-                        }}
-                        className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full"
-                      />
-                    ) : (
-                      <motion.div animate={floatingAnimation}>
-                        <FaPaperPlane className="text-xl" />
-                      </motion.div>
-                    )}
-                    <span className="relative z-10">
-                      {isSubmitting ? "Sending..." : "Send Message"}
-                    </span>
-                  </motion.button>
-                </form>
-              </div>
-            </motion.div>
-
-            {/* Right Column */}
-            <motion.div
-              initial={{ x: 50, opacity: 0 }}
-              whileInView={{ x: 0, opacity: 1 }}
-              transition={{
-                type: "spring",
-                stiffness: 50,
-                damping: 20,
-                delay: 0.3,
-              }}
-              viewport={{ once: true, margin: "-100px" }}
-              className="space-y-8"
-            >
-              {/* Quick Connect */}
               <motion.div
-                initial={{ y: 30, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.4 }}
-                viewport={{ once: true }}
-                className="p-8 rounded-3xl bg-gradient-to-br from-[#D7C097]/10 to-[#A38C5C]/10 dark:from-[#D7C097]/5 dark:to-[#A38C5C]/5 border border-[#D7C097]/20 dark:border-[#D7C097]/30 backdrop-blur-xl shadow-xl"
-              >
-                <motion.h3
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6"
-                >
-                  Quick Connect
-                </motion.h3>
-
-                <div className="grid grid-cols-3 gap-4 mb-6">
-                  {socialContacts.map((contact, index) => (
-                    <motion.button
-                      key={index}
-                      initial={{ scale: 0 }}
-                      whileInView={{ scale: 1 }}
-                      transition={{ delay: contact.delay }}
-                      whileHover={{
-                        y: -5,
-                        scale: 1.1,
-                        transition: { type: "spring", stiffness: 400 },
-                      }}
-                      whileTap={{ scale: 0.95 }}
-                      className={`aspect-square rounded-2xl bg-gradient-to-r ${contact.color} flex flex-col items-center justify-center text-white shadow-lg hover:shadow-xl transition-all duration-300`}
-                    >
-                      <div className="text-2xl mb-1">{contact.icon}</div>
-                      <span className="text-xs font-medium">
-                        {contact.label}
-                      </span>
-                    </motion.button>
-                  ))}
-                </div>
-
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  transition={{ delay: 0.6 }}
-                  className="text-center text-gray-700 dark:text-gray-300 text-sm"
-                >
-                  Connect with us instantly
-                </motion.p>
-              </motion.div>
-
-              {/* FAQ Section */}
-              <motion.div
-                initial={{ y: 30, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                viewport={{ once: true }}
-                className="p-8 rounded-3xl bg-white dark:bg-gray-800 backdrop-blur-xl border border-[#F8F5ED] dark:border-gray-700 shadow-xl relative overflow-hidden"
-              >
-                <div className="absolute top-4 left-4 w-16 h-16 bg-gradient-to-r from-[#D7C097]/10 to-[#A38C5C]/10 dark:from-[#D7C097]/5 dark:to-[#A38C5C]/5 rounded-full blur-2xl" />
-
-                <motion.h3
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  transition={{ delay: 0.6 }}
-                  className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6"
-                >
-                  Common Questions
-                </motion.h3>
-
-                <div className="space-y-6">
-                  {faqs.map((faq, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ y: 20, opacity: 0 }}
-                      whileInView={{ y: 0, opacity: 1 }}
-                      transition={{ delay: faq.delay }}
-                      viewport={{ once: true }}
-                      whileHover={{ x: 5 }}
-                      className="pb-6 border-b border-[#F8F5ED]/50 dark:border-gray-600 last:border-0 last:pb-0"
-                    >
-                      <motion.h4
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        transition={{ delay: faq.delay + 0.1 }}
-                        className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-2"
-                      >
-                        {faq.q}
-                      </motion.h4>
-                      <motion.p
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        transition={{ delay: faq.delay + 0.2 }}
-                        className="text-gray-700 dark:text-gray-300"
-                      >
-                        {faq.a}
-                      </motion.p>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-
-              {/* Guarantee Section */}
-              <motion.div
-                initial={{ y: 30, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.6 }}
-                viewport={{ once: true }}
-                className="p-8 rounded-3xl bg-gradient-to-br from-[#D7C097]/5 to-[#A38C5C]/5 dark:from-[#D7C097]/10 dark:to-[#A38C5C]/10 border border-[#D7C097]/20 dark:border-[#D7C097]/30 backdrop-blur-xl shadow-xl relative overflow-hidden"
-              >
-                <motion.div
-                  animate={rotateAnimation}
-                  className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-r from-[#D7C097]/5 to-[#A38C5C]/5 dark:from-[#D7C097]/10 dark:to-[#A38C5C]/10 rounded-full"
-                />
-
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.7 }}
-                  className="flex items-start gap-4"
-                >
-                  <div className="flex-shrink-0">
-                    <motion.div
-                      animate={pulseAnimation}
-                      className="w-12 h-12 rounded-full bg-gradient-to-r from-[#D7C097] to-[#A38C5C] flex items-center justify-center"
-                    >
-                      <FaCheckCircle className="text-xl text-white" />
-                    </motion.div>
-                  </div>
-                  <div>
-                    <motion.h3
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      transition={{ delay: 0.8 }}
-                      className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2"
-                    >
-                      24-Hour Response Guarantee
-                    </motion.h3>
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      transition={{ delay: 0.9 }}
-                      className="text-gray-700 dark:text-gray-300"
-                    >
-                      We promise to respond to all inquiries within 24 hours
-                      during business days.
-                    </motion.p>
-                  </div>
-                </motion.div>
-              </motion.div>
-            </motion.div>
-          </div>
-
-          {/* Map Section */}
-          <motion.div
-            initial={{ y: 50, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            transition={{
-              type: "spring",
-              stiffness: 50,
-              damping: 20,
-              delay: 0.7,
-            }}
-            viewport={{ once: true, margin: "-100px" }}
-            className="mt-16"
-          >
-            <div className="p-8 rounded-3xl bg-white dark:bg-gray-800 backdrop-blur-xl border border-[#F8F5ED] dark:border-gray-700 shadow-xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#D7C097]/10 to-[#A38C5C]/10 dark:from-[#D7C097]/5 dark:to-[#A38C5C]/5 rounded-full blur-3xl" />
-
-              <motion.h2
-                initial={{ opacity: 0, y: -20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
-                className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-3"
-              >
-                <FaBuilding className="text-[#D7C097] dark:text-[#D7C097]" />
-                Find Our Office
-              </motion.h2>
-
-              <div className="h-96 rounded-2xl overflow-hidden border border-[#F8F5ED] dark:border-gray-700 shadow-lg relative">
-                {/* Animated map placeholder */}
-                <div className="w-full h-full bg-gradient-to-br from-[#F8F5ED] to-white dark:from-gray-800 dark:to-gray-700 flex items-center justify-center relative overflow-hidden">
-                  {/* Animated grid background */}
-                  <div className="absolute inset-0 opacity-10">
-                    {Array.from({ length: 20 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="absolute w-0.5 h-full bg-[#D7C097] dark:bg-[#D7C097]"
-                        style={{ left: `${i * 5}%` }}
-                      />
-                    ))}
-                    {Array.from({ length: 20 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="absolute h-0.5 w-full bg-[#D7C097] dark:bg-[#D7C097]"
-                        style={{ top: `${i * 5}%` }}
-                      />
-                    ))}
-                  </div>
-
-                  <div className="relative z-10 text-center">
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      whileInView={{ scale: 1 }}
-                      transition={{ delay: 0.9, type: "spring" }}
-                      className="w-20 h-20 rounded-full bg-gradient-to-r from-[#D7C097] to-[#A38C5C] flex items-center justify-center mx-auto mb-6 shadow-2xl"
-                    >
-                      <motion.div animate={floatingAnimation}>
-                        <FaMapMarkerAlt className="text-2xl text-white" />
-                      </motion.div>
-                    </motion.div>
-
-                    <motion.h3
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 1 }}
-                      className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2"
-                    >
-                      Platinum Plaza
-                    </motion.h3>
-
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      transition={{ delay: 1.1 }}
-                      className="text-lg text-gray-700 dark:text-gray-300 mb-1"
-                    >
-                      Front of EU Delegation
-                    </motion.p>
-
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      transition={{ delay: 1.2 }}
-                      className="text-[#D7C097] dark:text-[#D7C097]"
-                    >
-                      Addis Ababa, Ethiopia
-                    </motion.p>
-
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      transition={{ delay: 1.3 }}
-                      className="mt-6"
-                    >
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#D7C097] to-[#A38C5C] text-white font-semibold hover:shadow-xl hover:shadow-[#D7C097]/30 transition-all duration-300 flex items-center gap-2 mx-auto"
-                      >
-                        <FaGlobe className="text-lg" />
-                        View on Google Maps
-                      </motion.button>
-                    </motion.div>
-                  </div>
-
-                  {/* Animated marker pins */}
-                  {[...Array(3)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      className="absolute w-4 h-4 rounded-full bg-gradient-to-r from-[#D7C097] to-[#A38C5C]"
-                      animate={{
-                        y: [0, -10, 0],
-                        scale: [1, 1.2, 1],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        delay: i * 0.3,
-                      }}
-                      style={{
-                        left: `${20 + i * 30}%`,
-                        top: `${40 + i * 10}%`,
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Contact Banner */}
-          <motion.div
-            initial={{ y: 50, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            transition={{
-              type: "spring",
-              stiffness: 50,
-              damping: 20,
-              delay: 0.9,
-            }}
-            viewport={{ once: true }}
-            className="mt-16"
-          >
-            <div className="p-8 rounded-3xl bg-gradient-to-r from-[#D7C097]/10 via-white/10 to-[#A38C5C]/10 dark:from-[#D7C097]/5 dark:via-gray-800/5 dark:to-[#A38C5C]/5 border border-[#D7C097]/20 dark:border-[#D7C097]/30 backdrop-blur-xl shadow-xl text-center relative overflow-hidden">
-              {/* Animated gradient background */}
-              <motion.div
-                className="absolute inset-0"
-                animate={{
-                  background: [
-                    "linear-gradient(45deg, rgba(215,192,151,0.1), rgba(255,255,255,0.1), rgba(163,140,92,0.1))",
-                    "linear-gradient(45deg, rgba(255,255,255,0.1), rgba(215,192,151,0.1), rgba(255,255,255,0.1))",
-                  ],
-                }}
-                transition={{ duration: 5, repeat: Infinity }}
-              />
-
-              <motion.div
-                animate={floatingAnimation}
-                className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-[#D7C097] to-[#A38C5C] mb-6"
-              >
-                <IoChatbubbleEllipses className="text-2xl text-white" />
-              </motion.div>
-
-              <motion.h3
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
-                transition={{ delay: 1 }}
-                className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4"
+                viewport={{ once: true }}
+                className="flex items-center gap-3 mb-6"
               >
-                Ready to Start a Conversation?
-              </motion.h3>
+                <div className="p-2 rounded-full bg-accent/20 dark:bg-accent/10">
+                  <FaEnvelope className="text-accent dark:text-accent/80" />
+                </div>
+                <h2 className="text-3xl font-bold text-dark dark:text-white">
+                  Send us a Message
+                </h2>
+              </motion.div>
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {[
+                  { name: "name", type: "text", placeholder: "Your Name" },
+                  {
+                    name: "email",
+                    type: "email",
+                    placeholder: "Email Address",
+                  },
+                  { name: "subject", type: "text", placeholder: "Subject" },
+                ].map((field, index) => (
+                  <motion.div
+                    key={field.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.1 * index }}
+                  >
+                    <input
+                      name={field.name}
+                      type={field.type}
+                      placeholder={field.placeholder}
+                      value={formData[field.name]}
+                      onChange={handleChange}
+                      className="w-full px-6 py-4 rounded-xl bg-lightBg/30 dark:bg-gray-700/50 border border-lightBg/50 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-accent dark:focus:ring-accent/80 transition-all duration-300"
+                      required
+                    />
+                  </motion.div>
+                ))}
+
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <textarea
+                    name="message"
+                    rows={6}
+                    placeholder="Your Message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    className="w-full px-6 py-4 rounded-xl bg-lightBg/30 dark:bg-gray-700/50 border border-lightBg/50 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-accent dark:focus:ring-accent/80 transition-all duration-300"
+                    required
+                  />
+                </motion.div>
+
+                <motion.button
+                  type="submit"
+                  disabled={isSubmitting}
+                  whileHover={{
+                    scale: 1.02,
+                    boxShadow: "0 10px 30px rgba(255, 226, 175, 0.3)",
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full py-4 rounded-xl bg-accent dark:bg-accent/80 text-dark dark:text-white font-bold flex items-center justify-center gap-3 group transition-all duration-300"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <FaSpinner className="animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      Send Message
+                      <motion.div
+                        animate={{ x: [0, 5, 0] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        <FaPaperPlane className="group-hover:rotate-45 transition-transform duration-300" />
+                      </motion.div>
+                    </>
+                  )}
+                </motion.button>
+              </form>
+            </motion.div>
+
+            {/* ================= OFFICE ================= */}
+            <motion.div
+              variants={fadeInRight}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              className="p-8 rounded-2xl bg-white dark:bg-gray-800 border border-lightBg dark:border-lightBg/30 shadow-lg"
+            >
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="w-16 h-16 rounded-full bg-accent dark:bg-accent/80 flex items-center justify-center mb-6"
+              >
+                <FaBuilding className="text-2xl text-dark dark:text-white" />
+              </motion.div>
+
+              <h3 className="text-2xl font-bold mb-4 text-dark dark:text-white">
+                Our Office Location
+              </h3>
 
               <motion.p
                 initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ delay: 1.1 }}
-                className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto mb-8"
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="text-dark/70 dark:text-gray-300 mb-6 leading-relaxed"
               >
-                Whether you have questions, feedback, or partnership inquiries,
-                we're here to listen and help you succeed.
+                Platinum Plaza
+                <br />
+                Front of EU Delegation
+                <br />
+                Addis Ababa, Ethiopia
               </motion.p>
 
-              <motion.button
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1.2 }}
-                whileHover={{
-                  scale: 1.05,
-                  boxShadow: "0 20px 40px rgba(215, 192, 151, 0.3)",
-                }}
-                whileTap={{ scale: 0.95 }}
-                className="px-10 py-4 rounded-xl bg-gradient-to-r from-[#D7C097] to-[#A38C5C] text-white font-bold text-lg hover:shadow-xl hover:shadow-[#D7C097]/30 transition-all duration-300 inline-flex items-center gap-3"
-                onClick={() => {
-                  const formSection = document.querySelector("form");
-                  formSection?.scrollIntoView({ behavior: "smooth" });
-                  document.querySelector('input[name="name"]')?.focus();
-                }}
+              {/* Office Hours */}
+              <div className="p-4 rounded-xl bg-lightBg/30 dark:bg-gray-700/50">
+                <div className="flex items-center gap-2 mb-3">
+                  <FaClock className="text-accent dark:text-accent/80" />
+                  <span className="font-semibold text-dark dark:text-white">
+                    Office Hours
+                  </span>
+                </div>
+                <p className="text-dark/70 dark:text-gray-300">
+                  Monday - Friday: 9:00 AM - 6:00 PM
+                  <br />
+                  Saturday: 10:00 AM - 4:00 PM
+                  <br />
+                  Sunday: Closed
+                </p>
+              </div>
+
+              {/* Rating Badge */}
+              <motion.div
+                initial={{ scale: 0 }}
+                whileInView={{ scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ type: "spring", stiffness: 200, delay: 0.4 }}
+                className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-lightBg dark:bg-lightBg/20"
               >
-                <FaPaperPlane />
-                Send Us a Message
-              </motion.button>
-            </div>
-          </motion.div>
+                <div className="flex items-center gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <FaStar
+                      key={i}
+                      className="text-accent dark:text-accent/80 text-sm"
+                    />
+                  ))}
+                </div>
+                <span className="text-sm font-medium text-dark dark:text-white">
+                  4.9/5 Customer Rating
+                </span>
+              </motion.div>
+            </motion.div>
+          </div>
+        </div>
 
-          {/* New: Eye-catching Image Section */}
-          <motion.div
-            initial={{ y: 100, opacity: 0, scale: 0.95 }}
-            whileInView={{ y: 0, opacity: 1, scale: 1 }}
-            transition={{
-              type: "spring",
-              stiffness: 50,
-              damping: 25,
-              delay: 1.0,
+        {/* ================= FULL WIDTH BOTTOM IMAGE ================= */}
+        <div className="w-full h-[70vh] min-h-[500px] relative overflow-hidden">
+          {/* Background Image - photshoot1.jpg */}
+          <div
+            className="absolute inset-0 w-full h-full"
+            style={{
+              backgroundImage: `url("/photoshoot1.jpg")`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundAttachment: "fixed", // Creates parallax effect
             }}
-            viewport={{ once: true, amount: 0.3 }}
-            className="mt-20 relative overflow-hidden rounded-3xl shadow-2xl group"
           >
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#D7C097]/30 via-transparent to-[#A38C5C]/20 z-10 dark:from-[#D7C097]/40 dark:to-[#A38C5C]/30" />
+            {/* Dark Overlay */}
+            <div className="absolute inset-0 bg-dark/70" />
 
-            {/* Animated floating elements */}
-            <div className="absolute inset-0 z-0">
-              {[...Array(20)].map((_, i) => (
+            {/* Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-dark via-dark/50 to-transparent" />
+
+            {/* Animated Floating Elements */}
+            <div className="absolute inset-0 overflow-hidden">
+              {[...Array(15)].map((_, i) => (
                 <motion.div
                   key={i}
-                  className="absolute w-2 h-2 rounded-full bg-[#D7C097] dark:bg-[#D7C097]"
-                  initial={{
-                    x: Math.random() * 100 + "%",
-                    y: Math.random() * 100 + "%",
-                    opacity: 0,
-                  }}
+                  initial={{ y: 100, opacity: 0 }}
                   animate={{
-                    y: [null, -30],
+                    y: -100,
                     opacity: [0, 0.8, 0],
+                    x: Math.random() * 50 - 25,
                   }}
                   transition={{
-                    duration: 2 + Math.random() * 2,
+                    duration: 3 + Math.random() * 2,
+                    delay: i * 0.3,
                     repeat: Infinity,
-                    delay: i * 0.2,
                     ease: "linear",
+                  }}
+                  className="absolute w-1 h-1 bg-accent/60 rounded-full"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    bottom: "0%",
                   }}
                 />
               ))}
             </div>
+          </div>
 
-            {/* Image Container */}
-            <div className="relative h-[500px] overflow-hidden rounded-3xl">
-              <motion.img
-                src="/photoshoot1.jpg"
-                alt="AdesCart Studio - Premium Beauty Experience"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.6 }}
-              />
-
-              {/* Shimmer effect overlay */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-            </div>
-
-            {/* Overlay Content */}
-            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-8 text-center">
+          {/* Content Overlay */}
+          <div className="relative z-10 h-full flex items-center justify-center px-4">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={containerVariants}
+              className="text-center max-w-4xl mx-auto"
+            >
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.3 }}
-                className="max-w-2xl"
+                variants={scaleIn}
+                className="inline-flex items-center gap-3 mb-8 px-6 py-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20"
               >
-                <motion.div
-                  animate={pulseAnimation}
-                  className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 mb-6"
-                >
-                  <FaStar className="text-yellow-300" />
-                  <span className="text-white font-semibold text-sm">
-                    Premium Studio Experience
-                  </span>
-                  <FaStar className="text-yellow-300" />
-                </motion.div>
-
-                <motion.h2
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  transition={{ delay: 1.4 }}
-                  className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-2xl"
-                >
-                  Experience Excellence
-                </motion.h2>
-
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  transition={{ delay: 1.5 }}
-                  className="text-xl text-white/90 mb-8 drop-shadow-lg"
-                >
-                  Visit our state-of-the-art studio for personalized
-                  consultations and premium beauty solutions
-                </motion.p>
-
-                {/* Social Media Links */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  transition={{ delay: 1.6 }}
-                  className="flex justify-center gap-4"
-                >
-                  {socialMedia.map((social, index) => (
-                    <motion.a
-                      key={index}
-                      href={social.url}
-                      initial={{ scale: 0 }}
-                      whileInView={{ scale: 1 }}
-                      transition={{ delay: 1.7 + index * 0.1, type: "spring" }}
-                      whileHover={{
-                        scale: 1.1,
-                        y: -5,
-                        transition: { type: "spring", stiffness: 400 },
-                      }}
-                      whileTap={{ scale: 0.95 }}
-                      className={`w-12 h-12 rounded-full bg-gradient-to-r ${social.color} flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-all duration-300`}
-                    >
-                      {social.icon}
-                    </motion.a>
-                  ))}
-                </motion.div>
-
-                {/* Floating CTA */}
-                {/* <motion.button
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 2.0 }}
-                  whileHover={{
-                    scale: 1.05,
-                    boxShadow: "0 20px 40px rgba(255, 255, 255, 0.3)",
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                  className="mt-8 px-8 py-4 rounded-full bg-white text-gray-900 font-bold text-lg hover:bg-gray-100 transition-all duration-300 shadow-2xl"
-                  onClick={() => {
-                    const contactCards = document.querySelector(
-                      ".grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-4"
-                    );
-                    contactCards?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                >
-                  Book Studio Visit
-                </motion.button> */}
+                <FaHeart className="text-accent dark:text-accent/80" />
+                <span className="text-white font-medium tracking-wider">
+                  CONNECT WITH US
+                </span>
+                <FaUsers className="text-accent dark:text-accent/80" />
               </motion.div>
-            </div>
 
-            {/* Decorative corner elements */}
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="absolute top-4 left-4 w-8 h-8 border-2 border-white/30 rounded-full"
-            />
-            <motion.div
-              animate={{ rotate: -360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="absolute bottom-4 right-4 w-8 h-8 border-2 border-white/30 rounded-full"
-            />
-          </motion.div>
+              <motion.h2
+                variants={fadeUp}
+                className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight"
+              >
+                Let's Create Something
+                <span className="block text-accent dark:text-accent/80 mt-4">
+                  Beautiful Together
+                </span>
+              </motion.h2>
+
+              <motion.p
+                variants={fadeUp}
+                className="text-lg text-gray-200 max-w-2xl mx-auto mb-8"
+              >
+                Your vision, our expertise. Let's work together to bring your
+                beauty dreams to life.
+              </motion.p>
+
+              {/* Contact Stats */}
+              <motion.div
+                variants={containerVariants}
+                className="flex flex-wrap justify-center gap-8 mt-12"
+              >
+                {[
+                  { value: "24/7", label: "Support", icon: <FaPhone /> },
+                  { value: "100%", label: "Satisfaction", icon: <FaHeart /> },
+                  { value: "<1h", label: "Response Time", icon: <FaClock /> },
+                ].map((stat, index) => (
+                  <motion.div
+                    key={index}
+                    variants={scaleIn}
+                    whileHover={{ scale: 1.1, y: -5 }}
+                    className="text-center"
+                  >
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      {stat.icon}
+                      <div className="text-3xl font-bold text-white">
+                        {stat.value}
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-300">{stat.label}</div>
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              {/* Call to Action Button */}
+              <motion.button
+                variants={fadeUp}
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: "0 10px 40px rgba(255, 226, 175, 0.4)",
+                }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() =>
+                  document
+                    .querySelector("form")
+                    ?.scrollIntoView({ behavior: "smooth" })
+                }
+                className="mt-10 px-8 py-4 rounded-xl bg-accent dark:bg-accent/80 text-dark dark:text-white font-bold text-lg flex items-center gap-3 mx-auto group transition-all duration-300"
+              >
+                <span>Start Your Journey</span>
+                <FaArrowRight className="group-hover:translate-x-2 transition-transform duration-300" />
+              </motion.button>
+            </motion.div>
+          </div>
         </div>
-
-        {/* Custom CSS for form success animation */}
-        <style jsx>{`
-          .success-animation {
-            animation: successPulse 2s ease-in-out;
-          }
-
-          @keyframes successPulse {
-            0% {
-              box-shadow: 0 0 0 0 rgba(215, 192, 151, 0.7);
-            }
-            70% {
-              boxshadow: 0 0 0 20px rgba(215, 192, 151, 0);
-            }
-            100% {
-              box-shadow: 0 0 0 0 rgba(215, 192, 151, 0);
-            }
-          }
-        `}</style>
-      </motion.div>
+      </div>
     </>
   );
 };
