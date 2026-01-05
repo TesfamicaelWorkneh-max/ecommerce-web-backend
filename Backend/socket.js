@@ -198,10 +198,7 @@ export const initSocket = (server) => {
 
   io = new Server(server, {
     cors: {
-      origin: [
-        "https://ecommerce-web-backend-u4em.vercel.app",
-        "http://localhost:5173",
-      ],
+      origin: ["https://adesshopify.vercel.app", "http://localhost:5173"],
       methods: ["GET", "POST"],
       credentials: true,
     },
