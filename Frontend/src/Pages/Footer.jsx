@@ -2167,11 +2167,11 @@ const Footer = () => {
   ];
 
   const contactItems = [
-    { icon: <FaPhone />, title: "Phone", content: "+251 96 462 3413" },
+    { icon: <FaPhone />, title: "Phone", content: "+251 92 683 0205" },
     {
       icon: <FaEnvelope />,
       title: "Email",
-      content: "worknehtesfamicael707@gmail.com",
+      content: "biruktawithabtamu686@gmail.com",
     },
     {
       icon: <FaMapMarkerAlt />,

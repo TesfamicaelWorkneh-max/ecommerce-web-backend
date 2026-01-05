@@ -212,25 +212,11 @@ const FAQPage = () => {
         a: "AdesCart is a premium e-commerce platform offering high-quality products with exceptional customer service. We curate the best products from trusted suppliers worldwide.",
         tags: ["about", "platform"],
       },
-      {
-        q: "Where are you located?",
-        a: "Our headquarters are in San Francisco, California, but we ship worldwide from multiple fulfillment centers across the US, Europe, and Asia.",
-        tags: ["location", "global"],
-      },
+
       {
         q: "Are your products authentic?",
         a: "Absolutely! We source all products directly from authorized suppliers and manufacturers. Every product goes through quality verification before listing.",
         tags: ["authentic", "quality"],
-      },
-      {
-        q: "Do you offer wholesale pricing?",
-        a: "Yes, we offer special wholesale pricing for businesses and bulk orders. Contact our business team at wholesale@adescart.com for custom quotes.",
-        tags: ["wholesale", "business"],
-      },
-      {
-        q: "How can I contact customer service?",
-        a: "You can reach us 24/7 through live chat, email at support@adescart.com, or call +251964623413 during business hours (9AM-6PM PST).",
-        tags: ["contact", "support"],
       },
     ],
     ordering: [
@@ -249,11 +235,7 @@ const FAQPage = () => {
         a: "You can modify or cancel your order within 1 hour of placing it. After that, please contact customer support immediately for assistance.",
         tags: ["modify", "cancel"],
       },
-      {
-        q: "Do you save my credit card information?",
-        a: "No, we never store your credit card information. All payments are processed through secure, PCI-compliant payment gateways.",
-        tags: ["security", "privacy"],
-      },
+
       {
         q: "Will I be charged sales tax?",
         a: "Sales tax is applied based on your shipping location and local regulations. The exact amount will be shown clearly during checkout.",
@@ -276,16 +258,6 @@ const FAQPage = () => {
         a: "Yes! You'll receive a tracking number via email once your order ships. You can also track it from your account dashboard.",
         tags: ["tracking", "status"],
       },
-      {
-        q: "Do you ship internationally?",
-        a: "Yes! We ship to over 50 countries. International shipping rates and delivery times vary by location.",
-        tags: ["international", "global"],
-      },
-      {
-        q: "What if I'm not home for delivery?",
-        a: "Our carriers will leave packages in a secure location or with a neighbor. You can also request specific delivery instructions in your account.",
-        tags: ["delivery", "instructions"],
-      },
     ],
     returns: [
       {
@@ -303,11 +275,7 @@ const FAQPage = () => {
         a: "Refunds are processed within 3-5 business days after we receive and inspect your return. The refund appears in your original payment method.",
         tags: ["refund", "timeline"],
       },
-      {
-        q: "Who pays for return shipping?",
-        a: "We provide prepaid return labels for all eligible returns in the US. International customers may have return shipping costs.",
-        tags: ["shipping", "cost"],
-      },
+
       {
         q: "What items cannot be returned?",
         a: "Final sale items, personalized/customized products, items without original packaging, and products marked as 'non-returnable' cannot be returned.",
@@ -317,7 +285,7 @@ const FAQPage = () => {
     account: [
       {
         q: "How do I create an account?",
-        a: "Click 'Sign Up' in our signup page you will accessed it soon vissiting the site, enter your email and create a password.",
+        a: "Click 'Sign Up' in our signup page you will accessed it soon visiting the site, enter your email and create a password.",
         tags: ["signup", "register"],
       },
       {
